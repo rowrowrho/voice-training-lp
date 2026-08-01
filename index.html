@@ -54,6 +54,7 @@
   .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:14px 24px; max-width:1040px; margin:0 auto;}
   .brand{font-weight:900; font-size:17px; color:var(--navy);}
   .brand span{color:var(--blue);}
+  .brand img{height:34px; display:block;}
   .btn-cta{
     display:inline-flex; align-items:center; gap:8px; background:var(--navy); color:#fff;
     font-weight:700; font-size:13.5px; padding:11px 20px; border-radius:10px;
@@ -80,13 +81,16 @@
 
   .hero-photo{
     position:relative; border-radius:20px; overflow:hidden; aspect-ratio:4/5;
-    background:linear-gradient(160deg, var(--navy-2), var(--navy));
-    box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.55) 78%, rgba(255,255,255,0.92) 100%),
+      url("images/live-stage.jpg") center 30%/cover no-repeat;
+    box-shadow:var(--shadow); display:flex; align-items:flex-end; justify-content:center;
+    border:1px solid var(--line);
   }
-  .hero-photo svg{width:44%;}
   .hero-photo .wave{
-    position:absolute; bottom:26px; left:8%; right:8%; opacity:0.9;
+    position:relative; bottom:0; margin:0 8% 22px; opacity:0.9; z-index:2;
   }
+  .hero-photo .wave path{stroke:var(--blue);}
 
   /* ---------- checklist ---------- */
   .pain{background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
@@ -127,6 +131,24 @@
   .step-body svg{width:26px; height:26px; margin:0 auto 10px;}
   .step-body p{font-size:12.5px; color:var(--navy); font-weight:700; line-height:1.6;}
   .steps-footer{text-align:center; margin-top:34px; font-size:15px; color:var(--text);}
+
+  /* ---------- external link card ---------- */
+  .link-card{
+    max-width:640px; margin:0 auto; background:linear-gradient(160deg, var(--navy-2), var(--navy));
+    border-radius:20px; padding:36px 34px; display:flex; align-items:center; gap:24px;
+    box-shadow:var(--shadow);
+  }
+  .link-card .play{
+    width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.12);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .link-card .play svg{width:22px; height:22px; color:#fff;}
+  .link-card h4{color:#fff; font-size:15.5px; margin-bottom:6px;}
+  .link-card p{color:#B9C7D6; font-size:13px; line-height:1.7;}
+  .link-card .btn-cta{margin-top:14px; background:#fff; color:var(--navy); display:inline-flex;}
+  @media (max-width:600px){
+    .link-card{flex-direction:column; text-align:center; padding:30px 24px;}
+  }
 
   /* ---------- goals ---------- */
   .goal-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:40px;}
@@ -180,13 +202,16 @@
   /* ---------- closing photo cta ---------- */
   .closing{
     border-radius:22px; overflow:hidden; margin:0 24px; position:relative;
-    background:radial-gradient(ellipse 600px 400px at 75% 20%, rgba(245,184,78,0.28), transparent 60%), linear-gradient(160deg, var(--navy-2), var(--navy));
-    color:#fff; padding:70px 44px; display:grid; grid-template-columns:1fr 0.5fr; gap:30px; align-items:center;
+    background:
+      linear-gradient(100deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.88) 46%, rgba(255,255,255,0.4) 74%, rgba(255,255,255,0.1) 100%),
+      url("images/live-stage.jpg") center 25%/cover no-repeat;
+    color:var(--navy); padding:70px 44px;
+    border:1px solid var(--line); box-shadow:var(--shadow);
   }
-  .closing p{font-size:15px; line-height:2; color:#DCE6F0;}
-  .closing .mark2{background:linear-gradient(transparent 62%, rgba(245,184,78,0.5) 0); color:#fff;}
-  .closing-icon svg{width:70%; margin:0 auto; opacity:0.9;}
-  .closing .btn-cta{margin-top:24px; background:#fff; color:var(--navy);}
+  .closing-inner{max-width:440px;}
+  .closing p{font-size:15px; line-height:2; color:var(--text);}
+  .closing .mark2{background:linear-gradient(transparent 62%, rgba(245,184,78,0.55) 0); color:var(--navy);}
+  .closing .btn-cta{margin-top:24px; background:var(--navy); color:#fff;}
 
   /* ---------- features ---------- */
   .feat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:40px;}
@@ -207,7 +232,7 @@
   footer p{font-size:12px; color:var(--text-dim);}
 
   @media (max-width:860px){
-    .hero-grid, .closing{grid-template-columns:1fr;}
+    .hero-grid{grid-template-columns:1fr;}
     .pain-grid{grid-template-columns:1fr;}
     .step-grid{grid-template-columns:repeat(3,1fr);}
     .goal-grid, .change-grid, .feat-grid{grid-template-columns:repeat(2,1fr);}
@@ -226,7 +251,7 @@
 
 <header class="nav">
   <div class="nav-inner">
-    <div class="brand">Hollywood<span>Voice</span></div>
+    <div class="brand"><img src="images/logo.png" alt="RHOボイトレ"></div>
     <a class="btn-cta" href="#contact">
       <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
       相談する
@@ -256,16 +281,9 @@
     </div>
 
     <div class="hero-photo">
-      <svg viewBox="0 0 100 150" fill="none">
-        <ellipse cx="50" cy="28" rx="26" ry="20" stroke="#EAF2FB" stroke-width="3"/>
-        <rect x="38" y="46" width="24" height="46" rx="12" stroke="#EAF2FB" stroke-width="3"/>
-        <path d="M22 78 Q22 118 50 118 Q78 118 78 78" stroke="#F5B84E" stroke-width="3"/>
-        <line x1="50" y1="118" x2="50" y2="140" stroke="#F5B84E" stroke-width="3"/>
-        <line x1="32" y1="146" x2="68" y2="146" stroke="#F5B84E" stroke-width="3"/>
-      </svg>
       <svg class="wave" viewBox="0 0 300 40" width="100%" height="40">
         <path d="M0,20 Q15,5 30,20 T60,20 Q75,35 90,20 T120,20 Q135,6 150,20 T180,20 Q195,34 210,20 T240,20 Q255,8 270,20 T300,20"
-          fill="none" stroke="#F5B84E" stroke-width="2" opacity="0.85"/>
+          fill="none" stroke-width="2" opacity="0.85"/>
       </svg>
     </div>
   </div>
@@ -368,6 +386,17 @@
       </div>
     </div>
     <p class="steps-footer">つまり「何を練習すればいいか」が<span class="mark">明確になります。</span></p>
+
+    <div class="link-card">
+      <div class="play">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+      </div>
+      <div>
+        <h4>実際のレッスン・歌声の雰囲気を見る</h4>
+        <p>普段の活動や、実際の声の変化はこちらから確認できます。</p>
+        <a class="btn-cta" href="https://rowrowrho.com/" target="_blank" rel="noopener">サイトを見る →</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -436,25 +465,16 @@
 <!-- ============ CLOSING PHOTO CTA ============ -->
 <section>
   <div class="closing reveal">
-    <div>
+    <div class="closing-inner">
       <p>
         歌が上手い人は、最初から才能があったわけではありません。<br>
         <span class="mark2">自分の課題を知り、正しい練習を積み重ねてきただけ。</span><br><br>
         あなたもまずは「自分の声を知ること」から始めてみませんか？
       </p>
-      <a class="btn-cta" href="https://forms.gle/your-form-here" target="_blank" rel="noopener" id="contact">
+      <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSfkravOwG7n7i8vuVl6sSmHfGVO362shkH5Uv_ZrWcbMHcD_g/viewform" target="_blank" rel="noopener" id="contact">
         <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
         <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
       </a>
-    </div>
-    <div class="closing-icon">
-      <svg viewBox="0 0 100 150" fill="none">
-        <ellipse cx="50" cy="28" rx="26" ry="20" stroke="#F5B84E" stroke-width="3"/>
-        <rect x="38" y="46" width="24" height="46" rx="12" stroke="#F5B84E" stroke-width="3"/>
-        <path d="M22 78 Q22 118 50 118 Q78 118 78 78" stroke="#EAF2FB" stroke-width="3"/>
-        <line x1="50" y1="118" x2="50" y2="140" stroke="#EAF2FB" stroke-width="3"/>
-        <line x1="32" y1="146" x2="68" y2="146" stroke="#EAF2FB" stroke-width="3"/>
-      </svg>
     </div>
   </div>
 </section>
@@ -492,7 +512,7 @@
 <section class="final-bar">
   <div class="wrap">
     <p>あなたの「歌いたい」をサポートします。まずはお気軽にご相談ください！</p>
-    <a class="btn-cta" href="https://forms.gle/your-form-here" target="_blank" rel="noopener">
+    <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSfkravOwG7n7i8vuVl6sSmHfGVO362shkH5Uv_ZrWcbMHcD_g/viewform" target="_blank" rel="noopener">
       <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
       <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
     </a>
@@ -500,7 +520,7 @@
 </section>
 
 <footer>
-  <p>© Hollywood Voice Training / ρ</p>
+  <p>© RHOボイトレ / Reveal Hidden Opportunities</p>
 </footer>
 
 <script>
