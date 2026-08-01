@@ -54,7 +54,7 @@
   .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:10px 24px; max-width:1040px; margin:0 auto;}
   .brand{font-weight:900; font-size:17px; color:var(--navy);}
   .brand span{color:var(--blue);}
-  .brand img{height:64px; display:block;}
+  .brand img{height:46px; display:block;}
   .btn-cta{
     display:inline-flex; align-items:center; gap:8px; background:var(--navy); color:#fff;
     font-weight:700; font-size:13.5px; padding:11px 20px; border-radius:10px;
@@ -176,6 +176,27 @@
   }
   .method-bar h3{font-size:16px; color:var(--navy); margin-bottom:10px;}
   .method-bar p{font-size:13.5px; color:var(--text-dim); line-height:1.9;}
+
+  /* ---------- trainer profile ---------- */
+  .trainer{
+    max-width:760px; margin:44px auto 0; background:var(--paper); border:1px solid var(--line);
+    border-radius:20px; padding:34px 32px; display:grid; grid-template-columns:auto 1fr; gap:26px; align-items:flex-start;
+  }
+  .trainer-photo{
+    width:96px; height:96px; border-radius:50%; overflow:hidden; flex-shrink:0;
+    background:var(--sky); border:1px solid var(--line);
+  }
+  .trainer-photo img{width:100%; height:100%; object-fit:cover;}
+  .trainer-name{font-size:16px; color:var(--navy); font-weight:900;}
+  .trainer-role{font-size:12.5px; color:var(--blue); font-weight:700; margin-top:2px;}
+  .trainer-body p{font-size:13.5px; color:var(--text-dim); line-height:1.9; margin-top:14px;}
+  .trainer-tags{display:flex; gap:8px; flex-wrap:wrap; margin-top:16px;}
+  .trainer-tags span{font-size:11.5px; background:var(--sky); color:var(--navy); border-radius:100px; padding:6px 13px; font-weight:700;}
+  @media (max-width:560px){
+    .trainer{grid-template-columns:1fr; text-align:center;}
+    .trainer-photo{margin:0 auto;}
+    .trainer-tags{justify-content:center;}
+  }
 
   /* ---------- pricing ---------- */
   .price-card{
@@ -303,11 +324,9 @@
     </div>
 
     <div class="quote-box">
-      頑張って練習しているのに、<br>
-      思うように歌えない。<br>
+      頑張って練習しているのに、思うように歌えない。<br>
       その原因は<strong>「努力不足」ではなく</strong>、<br>
-      練習方法が今のあなたに<br>
-      合っていないからです。
+      練習方法が今のあなたに合っていないからです。
     </div>
   </div>
 </section>
@@ -334,8 +353,7 @@
         <div><h4>力みすぎるタイプ</h4><p><span class="arrow">→</span> 疲れやすく、思うように歌えない</p></div>
       </div>
     </div>
-    <p class="cause-footer">だから、みんな同じ練習をしても<br>
-      <span class="mark">上達しない</span>んです。</p>
+    <p class="cause-footer">だから、みんな同じ練習をしても<span class="mark">上達しない</span>んです。</p>
 
     <div class="method-bar">
       <h3>ハリウッド式ボイストレーニングとは</h3>
@@ -343,6 +361,31 @@
         発祥は海外の俳優・シンガー向けボイストレーニングですが、現在は日本国内でも歌い手やアーティストの間で広く取り入れられている発声メソッドです。
         感覚ではなく、呼吸・共鳴・体の使い方という仕組みから、あなたに合った原因を一緒に見つけていきます。
       </p>
+    </div>
+
+    <div class="trainer">
+      <div class="trainer-photo">
+        <img src="images/profile.jpg" alt="ρ">
+      </div>
+      <div class="trainer-body">
+        <div class="eyebrow-pill" style="margin-bottom:10px;">ー自己紹介ー</div><br>
+        <div class="trainer-name">ρ(ロー)</div>
+        <div class="trainer-role">歌い手 / ボイストレーナー</div>
+        <p>
+          2018年からYouTubeに歌ってみた動画を投稿し始め、2022年からはライブにも出演。
+          現在は、ボイストレーナー、歌ってみたMIX、歌ってみたMV制作など、歌い手活動に関わるサポートを幅広く行っています。<br><br>
+          これまでに出演したライブは50本以上。自身も歌い手として活動しながら、歌う人・表現する人の悩みに寄り添ってきました。<br><br>
+          また、中学校の先生として9年間働いてきた経験を活かし、「わからない」「うまくいかない」と感じる部分を一緒に整理しながら、解決策を考えることを大切にしています。<br><br>
+          自分の声に自信がない方、歌ってみたを始めたいけれど何から準備すればいいかわからない方も大丈夫です。<br>
+          あなたの挑戦が、ちゃんと形になるように。<br>
+          一人ひとりの声に耳を傾けながら、いっしょに進んでいきます。
+        </p>
+        <div class="trainer-tags">
+          <span>元中学校教師(9年)</span>
+          <span>歌い手活動歴6年〜</span>
+          <span>ライブ出演50本以上</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -388,8 +431,7 @@
         </div>
       </div>
     </div>
-    <p class="steps-footer">つまり「何を練習すればいいか」が<br>
-      <span class="mark">明確になります。</span></p>
+    <p class="steps-footer">つまり「何を練習すればいいか」が<span class="mark">明確になります。</span></p>
 
     <div class="link-card">
       <div class="play">
@@ -449,7 +491,7 @@
         </div>
       </div>
     </div>
-  <!--  <p class="price-note">※ 上記は料金例です。実際の金額に置き換えてご利用ください。オンライン・対面どちらも同料金です。</p>  -->
+    <p class="price-note">※ 上記は料金例です。実際の金額に置き換えてご利用ください。オンライン・対面どちらも同料金です。</p>
   </div>
 </section>
 
