@@ -69,9 +69,10 @@
   .brand-tag{font-size:11px; font-weight:700; color:var(--data); background:var(--data-bg); padding:4px 10px; border-radius:100px; letter-spacing:0.02em; white-space:nowrap;}
   .btn-cta{
     display:inline-flex; align-items:center; gap:8px; background:var(--navy); color:#fff;
-    font-weight:700; font-size:13.5px; padding:11px 20px; border-radius:10px;
+    font-weight:700; font-size:13.5px; padding:11px 20px; border-radius:10px; white-space:nowrap;
     transition:transform .2s ease, box-shadow .2s ease;
   }
+  .nav-inner .btn-cta{padding:10px 14px; font-size:12.5px; gap:6px; flex-shrink:0;}
   .btn-cta:hover{transform:translateY(-2px); box-shadow:0 10px 22px rgba(23,58,94,0.28);}
   .btn-cta.data{background:var(--data);}
   .btn-cta.data:hover{box-shadow:0 10px 22px rgba(23,169,141,0.30);}
@@ -107,7 +108,7 @@
   .hero-panel-dot span{width:6px; height:6px; border-radius:50%; background:var(--data); display:inline-block; animation:pulse 1.8s infinite;}
   @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
   .hero-wave{width:100%; height:78px; margin:6px 0 18px;}
-  .hero-wave path{stroke:var(--data);}
+  .hero-wave rect{fill:var(--data); opacity:0.92;}
   .hero-panel-rows{display:flex; flex-direction:column; gap:10px;}
   .hero-panel-row{display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.06); border-radius:10px; padding:11px 14px;}
   .hero-panel-row .k{font-size:11.5px; color:#B9C7D6;}
@@ -136,16 +137,22 @@
   .compare-card ul{list-style:none; display:flex; flex-direction:column; gap:9px;}
   .compare-card.old li{font-size:13px; color:var(--text-dim);}
   .compare-card.new li{font-size:13px; color:#E4ECF5;}
+  .compare-result{margin-top:18px; padding-top:16px; font-size:12.5px; font-weight:700;}
+  .compare-card.old .compare-result{border-top:1px dashed var(--line); color:var(--text-dim);}
+  .compare-card.old .compare-result strong{color:var(--text);}
+  .compare-card.new .compare-result{border-top:1px dashed rgba(255,255,255,0.18); color:#B9C7D6;}
+  .compare-card.new .compare-result strong{color:#fff;}
   .compare-vs{text-align:center; font-size:12px; color:var(--text-dim); margin:14px 0; font-weight:700; letter-spacing:0.06em;}
   @media (max-width:680px){ .compare-grid{grid-template-columns:1fr;} }
 
   /* ---------- findings (診断で分かる4つのこと) ---------- */
-  .finding-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:40px;}
+  .finding-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:40px;}
   .finding-item{background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:26px 22px;}
   .finding-en{font-size:11px; font-weight:700; letter-spacing:0.09em; color:var(--data);}
   .finding-ja{font-size:16px; font-weight:900; color:var(--navy); margin:6px 0 10px;}
   .finding-item p{font-size:13px; color:var(--text-dim); line-height:1.85;}
-  @media (max-width:680px){ .finding-grid{grid-template-columns:1fr;} }
+  @media (max-width:760px){ .finding-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:520px){ .finding-grid{grid-template-columns:1fr;} }
 
   /* ---------- flow note (分析→課題→練習) ---------- */
   .flow-box{max-width:680px; margin:44px auto 0; background:var(--sky); border-radius:18px; padding:30px 28px;}
@@ -237,9 +244,12 @@
   .lesson-link a:hover{color:var(--navy);}
 
   footer{padding:30px 0; text-align:center;}
-  footer p{font-size:12px; color:var(--text-dim);}
+  footer p{font-size:12px; color:var(--text-dim); line-height:1.8;}
+  footer p span{white-space:nowrap;}
 
   a:focus-visible, summary:focus-visible{ outline:2px solid var(--data); outline-offset:3px; }
+  .only-sm{display:none;}
+  @media (max-width:520px){ .only-sm{display:inline;} }
 
   @media (max-width:860px){
     .hero-grid{grid-template-columns:1fr;}
@@ -268,7 +278,6 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow-pill data">RHOボイトレ の新サービス</span>
       <h1>あなたは、自分の声を<br>どこまで<span class="mark-data">知っていますか？</span></h1>
       <ul class="hero-questions">
         <li>高い声はどこまで出る？</li>
@@ -288,7 +297,6 @@
           <svg class="mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>
           無料で発声テストをやってみる
         </a>
-        <p class="hero-note">クレジットカード登録不要・その場で音源に合わせるだけ</p>
       </div>
     </div>
 
@@ -298,8 +306,7 @@
         <span class="hero-panel-dot"><span></span>解析イメージ</span>
       </div>
       <svg class="hero-wave" viewBox="0 0 300 70" preserveAspectRatio="none">
-        <path d="M0,35 Q10,10 20,35 T40,35 Q50,55 60,35 T80,35 Q90,8 100,35 T120,35 Q130,58 140,35 T160,35 Q170,12 180,35 T200,35 Q210,54 220,35 T240,35 Q250,14 260,35 T280,35 Q290,50 300,35"
-          fill="none" stroke-width="2.4" opacity="0.9"/>
+        <rect x="0" y="32.0" width="3" height="6" rx="1.5"/><rect x="6" y="32.5" width="3" height="5" rx="1.5"/><rect x="12" y="31.5" width="3" height="7" rx="1.5"/><rect x="18" y="17.0" width="3" height="36" rx="1.5"/><rect x="24" y="28.5" width="3" height="13" rx="1.5"/><rect x="30" y="26.0" width="3" height="18" rx="1.5"/><rect x="36" y="16.0" width="3" height="38" rx="1.5"/><rect x="42" y="21.0" width="3" height="28" rx="1.5"/><rect x="48" y="14.5" width="3" height="41" rx="1.5"/><rect x="54" y="11.0" width="3" height="48" rx="1.5"/><rect x="60" y="22.0" width="3" height="26" rx="1.5"/><rect x="66" y="16.5" width="3" height="37" rx="1.5"/><rect x="72" y="24.0" width="3" height="22" rx="1.5"/><rect x="78" y="28.5" width="3" height="13" rx="1.5"/><rect x="84" y="26.0" width="3" height="18" rx="1.5"/><rect x="90" y="18.0" width="3" height="34" rx="1.5"/><rect x="96" y="16.0" width="3" height="38" rx="1.5"/><rect x="102" y="19.0" width="3" height="32" rx="1.5"/><rect x="108" y="16.5" width="3" height="37" rx="1.5"/><rect x="114" y="21.5" width="3" height="27" rx="1.5"/><rect x="120" y="16.0" width="3" height="38" rx="1.5"/><rect x="126" y="20.5" width="3" height="29" rx="1.5"/><rect x="132" y="28.5" width="3" height="13" rx="1.5"/><rect x="138" y="18.0" width="3" height="34" rx="1.5"/><rect x="144" y="23.0" width="3" height="24" rx="1.5"/><rect x="150" y="19.0" width="3" height="32" rx="1.5"/><rect x="156" y="10.0" width="3" height="50" rx="1.5"/><rect x="162" y="10.0" width="3" height="50" rx="1.5"/><rect x="168" y="13.5" width="3" height="43" rx="1.5"/><rect x="174" y="24.0" width="3" height="22" rx="1.5"/><rect x="180" y="18.0" width="3" height="34" rx="1.5"/><rect x="186" y="20.0" width="3" height="30" rx="1.5"/><rect x="192" y="21.0" width="3" height="28" rx="1.5"/><rect x="198" y="24.0" width="3" height="22" rx="1.5"/><rect x="204" y="19.0" width="3" height="32" rx="1.5"/><rect x="210" y="19.5" width="3" height="31" rx="1.5"/><rect x="216" y="11.5" width="3" height="47" rx="1.5"/><rect x="222" y="20.5" width="3" height="29" rx="1.5"/><rect x="228" y="20.0" width="3" height="30" rx="1.5"/><rect x="234" y="20.5" width="3" height="29" rx="1.5"/><rect x="240" y="27.0" width="3" height="16" rx="1.5"/><rect x="246" y="18.5" width="3" height="33" rx="1.5"/><rect x="252" y="23.0" width="3" height="24" rx="1.5"/><rect x="258" y="13.5" width="3" height="43" rx="1.5"/><rect x="264" y="15.5" width="3" height="39" rx="1.5"/><rect x="270" y="11.5" width="3" height="47" rx="1.5"/><rect x="276" y="12.0" width="3" height="46" rx="1.5"/><rect x="282" y="32.5" width="3" height="5" rx="1.5"/><rect x="288" y="33.0" width="3" height="4" rx="1.5"/><rect x="294" y="31.0" width="3" height="8" rx="1.5"/>
       </svg>
       <div class="hero-panel-rows">
         <div class="hero-panel-row"><span class="k">発声タイプ</span><span class="v blur">診断中…</span></div>
@@ -330,27 +337,29 @@
 <section>
   <div class="wrap reveal">
     <h2 class="section-title">歌を採点するのではなく、<br class="only-sm">「声の使い方」を見る。</h2>
+    <p class="section-sub">同じ「声を分析する」ようでいて、見ているものも、わかることも違います。</p>
     <div class="compare-grid">
       <div class="compare-card old">
         <span class="compare-tag">カラオケ採点</span>
-        <h4>「歌」を評価</h4>
+        <h4>「歌」を評価する</h4>
         <ul>
           <li>・音程</li>
           <li>・リズム</li>
           <li>・安定性</li>
           <li>・表現力</li>
         </ul>
+        <div class="compare-result">結果：<strong>点数</strong>がわかる</div>
       </div>
       <div class="compare-card new">
         <span class="compare-tag">RHOボイトレ ボイス診断</span>
-        <h4>「声の使い方」を分析</h4>
+        <h4>「声の使い方」を分析する</h4>
         <ul>
           <li>・発声タイプ</li>
           <li>・換声ポイント</li>
-          <li>・声帯閉鎖の傾向</li>
           <li>・音域</li>
           <li>・発声上の課題</li>
         </ul>
+        <div class="compare-result">結果：<strong>原因と次の一歩</strong>がわかる</div>
       </div>
     </div>
   </div>
@@ -359,7 +368,7 @@
 <!-- ============ 診断で分かる4つのこと ============ -->
 <section class="doubt">
   <div class="wrap reveal">
-    <h2 class="section-title">診断で分かる4つのこと</h2>
+    <h2 class="section-title">診断で分かる3つのこと</h2>
     <div class="finding-grid">
       <div class="finding-item">
         <div class="finding-en">VOICE TYPE</div>
@@ -370,11 +379,6 @@
         <div class="finding-en">PASSAGGIO</div>
         <div class="finding-ja">換声ポイント</div>
         <p>地声・裏声など、声の使い方が切り替わりやすい音域を確認します。</p>
-      </div>
-      <div class="finding-item">
-        <div class="finding-en">CLOSURE</div>
-        <div class="finding-ja">声帯閉鎖の傾向</div>
-        <p>録音された声から、息漏れ・圧迫などの発声上の傾向を確認します。<br>医療的な診断ではありません。</p>
       </div>
       <div class="finding-item">
         <div class="finding-en">VOCAL RANGE</div>
@@ -465,12 +469,6 @@
         </div>
 
         <div class="carte-row">
-          <div class="label">閉鎖傾向</div>
-          <div class="carte-slider"><div class="dot" style="left:68%;"></div></div>
-          <div class="carte-slider-labels"><span>息漏れ</span><span>圧迫</span></div>
-        </div>
-
-        <div class="carte-row">
           <div class="label">音域</div>
           <div class="carte-range"><div class="fill"></div></div>
           <div class="carte-slider-labels"><span>G2</span><span>B4</span></div>
@@ -529,7 +527,6 @@
           <div class="list">
             <div>・発声タイプ</div>
             <div>・換声ポイント</div>
-            <div>・声帯閉鎖の傾向</div>
             <div>・音域</div>
             <div>・発声上の課題</div>
             <div>・おすすめ練習</div>
@@ -574,7 +571,7 @@
 </div>
 
 <footer>
-  <p>© RHOボイトレ / Reveal Hidden Opportunities</p>
+  <p>© RHOボイトレ<br class="only-sm">&nbsp;/ <span>Reveal Hidden Opportunities</span></p>
 </footer>
 
 <script>
