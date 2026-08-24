@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>音域診断 MVP（技術検証用）｜RHOボイトレ</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#173A5E;
+    --navy-2:#0F2A46;
+    --blue:#2E76B6;
+    --sky:#EAF2FB;
+    --bg:#F5F8FC;
+    --paper:#FFFFFF;
+    --text:#2B3A4A;
+    --text-dim:#66788C;
+    --line:#E1E8F0;
+    --amber:#F5B84E;
+    --data:#17A98D;
+    --danger:#D9634E;
+    --sans:"Zen Kaku Gothic New", sans-serif;
+    --shadow: 0 16px 40px rgba(23,58,94,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{overflow-x:hidden;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    padding-bottom:48px;
+  }
+  .wrap{max-width:520px; margin:0 auto; padding:20px 16px 0;}
+
+  .badge{
+    display:inline-block; font-size:12px; font-weight:700; letter-spacing:.04em;
+    color:var(--data); background:rgba(23,169,141,0.10);
+    border:1px solid rgba(23,169,141,0.30); border-radius:999px;
+    padding:4px 10px; margin-bottom:10px;
+  }
+  h1{font-size:19px; font-weight:900; color:var(--navy-2); margin-bottom:4px;}
+  .sub{font-size:12.5px; color:var(--text-dim); margin-bottom:18px;}
+
+  .card{
+    background:var(--paper); border:1px solid var(--line); border-radius:16px;
+    padding:18px; margin-bottom:14px; box-shadow:var(--shadow);
+  }
+
+  /* --- マイクボタン --- */
+  #micButton{
+    width:100%; padding:20px 12px; font-size:18px; font-weight:900;
+    font-family:var(--sans); color:#fff; background:var(--navy);
+    border:none; border-radius:14px; cursor:pointer;
+    box-shadow:0 10px 24px rgba(23,58,94,0.28);
+    transition:background .15s ease, transform .1s ease;
+  }
+  #micButton:active{transform:scale(0.98);}
+  #micButton.listening{background:var(--data);}
+  #micButton:disabled{opacity:.55; cursor:not-allowed;}
+
+  #errorMsg{
+    margin-top:10px; padding:10px 12px; border-radius:10px;
+    background:rgba(217,99,78,0.10); border:1px solid rgba(217,99,78,0.35);
+    color:var(--danger); font-size:13px; font-weight:700;
+  }
+  #errorMsg[hidden]{display:none;}
+
+  /* --- TARGET / MODE --- */
+  .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .label{font-size:11px; font-weight:700; color:var(--text-dim); letter-spacing:.06em;}
+
+  select{
+    font-family:var(--sans); font-size:15px; font-weight:700; color:var(--navy-2);
+    background:var(--sky); border:1px solid var(--line); border-radius:10px;
+    padding:8px 10px;
+  }
+
+  .target-display{
+    font-size:34px; font-weight:900; color:var(--navy-2); letter-spacing:.02em;
+    margin:6px 0 2px;
+  }
+
+  .mode-toggle{display:flex; gap:8px; margin-top:10px;}
+  .mode-btn{
+    flex:1; padding:10px; text-align:center; font-weight:800; font-size:13px;
+    border-radius:10px; border:1px solid var(--line); background:var(--sky);
+    color:var(--text-dim); cursor:pointer;
+  }
+  .mode-btn.active{
+    background:var(--navy); color:#fff; border-color:var(--navy);
+  }
+
+  /* --- 検出結果 --- */
+  .result-main{text-align:center; padding:6px 0 2px;}
+  .note-name{font-size:56px; font-weight:900; color:var(--navy-2); line-height:1;}
+  .hz-value{font-size:16px; font-weight:700; color:var(--blue); margin-top:4px;}
+
+  .cents-row{
+    display:flex; justify-content:space-between; gap:10px; margin-top:14px;
+  }
+  .cents-box{
+    flex:1; background:var(--sky); border-radius:10px; padding:10px; text-align:center;
+  }
+  .cents-box .label{display:block; margin-bottom:4px;}
+  .cents-box .value{font-size:16px; font-weight:800; color:var(--navy-2);}
+
+  /* --- ピッチメーター --- */
+  .meter{
+    position:relative; height:38px; margin-top:18px;
+    background:linear-gradient(90deg, var(--sky), var(--sky));
+    border:1px solid var(--line); border-radius:10px; overflow:hidden;
+  }
+  .meter-range-fill{
+    position:absolute; top:0; bottom:0; background:rgba(23,169,141,0.22);
+    border-left:2px dashed rgba(23,169,141,0.55);
+    border-right:2px dashed rgba(23,169,141,0.55);
+  }
+  .meter-center-line{
+    position:absolute; left:50%; top:0; bottom:0; width:2px; background:var(--navy);
+    transform:translateX(-1px);
+  }
+  .meter-dot{
+    position:absolute; top:50%; width:16px; height:16px; border-radius:50%;
+    background:var(--amber); border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.25);
+    transform:translate(-50%, -50%); transition:left .05s linear;
+  }
+  .meter-labels{display:flex; justify-content:space-between; font-size:10px; color:var(--text-dim); margin-top:4px;}
+
+  /* --- 保持時間バー / 状態 --- */
+  .hold-row{display:flex; align-items:center; justify-content:space-between; margin-top:16px;}
+  .hold-bar{
+    position:relative; height:10px; border-radius:999px; background:var(--sky);
+    overflow:hidden; margin-top:8px;
+  }
+  .hold-bar-fill{
+    position:absolute; left:0; top:0; bottom:0; width:0%;
+    background:var(--amber); transition:width .05s linear;
+  }
+
+  .state-label{
+    display:block; text-align:center; margin-top:14px; padding:14px;
+    border-radius:12px; font-size:22px; font-weight:900; letter-spacing:.04em;
+  }
+  .state-nopitch{background:var(--sky); color:var(--text-dim);}
+  .state-outofrange{background:rgba(217,99,78,0.12); color:var(--danger);}
+  .state-holding{background:rgba(245,184,78,0.20); color:#8A6414;}
+  .state-clear{background:rgba(23,169,141,0.16); color:var(--data);}
+
+  /* --- Debug --- */
+  details summary{
+    cursor:pointer; font-weight:800; font-size:13px; color:var(--navy);
+    list-style:none;
+  }
+  details summary::-webkit-details-marker{display:none;}
+  details summary::before{content:"▸ "; }
+  details[open] summary::before{content:"▾ "; }
+  .debug-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; margin-top:12px;
+    font-size:12.5px;
+  }
+  .debug-grid div span{display:block;}
+  .debug-grid .dlabel{color:var(--text-dim); font-size:10.5px;}
+  .debug-grid .dvalue{color:var(--navy-2); font-weight:700; font-family:monospace;}
+
+  footer{text-align:center; font-size:11px; color:var(--text-dim); margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="badge">Phase 1 ・ 技術検証 MVP</span>
+  <h1>音域診断 リアルタイム音程検出テスト</h1>
+  <p class="sub">iPhone Safariでの動作確認を目的とした検証用ページです。音声はサーバーへ送信されず、ブラウザ内でのみ処理されます。</p>
+
+  <div class="card">
+    <button id="micButton">マイクを開始</button>
+    <p id="errorMsg" hidden></p>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;">
+      <div>
+        <span class="label">TARGET</span>
+        <div class="target-display" id="targetDisplay">A3</div>
+      </div>
+      <select id="targetSelect" aria-label="TARGET音を選択"></select>
+    </div>
+
+    <div class="mode-toggle">
+      <div class="mode-btn" id="modeHighBtn">HIGH MODE</div>
+      <div class="mode-btn" id="modeLowBtn">LOW MODE</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="result-main">
+      <div class="note-name" id="noteName">--</div>
+      <div class="hz-value" id="hzValue">-- Hz</div>
+    </div>
+
+    <div class="cents-row">
+      <div class="cents-box">
+        <span class="label">最も近い音からのズレ</span>
+        <span class="value" id="nearestCents">--</span>
+      </div>
+      <div class="cents-box">
+        <span class="label">TARGETとの差</span>
+        <span class="value" id="targetCents">--</span>
+      </div>
+    </div>
+
+    <div class="meter">
+      <div class="meter-range-fill" id="meterRangeFill"></div>
+      <div class="meter-center-line"></div>
+      <div class="meter-dot" id="meterDot" style="left:50%;"></div>
+    </div>
+    <div class="meter-labels"><span>低い</span><span>TARGET</span><span>高い</span></div>
+
+    <div class="hold-row">
+      <span class="label">維持時間</span>
+      <span class="value" id="holdTimeValue" style="font-weight:800; color:var(--navy-2);">0.0 sec</span>
+    </div>
+    <div class="hold-bar"><div class="hold-bar-fill" id="holdBarFill"></div></div>
+
+    <span class="state-label state-nopitch" id="stateLabel">NO PITCH</span>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>Debug情報</summary>
+      <div class="debug-grid">
+        <div><span class="dlabel">raw F0</span><span class="dvalue" id="debugRawF0">--</span></div>
+        <div><span class="dlabel">smoothed F0</span><span class="dvalue" id="debugSmoothedF0">--</span></div>
+        <div><span class="dlabel">RMS（入力レベル）</span><span class="dvalue" id="debugRMS">--</span></div>
+        <div><span class="dlabel">TARGET周波数</span><span class="dvalue" id="debugTargetFreq">--</span></div>
+        <div><span class="dlabel">TARGETとの差(cents)</span><span class="dvalue" id="debugTargetCents">--</span></div>
+        <div><span class="dlabel">confidence</span><span class="dvalue" id="debugConfidence">--</span></div>
+        <div><span class="dlabel">MODE</span><span class="dvalue" id="debugMode">--</span></div>
+        <div><span class="dlabel">判定状態</span><span class="dvalue" id="debugState">--</span></div>
+        <div><span class="dlabel">連続維持時間</span><span class="dvalue" id="debugHeldMs">--</span></div>
+        <div><span class="dlabel">AudioContext sample rate</span><span class="dvalue" id="debugSampleRate">--</span></div>
+      </div>
+    </details>
+  </div>
+
+  <footer>RHOボイトレ内部検証用ページ（非公開・検索非表示）</footer>
+</div>
+
+<script>
+/* ============================================================
+   pitch-detector.js
+   RHO 音域診断 Phase1 - MVP
+   ------------------------------------------------------------
+   このファイルは「音程検出ロジック」だけを扱う。
+   DOM操作・UI描画は一切行わない（app.js側の責務）。
+
+   含まれるもの:
+     - CONFIG（調整可能な定数を一箇所に集約）
+     - Hz → MIDI → 音名 変換
+     - cents計算（最も近い音 / TARGETとの差）
+     - YINアルゴリズムによる基本周波数(F0)推定
+     - PitchTracker クラス
+         - 生F0の受け取り
+         - スムージング（メディアン→EMA）
+         - TARGET判定（HIGH/LOW modeのcents範囲）
+         - 1秒維持判定（実時間ベース）
+   ============================================================ */
+
+(function (global) {
+  "use strict";
+
+  // ------------------------------------------------------------
+  // 1. 調整可能な定数（プロンプト仕様20番に対応）
+  //    ここだけを触れば全体の挙動を調整できるようにする。
+  // ------------------------------------------------------------
+  const CONFIG = {
+    A4_REFERENCE: 440,        // 基準周波数(Hz)
+
+    HIGH_MIN_CENTS: -60,      // HIGH MODE有効範囲の下限（TARGETからの差）
+    HIGH_MAX_CENTS: 150,      // HIGH MODE有効範囲の上限
+    LOW_MIN_CENTS: -150,      // LOW MODE有効範囲の下限
+    LOW_MAX_CENTS: 60,        // LOW MODE有効範囲の上限
+
+    HOLD_DURATION_MS: 1000,   // 連続維持でCLEARとなるまでの時間(ms)
+
+    MIN_MIDI: 36,              // C2 = MIDI 36 （検出対象の下限）
+    MAX_MIDI: 96,              // C7 = MIDI 96 （検出対象の上限）
+
+    // 入力レベル（RMS, -1〜1のfloatサンプルに対する値）
+    // この値未満は「無音」として扱う。実機で調整すること。
+    INPUT_LEVEL_THRESHOLD: 0.015,
+
+    // YINアルゴリズムの絶対しきい値。小さいほど厳密（誤検出は減るが感度も下がる）
+    YIN_THRESHOLD: 0.15,
+
+    // YINの積分ウィンドウ長（サンプル数）。大きいほど低音の検出精度は上がるが
+    // 処理負荷とレイテンシが増える。
+    YIN_WINDOW_SIZE: 2048,
+
+    // AnalyserNodeから読み出すバッファ長（= fftSize）。
+    // YIN_WINDOW_SIZE + 最大ラグ(=sampleRate/最低周波数) を余裕を持って収める必要がある。
+    FFT_SIZE: 4096,
+
+    // スムージング関連
+    MEDIAN_WINDOW_SIZE: 5,     // 中央値フィルタのウィンドウ（オクターブ誤検出の単発ノイズを除去）
+    SMOOTHING_PARAMETER: 0.35, // EMA(指数移動平均)の係数。大きいほど追従が速い（0〜1）
+  };
+
+  const NOTE_NAMES = [
+    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+  ];
+
+  // ------------------------------------------------------------
+  // 2. Hz ⇔ MIDI ⇔ 音名 変換 / cents計算
+  // ------------------------------------------------------------
+
+  // Hz -> MIDIノート番号（小数を含む。A4=69, 440Hz基準）
+  function hzToMidi(hz) {
+    return 69 + 12 * Math.log2(hz / CONFIG.A4_REFERENCE);
+  }
+
+  // MIDIノート番号(整数) -> Hz
+  function midiToHz(midi) {
+    return CONFIG.A4_REFERENCE * Math.pow(2, (midi - 69) / 12);
+  }
+
+  // MIDIノート番号(整数) -> {name, octave}
+  // 表記はC3=真ん中のドに近いミュージックソフトウェア慣習（C4=261.6Hz）に合わせる
+  function midiToNoteName(midi) {
+    const rounded = Math.round(midi);
+    const noteIndex = ((rounded % 12) + 12) % 12;
+    const octave = Math.floor(rounded / 12) - 1;
+    return { name: NOTE_NAMES[noteIndex], octave, midi: rounded };
+  }
+
+  // 周波数 -> 最も近い12平均律音との差(cents) と、その音の情報
+  function nearestNoteInfo(hz) {
+    const midiFloat = hzToMidi(hz);
+    const nearestMidi = Math.round(midiFloat);
+    const cents = (midiFloat - nearestMidi) * 100;
+    const noteInfo = midiToNoteName(nearestMidi);
+    return {
+      name: noteInfo.name,
+      octave: noteInfo.octave,
+      midi: nearestMidi,
+      cents: cents,
+    };
+  }
+
+  // 2つの周波数間のcents差（f1がf2に対して何cents高いか）
+  function centsBetween(f1, f2) {
+    return 1200 * Math.log2(f1 / f2);
+  }
+
+  // "C4"のような表記 -> MIDIノート番号
+  function noteStringToMidi(noteString) {
+    const match = /^([A-G]#?)(-?\d+)$/.exec(noteString);
+    if (!match) return null;
+    const [, name, octaveStr] = match;
+    const noteIndex = NOTE_NAMES.indexOf(name);
+    if (noteIndex === -1) return null;
+    const octave = parseInt(octaveStr, 10);
+    return (octave + 1) * 12 + noteIndex;
+  }
+
+  // C2〜C7の範囲で選択可能な半音リストを生成（UIのTARGETセレクト用）
+  function generateTargetNoteList() {
+    const list = [];
+    for (let midi = CONFIG.MIN_MIDI; midi <= CONFIG.MAX_MIDI; midi++) {
+      const info = midiToNoteName(midi);
+      list.push({
+        midi,
+        label: `${info.name}${info.octave}`,
+        frequency: midiToHz(midi),
+      });
+    }
+    return list;
+  }
+
+  // ------------------------------------------------------------
+  // 3. RMS（入力レベル）計算
+  // ------------------------------------------------------------
+  function computeRMS(buffer) {
+    let sumSquares = 0;
+    for (let i = 0; i < buffer.length; i++) {
+      sumSquares += buffer[i] * buffer[i];
+    }
+    return Math.sqrt(sumSquares / buffer.length);
+  }
+
+  // ------------------------------------------------------------
+  // 4. YINアルゴリズムによるF0推定
+  //    参考: de Cheveigné & Kawahara (2002), "YIN, a fundamental
+  //    frequency estimator for speech and music"
+  //
+  //    単純なFFTピーク検出は倍音を基音と誤認しやすい（オクターブエラー）。
+  //    YINは自己相関ベースの手法に正規化・絶対しきい値・放物線補間を
+  //    組み合わせることでオクターブエラーを抑えつつ精度を確保する。
+  //
+  //    探索するラグ(tau)の範囲は MIN_MIDI/MAX_MIDI から算出される
+  //    周波数レンジに限定し、計算量を抑える。
+  // ------------------------------------------------------------
+  function yinDetect(buffer, sampleRate, config) {
+    config = config || CONFIG;
+    const W = config.YIN_WINDOW_SIZE;
+
+    const minFrequency = midiToHz(config.MIN_MIDI);
+    const maxFrequency = midiToHz(config.MAX_MIDI);
+
+    const maxTau = Math.min(
+      Math.floor(sampleRate / minFrequency),
+      buffer.length - W - 1
+    );
+    const minTau = Math.max(1, Math.floor(sampleRate / maxFrequency));
+
+    if (maxTau <= minTau || buffer.length < W + maxTau) {
+      return null; // バッファ不足（設定不整合）
+    }
+
+    // --- Step 1+2: 差分関数 d(tau) と 累積平均正規化差分関数 d'(tau) ---
+    const d = new Float32Array(maxTau + 1);
+    d[0] = 1;
+
+    let runningSum = 0;
+
+    for (let tau = 1; tau <= maxTau; tau++) {
+      let sum = 0;
+      for (let j = 0; j < W; j++) {
+        const diff = buffer[j] - buffer[j + tau];
+        sum += diff * diff;
+      }
+      d[tau] = sum;
+      runningSum += sum;
+      d[tau] = runningSum === 0 ? 1 : (sum * tau) / runningSum;
+    }
+
+    // --- Step 3: 絶対しきい値を満たす最初のlocal minimumを探す ---
+    let tauEstimate = -1;
+    for (let tau = minTau; tau <= maxTau; tau++) {
+      if (d[tau] < config.YIN_THRESHOLD) {
+        // このtau以降でさらに下がる（より良い）局所最小があれば採用
+        while (tau + 1 <= maxTau && d[tau + 1] < d[tau]) {
+          tau++;
+        }
+        tauEstimate = tau;
+        break;
+      }
+    }
+
+    if (tauEstimate === -1) {
+      // しきい値を満たすtauが無い = 明確なピッチが見つからない
+      return null;
+    }
+
+    // --- Step 4: 放物線補間でtauをサブサンプル精度に補正 ---
+    let betterTau = tauEstimate;
+    const x0 = tauEstimate < 1 ? tauEstimate : tauEstimate - 1;
+    const x2 = tauEstimate + 1 <= maxTau ? tauEstimate + 1 : tauEstimate;
+    if (x0 !== tauEstimate && x2 !== tauEstimate) {
+      const s0 = d[x0];
+      const s1 = d[tauEstimate];
+      const s2 = d[x2];
+      const denom = 2 * (2 * s1 - s2 - s0);
+      if (denom !== 0) {
+        betterTau = tauEstimate + (s2 - s0) / denom;
+      }
+    }
+
+    if (betterTau <= 0) return null;
+
+    const frequency = sampleRate / betterTau;
+    const confidence = 1 - d[tauEstimate]; // 0〜1、高いほど信頼できる
+
+    if (frequency < minFrequency * 0.9 || frequency > maxFrequency * 1.1) {
+      return null; // 検出対象レンジから明らかに外れている
+    }
+
+    return { frequency, confidence };
+  }
+
+  // ------------------------------------------------------------
+  // 5. PitchTracker
+  //    フレーム単位で呼び出し、スムージング・TARGET判定・
+  //    保持時間判定までをまとめて面倒みる状態オブジェクト。
+  // ------------------------------------------------------------
+  class PitchTracker {
+    constructor(config) {
+      this.config = config || CONFIG;
+      this.mode = "HIGH"; // "HIGH" | "LOW"
+      this.targetMidi = 57; // デフォルト A3
+      this.targetFrequency = midiToHz(this.targetMidi);
+
+      this._medianBuffer = []; // log2(Hz)のバッファ（中央値フィルタ用）
+      this._smoothedLogFreq = null; // EMA後のlog2(Hz)
+
+      this._holdStartTime = null; // performance.now()、有効範囲に入った時刻
+      this._heldMs = 0;
+      this._cleared = false;
+    }
+
+    setTarget(midi) {
+      this.targetMidi = midi;
+      this.targetFrequency = midiToHz(midi);
+      this.resetHold();
+    }
+
+    setMode(mode) {
+      this.mode = mode === "LOW" ? "LOW" : "HIGH";
+      this.resetHold();
+    }
+
+    resetHold() {
+      this._holdStartTime = null;
+      this._heldMs = 0;
+      this._cleared = false;
+    }
+
+    _pushMedianBuffer(logFreq) {
+      this._medianBuffer.push(logFreq);
+      if (this._medianBuffer.length > this.config.MEDIAN_WINDOW_SIZE) {
+        this._medianBuffer.shift();
+      }
+    }
+
+    _medianOfBuffer() {
+      const sorted = [...this._medianBuffer].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      if (sorted.length % 2 === 0) {
+        return (sorted[mid - 1] + sorted[mid]) / 2;
+      }
+      return sorted[mid];
+    }
+
+    /**
+     * 1フレーム分の生データを処理する。
+     * @param {number|null} rawFrequency  YIN等で検出された生F0（無音/未検出ならnull）
+     * @param {number} rms 入力レベル
+     * @param {number} nowMs performance.now() 相当の現在時刻(ms)
+     * @returns {object} UI表示に必要な情報一式
+     */
+    update(rawFrequency, rms, nowMs) {
+      const cfg = this.config;
+      const isSilent = rms < cfg.INPUT_LEVEL_THRESHOLD;
+      const hasPitch = !isSilent && rawFrequency !== null && !isNaN(rawFrequency);
+
+      let smoothedFrequency = null;
+      let nearest = null;
+      let targetCents = null;
+      let inRange = false;
+
+      if (hasPitch) {
+        const logFreq = Math.log2(rawFrequency);
+        this._pushMedianBuffer(logFreq);
+        const medianLogFreq = this._medianOfBuffer();
+
+        if (this._smoothedLogFreq === null) {
+          this._smoothedLogFreq = medianLogFreq;
+        } else {
+          const alpha = cfg.SMOOTHING_PARAMETER;
+          this._smoothedLogFreq =
+            this._smoothedLogFreq * (1 - alpha) + medianLogFreq * alpha;
+        }
+
+        smoothedFrequency = Math.pow(2, this._smoothedLogFreq);
+        nearest = nearestNoteInfo(smoothedFrequency);
+        targetCents = centsBetween(smoothedFrequency, this.targetFrequency);
+
+        const minCents =
+          this.mode === "HIGH" ? cfg.HIGH_MIN_CENTS : cfg.LOW_MIN_CENTS;
+        const maxCents =
+          this.mode === "HIGH" ? cfg.HIGH_MAX_CENTS : cfg.LOW_MAX_CENTS;
+        inRange = targetCents >= minCents && targetCents <= maxCents;
+      } else {
+        // 無音/未検出フレームでは中央値バッファをクリアして
+        // 直前の値を引きずらないようにする（次の発声で素早く追従するため）
+        this._medianBuffer = [];
+        this._smoothedLogFreq = null;
+      }
+
+      // --- 保持時間（実時間ベース） ---
+      let state = "NO_PITCH";
+      if (hasPitch) {
+        if (inRange) {
+          if (this._holdStartTime === null) {
+            this._holdStartTime = nowMs;
+          }
+          this._heldMs = nowMs - this._holdStartTime;
+          if (this._heldMs >= cfg.HOLD_DURATION_MS) {
+            this._cleared = true;
+            state = "CLEAR";
+          } else {
+            state = "HOLDING";
+          }
+        } else {
+          this._holdStartTime = null;
+          this._heldMs = 0;
+          this._cleared = false;
+          state = "OUT_OF_RANGE";
+        }
+      } else {
+        this._holdStartTime = null;
+        this._heldMs = 0;
+        this._cleared = false;
+        state = "NO_PITCH";
+      }
+
+      return {
+        hasPitch,
+        rawFrequency,
+        smoothedFrequency,
+        nearestNote: nearest, // {name, octave, midi, cents} | null
+        targetMidi: this.targetMidi,
+        targetFrequency: this.targetFrequency,
+        targetCents, // TARGETとの差(cents) | null
+        mode: this.mode,
+        heldMs: this._heldMs,
+        holdDurationMs: cfg.HOLD_DURATION_MS,
+        cleared: this._cleared,
+        state, // "NO_PITCH" | "OUT_OF_RANGE" | "HOLDING" | "CLEAR"
+        rms,
+      };
+    }
+  }
+
+  // ------------------------------------------------------------
+  // 6. 公開API
+  // ------------------------------------------------------------
+  global.PitchLib = {
+    CONFIG,
+    NOTE_NAMES,
+    hzToMidi,
+    midiToHz,
+    midiToNoteName,
+    nearestNoteInfo,
+    centsBetween,
+    noteStringToMidi,
+    generateTargetNoteList,
+    computeRMS,
+    yinDetect,
+    PitchTracker,
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+/* ============================================================
+   app.js
+   RHO 音域診断 Phase1 - MVP
+   ------------------------------------------------------------
+   マイク取得・描画・イベント処理のみを担当する。
+   音程検出そのもののロジックは pitch-detector.js (PitchLib) 側。
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  const PitchLib = window.PitchLib;
+  const CONFIG = PitchLib.CONFIG;
+
+  // ---- DOM参照 ----
+  const el = {
+    micButton: document.getElementById("micButton"),
+    errorMsg: document.getElementById("errorMsg"),
+
+    targetSelect: document.getElementById("targetSelect"),
+    targetDisplay: document.getElementById("targetDisplay"),
+    modeHighBtn: document.getElementById("modeHighBtn"),
+    modeLowBtn: document.getElementById("modeLowBtn"),
+
+    noteName: document.getElementById("noteName"),
+    hzValue: document.getElementById("hzValue"),
+    nearestCents: document.getElementById("nearestCents"),
+    targetCents: document.getElementById("targetCents"),
+
+    holdTimeValue: document.getElementById("holdTimeValue"),
+    holdBarFill: document.getElementById("holdBarFill"),
+    stateLabel: document.getElementById("stateLabel"),
+
+    meterFill: document.getElementById("meterRangeFill"),
+    meterDot: document.getElementById("meterDot"),
+
+    debugRawF0: document.getElementById("debugRawF0"),
+    debugSmoothedF0: document.getElementById("debugSmoothedF0"),
+    debugRMS: document.getElementById("debugRMS"),
+    debugTargetFreq: document.getElementById("debugTargetFreq"),
+    debugTargetCents: document.getElementById("debugTargetCents"),
+    debugConfidence: document.getElementById("debugConfidence"),
+    debugMode: document.getElementById("debugMode"),
+    debugState: document.getElementById("debugState"),
+    debugHeldMs: document.getElementById("debugHeldMs"),
+    debugSampleRate: document.getElementById("debugSampleRate"),
+  };
+
+  // ---- 状態 ----
+  let audioContext = null;
+  let analyser = null;
+  let mediaStream = null;
+  let timeDomainBuffer = null;
+  let rafId = null;
+  let isRunning = false;
+
+  const tracker = new PitchLib.PitchTracker();
+
+  // ---- TARGETセレクトの初期化 ----
+  const targetList = PitchLib.generateTargetNoteList();
+  const DEFAULT_TARGET_LABEL = "A3";
+  targetList.forEach((note) => {
+    const opt = document.createElement("option");
+    opt.value = String(note.midi);
+    opt.textContent = note.label;
+    if (note.label === DEFAULT_TARGET_LABEL) opt.selected = true;
+    el.targetSelect.appendChild(opt);
+  });
+
+  function applyTargetFromSelect() {
+    const midi = parseInt(el.targetSelect.value, 10);
+    tracker.setTarget(midi);
+    const info = PitchLib.midiToNoteName(midi);
+    el.targetDisplay.textContent = `${info.name}${info.octave}`;
+  }
+  applyTargetFromSelect();
+  el.targetSelect.addEventListener("change", applyTargetFromSelect);
+
+  // ---- HIGH / LOW モード切り替え ----
+  function setMode(mode) {
+    tracker.setMode(mode);
+    el.modeHighBtn.classList.toggle("active", mode === "HIGH");
+    el.modeLowBtn.classList.toggle("active", mode === "LOW");
+    renderMeterRange();
+  }
+  el.modeHighBtn.addEventListener("click", () => setMode("HIGH"));
+  el.modeLowBtn.addEventListener("click", () => setMode("LOW"));
+  setMode("HIGH");
+
+  // ---- ピッチメーターの有効範囲表示 ----
+  // メーターは centsWidth の範囲を可視化する（TARGET=中央=0cents）
+  const METER_RANGE_CENTS = 220; // 表示上の左右幅（-220〜+220）
+
+  function centsToPercent(cents) {
+    const clamped = Math.max(-METER_RANGE_CENTS, Math.min(METER_RANGE_CENTS, cents));
+    return ((clamped + METER_RANGE_CENTS) / (METER_RANGE_CENTS * 2)) * 100;
+  }
+
+  function renderMeterRange() {
+    const mode = tracker.mode;
+    const minCents = mode === "HIGH" ? CONFIG.HIGH_MIN_CENTS : CONFIG.LOW_MIN_CENTS;
+    const maxCents = mode === "HIGH" ? CONFIG.HIGH_MAX_CENTS : CONFIG.LOW_MAX_CENTS;
+    const left = centsToPercent(minCents);
+    const right = centsToPercent(maxCents);
+    el.meterFill.style.left = `${left}%`;
+    el.meterFill.style.width = `${right - left}%`;
+  }
+  renderMeterRange();
+
+  // ---- エラー表示 ----
+  function showError(message) {
+    el.errorMsg.textContent = message;
+    el.errorMsg.hidden = false;
+  }
+  function clearError() {
+    el.errorMsg.hidden = true;
+    el.errorMsg.textContent = "";
+  }
+
+  // ---- マイク開始/停止 ----
+  async function startMic() {
+    clearError();
+    el.micButton.disabled = true;
+
+    try {
+      // iOS Safariではユーザー操作直後にAudioContextを生成/resumeする必要がある
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") {
+        await audioContext.resume();
+      }
+    } catch (e) {
+      showError("このブラウザはWeb Audio APIに対応していません。");
+      el.micButton.disabled = false;
+      return;
+    }
+
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      });
+    } catch (e) {
+      let msg = "マイクを取得できませんでした。";
+      if (e && e.name === "NotAllowedError") {
+        msg = "マイクの使用が許可されませんでした。ブラウザの設定を確認してください。";
+      } else if (e && e.name === "NotFoundError") {
+        msg = "マイクが見つかりませんでした。デバイスを確認してください。";
+      }
+      showError(msg);
+      el.micButton.disabled = false;
+      if (audioContext) {
+        audioContext.close();
+        audioContext = null;
+      }
+      return;
+    }
+
+    const source = audioContext.createMediaStreamSource(mediaStream);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = CONFIG.FFT_SIZE;
+    analyser.smoothingTimeConstant = 0; // 時間領域データなので影響なし。明示のため0に。
+    source.connect(analyser);
+    // analyserをdestinationに繋がない = スピーカーへ出力しない（ハウリング防止）
+
+    timeDomainBuffer = new Float32Array(analyser.fftSize);
+    tracker.resetHold();
+
+    isRunning = true;
+    el.micButton.textContent = "計測を停止";
+    el.micButton.disabled = false;
+    el.micButton.classList.add("listening");
+
+    loop();
+  }
+
+  function stopMic() {
+    isRunning = false;
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((t) => t.stop());
+      mediaStream = null;
+    }
+    if (audioContext) {
+      audioContext.close();
+      audioContext = null;
+    }
+    analyser = null;
+    tracker.resetHold();
+
+    el.micButton.textContent = "マイクを開始";
+    el.micButton.classList.remove("listening");
+    renderIdleState();
+  }
+
+  el.micButton.addEventListener("click", () => {
+    if (isRunning) {
+      stopMic();
+    } else {
+      startMic();
+    }
+  });
+
+  // ---- メインループ ----
+  function loop() {
+    if (!isRunning) return;
+
+    analyser.getFloatTimeDomainData(timeDomainBuffer);
+    const rms = PitchLib.computeRMS(timeDomainBuffer);
+
+    let rawFrequency = null;
+    let confidence = null;
+
+    if (rms >= CONFIG.INPUT_LEVEL_THRESHOLD) {
+      const result = PitchLib.yinDetect(timeDomainBuffer, audioContext.sampleRate, CONFIG);
+      if (result) {
+        rawFrequency = result.frequency;
+        confidence = result.confidence;
+      }
+    }
+
+    const info = tracker.update(rawFrequency, rms, performance.now());
+    render(info, confidence);
+
+    rafId = requestAnimationFrame(loop);
+  }
+
+  // ---- 描画 ----
+  const STATE_LABELS = {
+    NO_PITCH: "NO PITCH",
+    OUT_OF_RANGE: "OUT OF RANGE",
+    HOLDING: "HOLDING…",
+    CLEAR: "CLEAR!",
+  };
+  const STATE_CLASSES = {
+    NO_PITCH: "state-nopitch",
+    OUT_OF_RANGE: "state-outofrange",
+    HOLDING: "state-holding",
+    CLEAR: "state-clear",
+  };
+
+  function renderIdleState() {
+    el.noteName.textContent = "--";
+    el.hzValue.textContent = "-- Hz";
+    el.nearestCents.textContent = "--";
+    el.targetCents.textContent = "--";
+    el.holdTimeValue.textContent = "0.0 sec";
+    el.holdBarFill.style.width = "0%";
+    setStateLabel("NO_PITCH");
+    el.meterDot.style.left = "50%";
+
+    el.debugRawF0.textContent = "--";
+    el.debugSmoothedF0.textContent = "--";
+    el.debugRMS.textContent = "--";
+    el.debugTargetFreq.textContent = tracker.targetFrequency.toFixed(2) + " Hz";
+    el.debugTargetCents.textContent = "--";
+    el.debugConfidence.textContent = "--";
+    el.debugMode.textContent = tracker.mode;
+    el.debugState.textContent = "--";
+    el.debugHeldMs.textContent = "0 ms";
+    el.debugSampleRate.textContent = "--";
+  }
+
+  function setStateLabel(state) {
+    el.stateLabel.textContent = STATE_LABELS[state] || state;
+    Object.values(STATE_CLASSES).forEach((c) => el.stateLabel.classList.remove(c));
+    el.stateLabel.classList.add(STATE_CLASSES[state] || "");
+  }
+
+  function render(info, confidence) {
+    if (info.hasPitch && info.nearestNote) {
+      el.noteName.textContent = `${info.nearestNote.name}${info.nearestNote.octave}`;
+      el.hzValue.textContent = `${info.smoothedFrequency.toFixed(1)} Hz`;
+      const nc = info.nearestNote.cents;
+      el.nearestCents.textContent = `${nc >= 0 ? "+" : ""}${nc.toFixed(0)} cents`;
+      const tc = info.targetCents;
+      el.targetCents.textContent = `${tc >= 0 ? "+" : ""}${tc.toFixed(0)} cents`;
+      el.meterDot.style.left = `${centsToPercent(tc)}%`;
+    } else {
+      el.noteName.textContent = "--";
+      el.hzValue.textContent = "-- Hz";
+      el.nearestCents.textContent = "声を出してください";
+      el.targetCents.textContent = "--";
+      el.meterDot.style.left = "50%";
+    }
+
+    const heldSec = (info.heldMs / 1000).toFixed(1);
+    el.holdTimeValue.textContent = `${heldSec} sec`;
+    const holdPct = Math.min(100, (info.heldMs / info.holdDurationMs) * 100);
+    el.holdBarFill.style.width = `${holdPct}%`;
+
+    setStateLabel(info.state);
+
+    // --- Debug欄 ---
+    el.debugRawF0.textContent = info.rawFrequency ? `${info.rawFrequency.toFixed(2)} Hz` : "--";
+    el.debugSmoothedF0.textContent = info.smoothedFrequency
+      ? `${info.smoothedFrequency.toFixed(2)} Hz`
+      : "--";
+    el.debugRMS.textContent = info.rms.toFixed(5);
+    el.debugTargetFreq.textContent = `${info.targetFrequency.toFixed(2)} Hz`;
+    el.debugTargetCents.textContent = info.targetCents !== null ? info.targetCents.toFixed(1) : "--";
+    el.debugConfidence.textContent = confidence !== null ? confidence.toFixed(3) : "--";
+    el.debugMode.textContent = info.mode;
+    el.debugState.textContent = info.state;
+    el.debugHeldMs.textContent = `${Math.round(info.heldMs)} ms`;
+    el.debugSampleRate.textContent = audioContext ? `${audioContext.sampleRate} Hz` : "--";
+  }
+
+  // ---- 初期表示 ----
+  renderIdleState();
+
+  // ---- getUserMedia非対応チェック ----
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showError("このブラウザはマイク入力(getUserMedia)に対応していません。");
+    el.micButton.disabled = true;
+  }
+  if (!(window.AudioContext || window.webkitAudioContext)) {
+    showError("このブラウザはWeb Audio APIに対応していません。");
+    el.micButton.disabled = true;
+  }
+})();
+
+</script>
+</body>
+</html>
