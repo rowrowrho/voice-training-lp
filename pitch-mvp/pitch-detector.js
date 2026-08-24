@@ -60,6 +60,11 @@
     // 来た場合、直前と同じオクターブに引き戻す（倍音による誤検出の対策）
     // 値を大きくするほど「緩く」補正がかかりやすくなる
     OCTAVE_CORRECTION_TOLERANCE: 0.35,
+
+    // オクターブ補正が何フレーム連続でかかり続けたら「基準点の方が間違っている」
+    // と判断して乗り換えるか。小さいほど素早く乗り換わるが、瞬間的な
+    // 誤検出にも過敏になりやすい。60fps換算で10フレーム≒約170ms。
+    OCTAVE_RELOCK_STREAK_FRAMES: 10,
   };
 
   const NOTE_NAMES = [
@@ -248,6 +253,7 @@
 
       this._medianBuffer = []; // log2(Hz)のバッファ（中央値フィルタ用）
       this._smoothedLogFreq = null; // EMA後のlog2(Hz)
+      this._octaveCorrectionStreak = 0; // 連続でオクターブ補正がかかったフレーム数
 
       this._holdStartTime = null; // performance.now()、有効範囲に入った時刻
       this._heldMs = 0;
@@ -269,6 +275,7 @@
       this._holdStartTime = null;
       this._heldMs = 0;
       this._cleared = false;
+      this._octaveCorrectionStreak = 0;
     }
 
     _pushMedianBuffer(logFreq) {
@@ -310,15 +317,29 @@
         // --- オクターブ補正 ---
         // 直前のスムージング値から見て「整数オクターブ分」ズレている場合、
         // 倍音による誤検出とみなして直前と同じオクターブに引き戻す。
-        // (1オクターブだけでなく2オクターブのズレにも対応)
+        // ただし、この補正が何フレームも連続してかかり続ける場合は、
+        // 「直前の基準点そのものが間違っていた」とみなし、
+        // 今来ている値の方を新しい基準として受け入れる（誤ロック対策）。
         if (this._smoothedLogFreq !== null) {
           const diff = logFreq - this._smoothedLogFreq;
           const nearestOctaveStep = Math.round(diff);
-          if (
+          const wouldCorrect =
             nearestOctaveStep !== 0 &&
-            Math.abs(diff - nearestOctaveStep) < cfg.OCTAVE_CORRECTION_TOLERANCE
-          ) {
-            logFreq -= nearestOctaveStep;
+            Math.abs(diff - nearestOctaveStep) < cfg.OCTAVE_CORRECTION_TOLERANCE;
+
+          if (wouldCorrect) {
+            this._octaveCorrectionStreak++;
+            if (this._octaveCorrectionStreak >= cfg.OCTAVE_RELOCK_STREAK_FRAMES) {
+              // 基準点を乗り換える：補正をかけず、今の値をそのまま採用し
+              // スムージング値も一気にこちらへ寄せる
+              this._medianBuffer = [];
+              this._smoothedLogFreq = logFreq;
+              this._octaveCorrectionStreak = 0;
+            } else {
+              logFreq -= nearestOctaveStep;
+            }
+          } else {
+            this._octaveCorrectionStreak = 0;
           }
         }
 
