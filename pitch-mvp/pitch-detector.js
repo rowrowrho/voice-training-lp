@@ -53,8 +53,8 @@
     FFT_SIZE: 4096,
 
     // スムージング関連
-    MEDIAN_WINDOW_SIZE: 5,     // 中央値フィルタのウィンドウ（オクターブ誤検出の単発ノイズを除去）
-    SMOOTHING_PARAMETER: 0.35, // EMA(指数移動平均)の係数。大きいほど追従が速い（0〜1）
+    MEDIAN_WINDOW_SIZE: 8,     // 中央値フィルタのウィンドウ（オクターブ誤検出の単発ノイズを除去）
+    SMOOTHING_PARAMETER: 0.15, // EMA(指数移動平均)の係数。大きいほど追従が速い（0〜1）
   };
 
   const NOTE_NAMES = [
