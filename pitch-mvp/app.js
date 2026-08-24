@@ -62,6 +62,7 @@
     finalResultBlock: document.getElementById("finalResultBlock"),
     finalRangeText: document.getElementById("finalRangeText"),
     shareBtn: document.getElementById("shareBtn"),
+    shareXBtn: document.getElementById("shareXBtn"),
   };
 
   var audioContext = null; // マイク入力用
@@ -73,6 +74,7 @@
 
   // ---- お手本音の再生(マイク入力とは独立したAudioContextを使う) ----
   var playbackContext = null;
+  var micMuteTimeoutId = null; // お手本再生中だけマイクをミュートするためのタイマー
 
   function ensurePlaybackContext() {
     var Ctx = window.AudioContext || window.webkitAudioContext;
@@ -84,6 +86,28 @@
       playbackContext.resume().catch(function () {});
     }
     return playbackContext;
+  }
+
+  // お手本再生中だけマイクの入力を一時的に無効化し、再生終了と同時に戻す
+  function muteMicDuringTone(durationMs) {
+    if (micMuteTimeoutId !== null) {
+      clearTimeout(micMuteTimeoutId);
+      micMuteTimeoutId = null;
+    }
+    if (!mediaStream) return; // マイクが起動していなければ何もしない
+
+    mediaStream.getTracks().forEach(function (t) {
+      t.enabled = false;
+    });
+
+    micMuteTimeoutId = setTimeout(function () {
+      micMuteTimeoutId = null;
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(function (t) {
+          t.enabled = true;
+        });
+      }
+    }, durationMs);
   }
 
   function playReferenceTone(frequency) {
@@ -109,6 +133,8 @@
     gainNode.connect(ctx.destination);
     osc.start(now);
     osc.stop(now + durationSec + 0.05);
+
+    muteMicDuringTone(CONFIG.REFERENCE_TONE_DURATION_MS);
   }
 
   el.replayToneBtn.addEventListener("click", function () {
@@ -286,11 +312,14 @@
     startChallengeForCurrentTarget();
   });
 
-  el.shareBtn.addEventListener("click", function () {
+  function buildShareText() {
     var lowLabel = directionResult.LOW || "測定不可";
     var highLabel = directionResult.HIGH || "測定不可";
-    var shareText =
-      "私の音域は " + lowLabel + " 〜 " + highLabel + " でした！ #RHOボイトレ #音域診断";
+    return "私の音域は " + lowLabel + " 〜 " + highLabel + " でした！ #RHOボイトレ #音域診断";
+  }
+
+  el.shareBtn.addEventListener("click", function () {
+    var shareText = buildShareText();
     var shareUrl = location.href;
 
     if (navigator.share) {
@@ -303,6 +332,17 @@
         encodeURIComponent(shareUrl);
       window.open(intentUrl, "_blank");
     }
+  });
+
+  el.shareXBtn.addEventListener("click", function () {
+    var shareText = buildShareText();
+    var shareUrl = location.href;
+    var intentUrl =
+      "https://twitter.com/intent/tweet?text=" +
+      encodeURIComponent(shareText) +
+      "&url=" +
+      encodeURIComponent(shareUrl);
+    window.open(intentUrl, "_blank");
   });
 
   el.autoAdvanceToggle.addEventListener("change", function () {
@@ -508,6 +548,10 @@
   function stopMic() {
     isRunning = false;
     cancelAutoAdvance();
+    if (micMuteTimeoutId !== null) {
+      clearTimeout(micMuteTimeoutId);
+      micMuteTimeoutId = null;
+    }
     lastState = null;
     challengeActive = false;
     challengeDeadline = null;
