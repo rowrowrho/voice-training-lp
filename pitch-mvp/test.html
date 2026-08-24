@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSテスト</title>
+</head>
+<body style="font-family:sans-serif; padding:40px; text-align:center;">
+  <h1>JS動作テスト</h1>
+  <button onclick="alert('JSは動いています！')" style="font-size:22px; padding:24px 32px; margin-top:20px;">
+    このボタンを押す
+  </button>
+  <p id="log" style="margin-top:30px; color:gray;">まだ何も起きていません</p>
+  <script>
+    document.getElementById('log').textContent = 'スクリプト読み込み成功（このテキストが見えていればJS実行OK）';
+  </script>
+</body>
+</html>
