@@ -56,9 +56,10 @@
     MEDIAN_WINDOW_SIZE: 8,     // 中央値フィルタのウィンドウ（オクターブ誤検出の単発ノイズを除去）
     SMOOTHING_PARAMETER: 0.15, // EMA(指数移動平均)の係数。大きいほど追従が速い（0〜1）
 
-    // 直前の音からちょうど1オクターブ(±この許容量, 単位:オクターブ)離れた値が
-    // 来た場合、直前と同じオクターブに引き戻す（倍音による瞬間的な誤検出の対策）
-    OCTAVE_CORRECTION_TOLERANCE: 0.15,
+    // 直前の音から整数オクターブ(±この許容量, 単位:オクターブ)に近い値が
+    // 来た場合、直前と同じオクターブに引き戻す（倍音による誤検出の対策）
+    // 値を大きくするほど「緩く」補正がかかりやすくなる
+    OCTAVE_CORRECTION_TOLERANCE: 0.35,
   };
 
   const NOTE_NAMES = [
@@ -307,13 +308,17 @@
         let logFreq = Math.log2(rawFrequency);
 
         // --- オクターブ補正 ---
-        // 直前のスムージング値からちょうど1オクターブ離れている場合、
-        // 倍音による誤検出とみなして直前と同じオクターブに引き戻す
+        // 直前のスムージング値から見て「整数オクターブ分」ズレている場合、
+        // 倍音による誤検出とみなして直前と同じオクターブに引き戻す。
+        // (1オクターブだけでなく2オクターブのズレにも対応)
         if (this._smoothedLogFreq !== null) {
           const diff = logFreq - this._smoothedLogFreq;
-          const distFromOctave = Math.abs(Math.abs(diff) - 1);
-          if (distFromOctave < cfg.OCTAVE_CORRECTION_TOLERANCE) {
-            logFreq = diff > 0 ? logFreq - 1 : logFreq + 1;
+          const nearestOctaveStep = Math.round(diff);
+          if (
+            nearestOctaveStep !== 0 &&
+            Math.abs(diff - nearestOctaveStep) < cfg.OCTAVE_CORRECTION_TOLERANCE
+          ) {
+            logFreq -= nearestOctaveStep;
           }
         }
 
