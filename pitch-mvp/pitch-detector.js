@@ -82,7 +82,7 @@
     REFERENCE_TONE_DURATION_MS: 1000,
 
     // お手本音の音量(0〜1)
-    REFERENCE_TONE_VOLUME: 0.25,
+    REFERENCE_TONE_VOLUME: 0.6,
   };
 
   const NOTE_NAMES = [
