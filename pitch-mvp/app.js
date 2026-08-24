@@ -98,7 +98,6 @@
   }
   renderMeterRange();
 
-  // ---- ログ表示（診断用） ----
   function showLog(message, isError) {
     el.errorMsg.textContent = message;
     el.errorMsg.hidden = false;
@@ -111,7 +110,6 @@
     el.errorMsg.textContent = "";
   }
 
-  // ---- マイク開始/停止（診断ログ付き） ----
   async function startMic() {
     clearError();
     el.micButton.disabled = true;
