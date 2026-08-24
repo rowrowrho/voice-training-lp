@@ -76,6 +76,13 @@
     // 音域チャレンジモード：1つの音につき、この時間内にCLEARできなければ
     // そこで終了とみなす(ms)
     CHALLENGE_DURATION_MS: 10000,
+
+    // お手本音(TARGETの高さの純音)を再生する時間(ms)。
+    // チャレンジモードでは、この再生が終わってから制限時間のカウントダウンが始まる。
+    REFERENCE_TONE_DURATION_MS: 1000,
+
+    // お手本音の音量(0〜1)
+    REFERENCE_TONE_VOLUME: 0.25,
   };
 
   const NOTE_NAMES = [
