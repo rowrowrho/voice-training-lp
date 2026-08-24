@@ -47,6 +47,15 @@
     relockSlider: document.getElementById("relockSlider"),
     relockValue: document.getElementById("relockValue"),
     sensitivityResetBtn: document.getElementById("sensitivityResetBtn"),
+
+    autoAdvanceToggle: document.getElementById("autoAdvanceToggle"),
+
+    challengeTimeValue: document.getElementById("challengeTimeValue"),
+    challengeBarFill: document.getElementById("challengeBarFill"),
+    challengeResult: document.getElementById("challengeResult"),
+    challengeResultNote: document.getElementById("challengeResultNote"),
+    challengeResultDetail: document.getElementById("challengeResultDetail"),
+    challengeResetBtn: document.getElementById("challengeResetBtn"),
   };
 
   var audioContext = null;
@@ -77,6 +86,123 @@
   }
   applyTargetFromSelect();
   el.targetSelect.addEventListener("change", applyTargetFromSelect);
+
+  // ---- 自動送り(CLEARしたら半音上の次の音へ) ----
+  var autoAdvanceTimeoutId = null;
+  var lastState = null; // CLEARへの「切り替わった瞬間」だけを検知するため
+
+  // ---- 音域チャレンジモード ----
+  var challengeActive = false;
+  var challengeDeadline = null; // performance.now()基準の締切時刻
+  var lastClearedNoteLabel = null; // 直前にCLEARできた音の表示名 (例: "A3")
+  var lastClearedNoteMidi = null;
+
+  function hideChallengeResult() {
+    el.challengeResult.hidden = true;
+  }
+
+  function startChallengeForCurrentTarget() {
+    if (!el.autoAdvanceToggle.checked) {
+      challengeActive = false;
+      el.challengeTimeValue.textContent = "--";
+      el.challengeBarFill.style.width = "0%";
+      return;
+    }
+    challengeActive = true;
+    challengeDeadline = performance.now() + CONFIG.CHALLENGE_DURATION_MS;
+  }
+
+  function updateChallengeCountdown(nowMs) {
+    if (!challengeActive) return;
+    var remainingMs = challengeDeadline - nowMs;
+    if (remainingMs <= 0) {
+      finishChallenge(false);
+      return;
+    }
+    var remainingSec = (remainingMs / 1000).toFixed(1);
+    el.challengeTimeValue.textContent = remainingSec + " sec";
+    var pct = Math.max(0, Math.min(100, (remainingMs / CONFIG.CHALLENGE_DURATION_MS) * 100));
+    el.challengeBarFill.style.width = pct + "%";
+  }
+
+  // reachedListEnd: trueなら「これ以上の音がリストに無い」ことによる終了(=そこまで到達できた成功扱い)
+  function finishChallenge(reachedListEnd) {
+    challengeActive = false;
+    challengeDeadline = null;
+    cancelAutoAdvance();
+    el.challengeTimeValue.textContent = "--";
+    el.challengeBarFill.style.width = "0%";
+
+    el.challengeResult.hidden = false;
+
+    if (lastClearedNoteLabel === null) {
+      el.challengeResultNote.textContent = "記録なし";
+      el.challengeResultDetail.textContent =
+        "10秒以内に1つも音をキープできませんでした。感度調整を見直すか、TARGETを変えてもう一度試してください。";
+      return;
+    }
+
+    el.challengeResultNote.textContent = lastClearedNoteLabel;
+    if (reachedListEnd) {
+      el.challengeResultDetail.textContent =
+        "測定可能な音域の上限(下限)まで到達しました。この音が今回測定できた音域の端です。";
+    } else {
+      el.challengeResultDetail.textContent =
+        "この音までは10秒以内にキープできましたが、次の音は時間内にキープできませんでした。この音が今回の音域の端(の目安)です。";
+    }
+  }
+
+  el.challengeResetBtn.addEventListener("click", function () {
+    hideChallengeResult();
+    lastClearedNoteLabel = null;
+    lastClearedNoteMidi = null;
+    tracker.resetHold();
+    startChallengeForCurrentTarget();
+  });
+
+  el.autoAdvanceToggle.addEventListener("change", function () {
+    if (!el.autoAdvanceToggle.checked) {
+      challengeActive = false;
+      el.challengeTimeValue.textContent = "--";
+      el.challengeBarFill.style.width = "0%";
+      cancelAutoAdvance();
+    } else {
+      hideChallengeResult();
+      lastClearedNoteLabel = null;
+      lastClearedNoteMidi = null;
+      startChallengeForCurrentTarget();
+    }
+  });
+
+  function advanceToNextTarget() {
+    var currentIndex = el.targetSelect.selectedIndex;
+    var nextIndex = currentIndex + 1;
+    if (nextIndex >= el.targetSelect.options.length) {
+      // これ以上、上の音がない（C7に到達）ので、そこまでの到達を成功として終了
+      finishChallenge(true);
+      return;
+    }
+    el.targetSelect.selectedIndex = nextIndex;
+    applyTargetFromSelect();
+    tracker.resetHold();
+    startChallengeForCurrentTarget();
+  }
+
+  function cancelAutoAdvance() {
+    if (autoAdvanceTimeoutId !== null) {
+      clearTimeout(autoAdvanceTimeoutId);
+      autoAdvanceTimeoutId = null;
+    }
+  }
+
+  // 手動でTARGETを変えた場合は、保留中の自動送り・チャレンジ状態をリセットする
+  el.targetSelect.addEventListener("change", function () {
+    cancelAutoAdvance();
+    hideChallengeResult();
+    lastClearedNoteLabel = null;
+    lastClearedNoteMidi = null;
+    startChallengeForCurrentTarget();
+  });
 
   // ---- HIGH / LOW モード切り替え ----
   function setMode(mode) {
@@ -197,6 +323,10 @@
 
         timeDomainBuffer = new Float32Array(analyser.fftSize);
         tracker.resetHold();
+        hideChallengeResult();
+        lastClearedNoteLabel = null;
+        lastClearedNoteMidi = null;
+        startChallengeForCurrentTarget();
 
         isRunning = true;
         el.micButton.textContent = "計測を停止";
@@ -225,6 +355,12 @@
 
   function stopMic() {
     isRunning = false;
+    cancelAutoAdvance();
+    lastState = null;
+    challengeActive = false;
+    challengeDeadline = null;
+    el.challengeTimeValue.textContent = "--";
+    el.challengeBarFill.style.width = "0%";
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
       rafId = null;
@@ -272,8 +408,10 @@
       }
     }
 
-    var info = tracker.update(rawFrequency, rms, performance.now());
+    var now = performance.now();
+    var info = tracker.update(rawFrequency, rms, now);
     render(info, confidence);
+    updateChallengeCountdown(now);
 
     rafId = requestAnimationFrame(loop);
   }
@@ -344,6 +482,22 @@
     el.holdBarFill.style.width = holdPct + "%";
 
     setStateLabel(info.state);
+
+    // --- 自動送り: CLEARに「今まさに切り替わった瞬間」だけ発火させる ---
+    if (info.state === "CLEAR" && lastState !== "CLEAR") {
+      lastClearedNoteLabel = el.targetDisplay.textContent;
+      lastClearedNoteMidi = info.targetMidi;
+      if (el.autoAdvanceToggle.checked) {
+        challengeActive = false; // 次の音へ進むまでの間はカウントダウンを止めておく
+        el.challengeTimeValue.textContent = "CLEAR!";
+        cancelAutoAdvance();
+        autoAdvanceTimeoutId = setTimeout(function () {
+          autoAdvanceTimeoutId = null;
+          advanceToNextTarget();
+        }, CONFIG.AUTO_ADVANCE_DELAY_MS);
+      }
+    }
+    lastState = info.state;
 
     el.debugRawF0.textContent = info.rawFrequency ? info.rawFrequency.toFixed(2) + " Hz" : "--";
     el.debugSmoothedF0.textContent = info.smoothedFrequency
