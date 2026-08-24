@@ -1,9 +1,6 @@
 /* ============================================================
-   app.js
+   app.js（診断ログ入り版）
    RHO 音域診断 Phase1 - MVP
-   ------------------------------------------------------------
-   マイク取得・描画・イベント処理のみを担当する。
-   音程検出そのもののロジックは pitch-detector.js (PitchLib) 側。
    ============================================================ */
 
 (function () {
@@ -12,7 +9,6 @@
   const PitchLib = window.PitchLib;
   const CONFIG = PitchLib.CONFIG;
 
-  // ---- DOM参照 ----
   const el = {
     micButton: document.getElementById("micButton"),
     errorMsg: document.getElementById("errorMsg"),
@@ -46,7 +42,6 @@
     debugSampleRate: document.getElementById("debugSampleRate"),
   };
 
-  // ---- 状態 ----
   let audioContext = null;
   let analyser = null;
   let mediaStream = null;
@@ -56,7 +51,6 @@
 
   const tracker = new PitchLib.PitchTracker();
 
-  // ---- TARGETセレクトの初期化 ----
   const targetList = PitchLib.generateTargetNoteList();
   const DEFAULT_TARGET_LABEL = "A3";
   targetList.forEach((note) => {
@@ -76,7 +70,6 @@
   applyTargetFromSelect();
   el.targetSelect.addEventListener("change", applyTargetFromSelect);
 
-  // ---- HIGH / LOW モード切り替え ----
   function setMode(mode) {
     tracker.setMode(mode);
     el.modeHighBtn.classList.toggle("active", mode === "HIGH");
@@ -87,9 +80,7 @@
   el.modeLowBtn.addEventListener("click", () => setMode("LOW"));
   setMode("HIGH");
 
-  // ---- ピッチメーターの有効範囲表示 ----
-  // メーターは centsWidth の範囲を可視化する（TARGET=中央=0cents）
-  const METER_RANGE_CENTS = 220; // 表示上の左右幅（-220〜+220）
+  const METER_RANGE_CENTS = 220;
 
   function centsToPercent(cents) {
     const clamped = Math.max(-METER_RANGE_CENTS, Math.min(METER_RANGE_CENTS, cents));
@@ -107,34 +98,35 @@
   }
   renderMeterRange();
 
-  // ---- エラー表示 ----
-  function showError(message) {
+  // ---- ログ表示（診断用） ----
+  function showLog(message, isError) {
     el.errorMsg.textContent = message;
     el.errorMsg.hidden = false;
+    el.errorMsg.style.color = isError ? "#D9634E" : "#17A98D";
+    el.errorMsg.style.background = isError ? "rgba(217,99,78,0.10)" : "rgba(23,169,141,0.10)";
+    el.errorMsg.style.borderColor = isError ? "rgba(217,99,78,0.35)" : "rgba(23,169,141,0.35)";
   }
   function clearError() {
     el.errorMsg.hidden = true;
     el.errorMsg.textContent = "";
   }
 
-  // ---- マイク開始/停止 ----
+  // ---- マイク開始/停止（診断ログ付き） ----
   async function startMic() {
     clearError();
     el.micButton.disabled = true;
 
     try {
-      // iOS Safariではユーザー操作直後にAudioContextを生成/resumeする必要がある
+      showLog("[1/6] AudioContext作成中…", false);
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      showLog(`[2/6] AudioContext作成OK (state=${audioContext.state})`, false);
+
       if (audioContext.state === "suspended") {
         await audioContext.resume();
       }
-    } catch (e) {
-      showError("このブラウザはWeb Audio APIに対応していません。");
-      el.micButton.disabled = false;
-      return;
-    }
+      showLog(`[3/6] resume完了 (state=${audioContext.state})`, false);
 
-    try {
+      showLog("[4/6] getUserMedia呼び出し中…（許可ダイアログを待っています）", false);
       mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
@@ -142,38 +134,32 @@
           autoGainControl: false,
         },
       });
-    } catch (e) {
-      let msg = "マイクを取得できませんでした。";
-      if (e && e.name === "NotAllowedError") {
-        msg = "マイクの使用が許可されませんでした。ブラウザの設定を確認してください。";
-      } else if (e && e.name === "NotFoundError") {
-        msg = "マイクが見つかりませんでした。デバイスを確認してください。";
-      }
-      showError(msg);
+      showLog("[5/6] マイク取得成功", false);
+
+      const source = audioContext.createMediaStreamSource(mediaStream);
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = CONFIG.FFT_SIZE;
+      analyser.smoothingTimeConstant = 0;
+      source.connect(analyser);
+
+      timeDomainBuffer = new Float32Array(analyser.fftSize);
+      tracker.resetHold();
+
+      isRunning = true;
+      el.micButton.textContent = "計測を停止";
       el.micButton.disabled = false;
-      if (audioContext) {
-        audioContext.close();
-        audioContext = null;
-      }
-      return;
+      el.micButton.classList.add("listening");
+      showLog("[6/6] 計測開始！", false);
+
+      loop();
+    } catch (e) {
+      showLog(
+        `エラー発生: ${e && e.name ? e.name : "UnknownError"} - ${e && e.message ? e.message : String(e)}`,
+        true
+      );
+      el.micButton.disabled = false;
+      console.error(e);
     }
-
-    const source = audioContext.createMediaStreamSource(mediaStream);
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = CONFIG.FFT_SIZE;
-    analyser.smoothingTimeConstant = 0; // 時間領域データなので影響なし。明示のため0に。
-    source.connect(analyser);
-    // analyserをdestinationに繋がない = スピーカーへ出力しない（ハウリング防止）
-
-    timeDomainBuffer = new Float32Array(analyser.fftSize);
-    tracker.resetHold();
-
-    isRunning = true;
-    el.micButton.textContent = "計測を停止";
-    el.micButton.disabled = false;
-    el.micButton.classList.add("listening");
-
-    loop();
   }
 
   function stopMic() {
@@ -195,6 +181,7 @@
 
     el.micButton.textContent = "マイクを開始";
     el.micButton.classList.remove("listening");
+    clearError();
     renderIdleState();
   }
 
@@ -206,7 +193,6 @@
     }
   });
 
-  // ---- メインループ ----
   function loop() {
     if (!isRunning) return;
 
@@ -230,7 +216,6 @@
     rafId = requestAnimationFrame(loop);
   }
 
-  // ---- 描画 ----
   const STATE_LABELS = {
     NO_PITCH: "NO PITCH",
     OUT_OF_RANGE: "OUT OF RANGE",
@@ -296,7 +281,6 @@
 
     setStateLabel(info.state);
 
-    // --- Debug欄 ---
     el.debugRawF0.textContent = info.rawFrequency ? `${info.rawFrequency.toFixed(2)} Hz` : "--";
     el.debugSmoothedF0.textContent = info.smoothedFrequency
       ? `${info.smoothedFrequency.toFixed(2)} Hz`
@@ -311,16 +295,14 @@
     el.debugSampleRate.textContent = audioContext ? `${audioContext.sampleRate} Hz` : "--";
   }
 
-  // ---- 初期表示 ----
   renderIdleState();
 
-  // ---- getUserMedia非対応チェック ----
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showError("このブラウザはマイク入力(getUserMedia)に対応していません。");
+    showLog("このブラウザはマイク入力(getUserMedia)に対応していません。", true);
     el.micButton.disabled = true;
   }
   if (!(window.AudioContext || window.webkitAudioContext)) {
-    showError("このブラウザはWeb Audio APIに対応していません。");
+    showLog("このブラウザはWeb Audio APIに対応していません。", true);
     el.micButton.disabled = true;
   }
 })();
