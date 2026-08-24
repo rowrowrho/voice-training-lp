@@ -79,10 +79,10 @@
 
     // お手本音(TARGETの高さの純音)を再生する時間(ms)。
     // チャレンジモードでは、この再生が終わってから制限時間のカウントダウンが始まる。
-    REFERENCE_TONE_DURATION_MS: 2000,
+    REFERENCE_TONE_DURATION_MS: 3000,
 
     // お手本音の音量(0〜1)
-    REFERENCE_TONE_VOLUME: 0.6,
+    REFERENCE_TONE_VOLUME: 1,
   };
 
   const NOTE_NAMES = [
