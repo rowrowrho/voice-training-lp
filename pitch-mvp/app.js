@@ -16,6 +16,7 @@
 
     targetSelect: document.getElementById("targetSelect"),
     targetDisplay: document.getElementById("targetDisplay"),
+    replayToneBtn: document.getElementById("replayToneBtn"),
     modeHighBtn: document.getElementById("modeHighBtn"),
     modeLowBtn: document.getElementById("modeLowBtn"),
 
@@ -63,12 +64,58 @@
     shareBtn: document.getElementById("shareBtn"),
   };
 
-  var audioContext = null;
+  var audioContext = null; // マイク入力用
   var analyser = null;
   var mediaStream = null;
   var timeDomainBuffer = null;
   var rafId = null;
   var isRunning = false;
+
+  // ---- お手本音の再生(マイク入力とは独立したAudioContextを使う) ----
+  var playbackContext = null;
+
+  function ensurePlaybackContext() {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!playbackContext) {
+      playbackContext = new Ctx();
+    }
+    if (playbackContext.state === "suspended") {
+      playbackContext.resume().catch(function () {});
+    }
+    return playbackContext;
+  }
+
+  function playReferenceTone(frequency) {
+    var ctx = ensurePlaybackContext();
+    if (!ctx || !frequency) return;
+
+    var durationSec = CONFIG.REFERENCE_TONE_DURATION_MS / 1000;
+    var peakVolume = CONFIG.REFERENCE_TONE_VOLUME;
+    var fade = Math.min(0.03, durationSec / 4);
+
+    var osc = ctx.createOscillator();
+    var gainNode = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = frequency;
+
+    var now = ctx.currentTime;
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.exponentialRampToValueAtTime(peakVolume, now + fade);
+    gainNode.gain.setValueAtTime(peakVolume, now + durationSec - fade);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
+
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + durationSec + 0.05);
+  }
+
+  el.replayToneBtn.addEventListener("click", function () {
+    playReferenceTone(tracker.targetFrequency);
+    // チャレンジ中の場合は、聞き直した分だけタイマーも仕切り直す
+    startChallengeForCurrentTarget();
+  });
 
   var tracker = new PitchLib.PitchTracker(CONFIG);
 
@@ -92,6 +139,7 @@
     tracker.setTarget(midi);
     var info = PitchLib.midiToNoteName(midi);
     el.targetDisplay.textContent = info.name + info.octave;
+    playReferenceTone(tracker.targetFrequency);
   }
   applyTargetFromSelect();
   el.targetSelect.addEventListener("change", applyTargetFromSelect);
@@ -103,6 +151,7 @@
   // ---- 音域チャレンジモード ----
   var challengeActive = false;
   var challengeDeadline = null; // performance.now()基準の締切時刻
+  var pendingChallengeStartTimeoutId = null; // お手本再生後にカウントダウンを始めるまでの待機
   var lastClearedNoteLabel = null; // 今の方向で直前にCLEARできた音の表示名
   var lastClearedNoteMidi = null;
 
@@ -114,15 +163,31 @@
     el.challengeResult.hidden = true;
   }
 
+  function cancelPendingChallengeStart() {
+    if (pendingChallengeStartTimeoutId !== null) {
+      clearTimeout(pendingChallengeStartTimeoutId);
+      pendingChallengeStartTimeoutId = null;
+    }
+  }
+
+  // お手本音を1秒聞かせてから、制限時間のカウントダウンを開始する
   function startChallengeForCurrentTarget() {
+    cancelPendingChallengeStart();
     if (!el.autoAdvanceToggle.checked) {
       challengeActive = false;
       el.challengeTimeValue.textContent = "--";
       el.challengeBarFill.style.width = "0%";
       return;
     }
-    challengeActive = true;
-    challengeDeadline = performance.now() + CONFIG.CHALLENGE_DURATION_MS;
+    challengeActive = false;
+    el.challengeTimeValue.textContent = "お手本再生中…";
+    el.challengeBarFill.style.width = "100%";
+
+    pendingChallengeStartTimeoutId = setTimeout(function () {
+      pendingChallengeStartTimeoutId = null;
+      challengeActive = true;
+      challengeDeadline = performance.now() + CONFIG.CHALLENGE_DURATION_MS;
+    }, CONFIG.REFERENCE_TONE_DURATION_MS);
   }
 
   function updateChallengeCountdown(nowMs) {
@@ -275,6 +340,7 @@
       clearTimeout(autoAdvanceTimeoutId);
       autoAdvanceTimeoutId = null;
     }
+    cancelPendingChallengeStart();
   }
 
   // 手動でTARGETを変えた場合は、保留中の自動送り・チャレンジ状態をリセットする
