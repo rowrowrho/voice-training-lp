@@ -176,7 +176,7 @@
 <div class="wrap">
 
   <span class="badge">Phase 1 ・ 技術検証 MVP</span>
-  <span class="version-tag">build v13</span>
+  <span class="version-tag">build v15</span>
   <h1>音域診断 リアルタイム音程検出テスト</h1>
   <p class="sub">iPhone Safariでの動作確認を目的とした検証用ページです。音声はサーバーへ送信されず、ブラウザ内でのみ処理されます。</p>
 
@@ -198,6 +198,11 @@
       <div class="mode-btn" id="modeHighBtn">HIGH MODE</div>
       <div class="mode-btn" id="modeLowBtn">LOW MODE</div>
     </div>
+
+    <label class="row" style="margin-top:12px; gap:8px; cursor:pointer;">
+      <input type="checkbox" id="autoAdvanceToggle" style="width:18px; height:18px; accent-color:var(--data);">
+      <span class="label" style="font-size:12px;">音域チャレンジモード（CLEARで次の音へ・10秒以内にクリアできないと終了）</span>
+    </label>
   </div>
 
   <div class="card">
@@ -256,6 +261,19 @@
     <div class="hold-bar"><div class="hold-bar-fill" id="holdBarFill"></div></div>
 
     <span class="state-label state-nopitch" id="stateLabel">NO PITCH</span>
+
+    <div class="hold-row" style="margin-top:16px;">
+      <span class="label">チャレンジ残り時間</span>
+      <span class="value" id="challengeTimeValue" style="font-weight:800; color:var(--navy-2);">--</span>
+    </div>
+    <div class="hold-bar"><div class="hold-bar-fill" id="challengeBarFill" style="background:var(--blue);"></div></div>
+
+    <div id="challengeResult" hidden style="margin-top:14px; padding:16px; border-radius:12px; background:var(--sky); text-align:center;">
+      <div class="label" style="margin-bottom:6px;">音域チャレンジ結果</div>
+      <div style="font-size:30px; font-weight:900; color:var(--navy-2);" id="challengeResultNote">--</div>
+      <div style="font-size:12px; color:var(--text-dim); margin-top:6px;" id="challengeResultDetail"></div>
+      <button id="challengeResetBtn" style="margin-top:12px; padding:10px 20px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-weight:800; cursor:pointer;">もう一度挑戦</button>
+    </div>
   </div>
 
   <div class="card">
@@ -279,7 +297,7 @@
   <footer>RHOボイトレ内部検証用ページ（非公開・検索非表示）</footer>
 </div>
 
-<script src="pitch-detector.js?v=13"></script>
-<script src="app.js?v=13"></script>
+<script src="pitch-detector.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>
