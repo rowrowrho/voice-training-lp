@@ -635,16 +635,18 @@
     setStateLabel("NO_PITCH");
     el.meterDot.style.left = "50%";
 
-    el.debugRawF0.textContent = "--";
-    el.debugSmoothedF0.textContent = "--";
-    el.debugRMS.textContent = "--";
-    el.debugTargetFreq.textContent = tracker.targetFrequency.toFixed(2) + " Hz";
-    el.debugTargetCents.textContent = "--";
-    el.debugConfidence.textContent = "--";
-    el.debugMode.textContent = tracker.mode;
-    el.debugState.textContent = "--";
-    el.debugHeldMs.textContent = "0 ms";
-    el.debugSampleRate.textContent = "--";
+    if (el.debugState) {
+      el.debugRawF0.textContent = "--";
+      el.debugSmoothedF0.textContent = "--";
+      el.debugRMS.textContent = "--";
+      el.debugTargetFreq.textContent = tracker.targetFrequency.toFixed(2) + " Hz";
+      el.debugTargetCents.textContent = "--";
+      el.debugConfidence.textContent = "--";
+      el.debugMode.textContent = tracker.mode;
+      el.debugState.textContent = "--";
+      el.debugHeldMs.textContent = "0 ms";
+      el.debugSampleRate.textContent = "--";
+    }
   }
 
   function setStateLabel(state) {
@@ -695,18 +697,20 @@
     }
     lastState = info.state;
 
-    el.debugRawF0.textContent = info.rawFrequency ? info.rawFrequency.toFixed(2) + " Hz" : "--";
-    el.debugSmoothedF0.textContent = info.smoothedFrequency
-      ? info.smoothedFrequency.toFixed(2) + " Hz"
-      : "--";
-    el.debugRMS.textContent = info.rms.toFixed(5);
-    el.debugTargetFreq.textContent = info.targetFrequency.toFixed(2) + " Hz";
-    el.debugTargetCents.textContent = info.targetCents !== null ? info.targetCents.toFixed(1) : "--";
-    el.debugConfidence.textContent = confidence !== null ? confidence.toFixed(3) : "--";
-    el.debugMode.textContent = info.mode;
-    el.debugState.textContent = info.state;
-    el.debugHeldMs.textContent = Math.round(info.heldMs) + " ms";
-    el.debugSampleRate.textContent = audioContext ? audioContext.sampleRate + " Hz" : "--";
+    if (el.debugState) {
+      el.debugRawF0.textContent = info.rawFrequency ? info.rawFrequency.toFixed(2) + " Hz" : "--";
+      el.debugSmoothedF0.textContent = info.smoothedFrequency
+        ? info.smoothedFrequency.toFixed(2) + " Hz"
+        : "--";
+      el.debugRMS.textContent = info.rms.toFixed(5);
+      el.debugTargetFreq.textContent = info.targetFrequency.toFixed(2) + " Hz";
+      el.debugTargetCents.textContent = info.targetCents !== null ? info.targetCents.toFixed(1) : "--";
+      el.debugConfidence.textContent = confidence !== null ? confidence.toFixed(3) : "--";
+      el.debugMode.textContent = info.mode;
+      el.debugState.textContent = info.state;
+      el.debugHeldMs.textContent = Math.round(info.heldMs) + " ms";
+      el.debugSampleRate.textContent = audioContext ? audioContext.sampleRate + " Hz" : "--";
+    }
   }
 
   renderIdleState();
