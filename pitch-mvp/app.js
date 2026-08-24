@@ -81,54 +81,34 @@
       playbackContext = new Ctx();
     }
     if (playbackContext.state === "suspended") {
-      playbackContext
-        .resume()
-        .then(function () {
-          alert("診断: resume成功、新しいstate = " + playbackContext.state);
-        })
-        .catch(function (e) {
-          alert("診断: resume失敗 - " + e.name + ": " + e.message);
-        });
+      playbackContext.resume().catch(function () {});
     }
     return playbackContext;
   }
 
   function playReferenceTone(frequency) {
-    try {
-      var ctx = ensurePlaybackContext();
-      if (!ctx) {
-        alert("診断: AudioContextを作成できませんでした(Web Audio API非対応)");
-        return;
-      }
-      if (!frequency) {
-        alert("診断: frequencyが不正です: " + frequency);
-        return;
-      }
+    var ctx = ensurePlaybackContext();
+    if (!ctx || !frequency) return;
 
-      alert("診断: ctx.state = " + ctx.state + " / frequency = " + frequency.toFixed(1) + "Hz");
+    var durationSec = CONFIG.REFERENCE_TONE_DURATION_MS / 1000;
+    var peakVolume = CONFIG.REFERENCE_TONE_VOLUME;
+    var fade = Math.min(0.03, durationSec / 4);
 
-      var durationSec = CONFIG.REFERENCE_TONE_DURATION_MS / 1000;
-      var peakVolume = CONFIG.REFERENCE_TONE_VOLUME;
-      var fade = Math.min(0.03, durationSec / 4);
+    var osc = ctx.createOscillator();
+    var gainNode = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = frequency;
 
-      var osc = ctx.createOscillator();
-      var gainNode = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = frequency;
+    var now = ctx.currentTime;
+    gainNode.gain.setValueAtTime(0.0001, now);
+    gainNode.gain.exponentialRampToValueAtTime(peakVolume, now + fade);
+    gainNode.gain.setValueAtTime(peakVolume, now + durationSec - fade);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
 
-      var now = ctx.currentTime;
-      gainNode.gain.setValueAtTime(0.0001, now);
-      gainNode.gain.exponentialRampToValueAtTime(peakVolume, now + fade);
-      gainNode.gain.setValueAtTime(peakVolume, now + durationSec - fade);
-      gainNode.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
-
-      osc.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + durationSec + 0.05);
-    } catch (e) {
-      alert("診断: エラー発生 - " + e.name + ": " + e.message);
-    }
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + durationSec + 0.05);
   }
 
   el.replayToneBtn.addEventListener("click", function () {
