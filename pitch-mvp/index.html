@@ -176,7 +176,7 @@
 <div class="wrap">
 
   <span class="badge">Phase 1 ・ 技術検証 MVP</span>
-  <span class="version-tag">build v15</span>
+  <span class="version-tag">build v16</span>
   <h1>音域診断 リアルタイム音程検出テスト</h1>
   <p class="sub">iPhone Safariでの動作確認を目的とした検証用ページです。音声はサーバーへ送信されず、ブラウザ内でのみ処理されます。</p>
 
@@ -269,10 +269,19 @@
     <div class="hold-bar"><div class="hold-bar-fill" id="challengeBarFill" style="background:var(--blue);"></div></div>
 
     <div id="challengeResult" hidden style="margin-top:14px; padding:16px; border-radius:12px; background:var(--sky); text-align:center;">
-      <div class="label" style="margin-bottom:6px;">音域チャレンジ結果</div>
+      <div class="label" style="margin-bottom:6px;" id="challengeResultLabel">音域チャレンジ結果</div>
       <div style="font-size:30px; font-weight:900; color:var(--navy-2);" id="challengeResultNote">--</div>
       <div style="font-size:12px; color:var(--text-dim); margin-top:6px;" id="challengeResultDetail"></div>
-      <button id="challengeResetBtn" style="margin-top:12px; padding:10px 20px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-weight:800; cursor:pointer;">もう一度挑戦</button>
+
+      <button id="challengeOtherModeBtn" hidden style="margin-top:12px; padding:10px 20px; border-radius:10px; border:none; background:var(--data); color:#fff; font-weight:800; cursor:pointer; width:100%;">他の音域もチャレンジする</button>
+
+      <div id="finalResultBlock" hidden style="margin-top:6px;">
+        <div class="label" style="margin-bottom:6px;">あなたの音域</div>
+        <div style="font-size:28px; font-weight:900; color:var(--navy-2);" id="finalRangeText">-- ~ --</div>
+        <button id="shareBtn" style="margin-top:12px; padding:10px 20px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-weight:800; cursor:pointer; width:100%;">SNSでシェア</button>
+      </div>
+
+      <button id="challengeResetBtn" style="margin-top:10px; padding:10px 20px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-weight:700; cursor:pointer; width:100%;">もう一度最初から</button>
     </div>
   </div>
 
@@ -297,7 +306,7 @@
   <footer>RHOボイトレ内部検証用ページ（非公開・検索非表示）</footer>
 </div>
 
-<script src="pitch-detector.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script src="pitch-detector.js?v=16"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>
