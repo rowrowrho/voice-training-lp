@@ -53,9 +53,14 @@
     challengeTimeValue: document.getElementById("challengeTimeValue"),
     challengeBarFill: document.getElementById("challengeBarFill"),
     challengeResult: document.getElementById("challengeResult"),
+    challengeResultLabel: document.getElementById("challengeResultLabel"),
     challengeResultNote: document.getElementById("challengeResultNote"),
     challengeResultDetail: document.getElementById("challengeResultDetail"),
     challengeResetBtn: document.getElementById("challengeResetBtn"),
+    challengeOtherModeBtn: document.getElementById("challengeOtherModeBtn"),
+    finalResultBlock: document.getElementById("finalResultBlock"),
+    finalRangeText: document.getElementById("finalRangeText"),
+    shareBtn: document.getElementById("shareBtn"),
   };
 
   var audioContext = null;
@@ -70,11 +75,15 @@
   // ---- TARGETセレクトの初期化 ----
   var targetList = PitchLib.generateTargetNoteList();
   var DEFAULT_TARGET_LABEL = "A3";
+  var STARTING_TARGET_MIDI = null; // A3のMIDI番号(下で確定させる)
   targetList.forEach(function (note) {
     var opt = document.createElement("option");
     opt.value = String(note.midi);
     opt.textContent = note.label;
-    if (note.label === DEFAULT_TARGET_LABEL) opt.selected = true;
+    if (note.label === DEFAULT_TARGET_LABEL) {
+      opt.selected = true;
+      STARTING_TARGET_MIDI = note.midi;
+    }
     el.targetSelect.appendChild(opt);
   });
 
@@ -94,8 +103,12 @@
   // ---- 音域チャレンジモード ----
   var challengeActive = false;
   var challengeDeadline = null; // performance.now()基準の締切時刻
-  var lastClearedNoteLabel = null; // 直前にCLEARできた音の表示名 (例: "A3")
+  var lastClearedNoteLabel = null; // 今の方向で直前にCLEARできた音の表示名
   var lastClearedNoteMidi = null;
+
+  // 両方向(HIGH/LOW)それぞれの結果を記録
+  var directionTested = { HIGH: false, LOW: false };
+  var directionResult = { HIGH: null, LOW: null }; // クリアできた最遠の音の表示名 | null(記録なし)
 
   function hideChallengeResult() {
     el.challengeResult.hidden = true;
@@ -125,6 +138,10 @@
     el.challengeBarFill.style.width = pct + "%";
   }
 
+  function directionLabel(mode) {
+    return mode === "LOW" ? "低音域" : "高音域";
+  }
+
   // reachedListEnd: trueなら「これ以上の音がリストに無い」ことによる終了(=そこまで到達できた成功扱い)
   function finishChallenge(reachedListEnd) {
     challengeActive = false;
@@ -133,31 +150,94 @@
     el.challengeTimeValue.textContent = "--";
     el.challengeBarFill.style.width = "0%";
 
+    var currentMode = tracker.mode;
+    directionTested[currentMode] = true;
+    directionResult[currentMode] = lastClearedNoteLabel;
+
     el.challengeResult.hidden = false;
+    el.challengeResultLabel.textContent = directionLabel(currentMode) + "チャレンジ結果";
+    el.challengeResultNote.hidden = false;
+    el.finalResultBlock.hidden = true;
+    el.challengeOtherModeBtn.hidden = true;
 
     if (lastClearedNoteLabel === null) {
       el.challengeResultNote.textContent = "記録なし";
       el.challengeResultDetail.textContent =
         "10秒以内に1つも音をキープできませんでした。感度調整を見直すか、TARGETを変えてもう一度試してください。";
-      return;
+    } else {
+      el.challengeResultNote.textContent = lastClearedNoteLabel;
+      el.challengeResultDetail.textContent = reachedListEnd
+        ? "測定可能な音域の端まで到達しました。この音が今回測定できた音域の端です。"
+        : "この音までは10秒以内にキープできましたが、次の音は時間内にキープできませんでした。この音が今回の音域の端(の目安)です。";
     }
 
-    el.challengeResultNote.textContent = lastClearedNoteLabel;
-    if (reachedListEnd) {
-      el.challengeResultDetail.textContent =
-        "測定可能な音域の上限(下限)まで到達しました。この音が今回測定できた音域の端です。";
+    var otherMode = currentMode === "HIGH" ? "LOW" : "HIGH";
+    if (!directionTested[otherMode]) {
+      el.challengeOtherModeBtn.hidden = false;
+      el.challengeOtherModeBtn.textContent = directionLabel(otherMode) + "もチャレンジする";
     } else {
-      el.challengeResultDetail.textContent =
-        "この音までは10秒以内にキープできましたが、次の音は時間内にキープできませんでした。この音が今回の音域の端(の目安)です。";
+      showFinalResult();
     }
   }
 
-  el.challengeResetBtn.addEventListener("click", function () {
+  function showFinalResult() {
+    el.challengeResultLabel.textContent = "音域チャレンジ 最終結果";
+    el.challengeResultNote.hidden = true;
+    el.challengeResultDetail.textContent = "";
+    el.challengeOtherModeBtn.hidden = true;
+
+    var lowLabel = directionResult.LOW || "測定不可";
+    var highLabel = directionResult.HIGH || "測定不可";
+    el.finalRangeText.textContent = lowLabel + " 〜 " + highLabel;
+    el.finalResultBlock.hidden = false;
+  }
+
+  function goToStartingTarget() {
+    el.targetSelect.value = String(STARTING_TARGET_MIDI);
+    applyTargetFromSelect();
+    tracker.resetHold();
+  }
+
+  el.challengeOtherModeBtn.addEventListener("click", function () {
+    var otherMode = tracker.mode === "HIGH" ? "LOW" : "HIGH";
+    setMode(otherMode);
+    goToStartingTarget();
     hideChallengeResult();
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
-    tracker.resetHold();
     startChallengeForCurrentTarget();
+  });
+
+  el.challengeResetBtn.addEventListener("click", function () {
+    hideChallengeResult();
+    directionTested.HIGH = false;
+    directionTested.LOW = false;
+    directionResult.HIGH = null;
+    directionResult.LOW = null;
+    lastClearedNoteLabel = null;
+    lastClearedNoteMidi = null;
+    setMode("HIGH");
+    goToStartingTarget();
+    startChallengeForCurrentTarget();
+  });
+
+  el.shareBtn.addEventListener("click", function () {
+    var lowLabel = directionResult.LOW || "測定不可";
+    var highLabel = directionResult.HIGH || "測定不可";
+    var shareText =
+      "私の音域は " + lowLabel + " 〜 " + highLabel + " でした！ #RHOボイトレ #音域診断";
+    var shareUrl = location.href;
+
+    if (navigator.share) {
+      navigator.share({ text: shareText, url: shareUrl }).catch(function () {});
+    } else {
+      var intentUrl =
+        "https://twitter.com/intent/tweet?text=" +
+        encodeURIComponent(shareText) +
+        "&url=" +
+        encodeURIComponent(shareUrl);
+      window.open(intentUrl, "_blank");
+    }
   });
 
   el.autoAdvanceToggle.addEventListener("change", function () {
@@ -176,9 +256,11 @@
 
   function advanceToNextTarget() {
     var currentIndex = el.targetSelect.selectedIndex;
-    var nextIndex = currentIndex + 1;
-    if (nextIndex >= el.targetSelect.options.length) {
-      // これ以上、上の音がない（C7に到達）ので、そこまでの到達を成功として終了
+    // LOW MODEのときは音域を下方向(index-1)、それ以外は上方向(index+1)へ進める
+    var step = tracker.mode === "LOW" ? -1 : 1;
+    var nextIndex = currentIndex + step;
+    if (nextIndex < 0 || nextIndex >= el.targetSelect.options.length) {
+      // これ以上その方向に音がない（リストの端に到達）ので、到達成功として終了
       finishChallenge(true);
       return;
     }
@@ -199,6 +281,10 @@
   el.targetSelect.addEventListener("change", function () {
     cancelAutoAdvance();
     hideChallengeResult();
+    directionTested.HIGH = false;
+    directionTested.LOW = false;
+    directionResult.HIGH = null;
+    directionResult.LOW = null;
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
     startChallengeForCurrentTarget();
