@@ -39,7 +39,7 @@
 
     // 入力レベル（RMS, -1〜1のfloatサンプルに対する値）
     // この値未満は「無音」として扱う。実機で調整すること。
-    INPUT_LEVEL_THRESHOLD: 0.015,
+    INPUT_LEVEL_THRESHOLD: 0.006,
 
     // YINアルゴリズムの絶対しきい値。小さいほど厳密（誤検出は減るが感度も下がる）
     YIN_THRESHOLD: 0.15,
