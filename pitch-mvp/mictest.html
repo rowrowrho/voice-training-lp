@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マイクテスト</title>
+</head>
+<body style="font-family:sans-serif; padding:40px; text-align:center;">
+  <h1>マイク単体テスト</h1>
+  <button id="btn" style="font-size:22px; padding:24px 32px; margin-top:20px;">
+    マイクを取得する
+  </button>
+  <p id="log" style="margin-top:30px; color:gray; word-break:break-all;">まだ何も起きていません</p>
+
+  <script>
+    var log = document.getElementById('log');
+    var btn = document.getElementById('btn');
+
+    btn.addEventListener('click', function () {
+      log.textContent = 'ボタンが押されました。マイクを要求します…';
+      log.style.color = 'blue';
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        log.textContent = 'このブラウザはgetUserMediaに対応していません';
+        log.style.color = 'red';
+        return;
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function (stream) {
+          log.textContent = '成功！マイクを取得できました。トラック数: ' + stream.getTracks().length;
+          log.style.color = 'green';
+          stream.getTracks().forEach(function (t) { t.stop(); });
+        })
+        .catch(function (err) {
+          log.textContent = '失敗: ' + err.name + ' - ' + err.message;
+          log.style.color = 'red';
+        });
+    });
+  </script>
+</body>
+</html>
