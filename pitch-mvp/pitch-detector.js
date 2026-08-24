@@ -64,7 +64,7 @@
     // オクターブ補正が何フレーム連続でかかり続けたら「基準点の方が間違っている」
     // と判断して乗り換えるか。小さいほど素早く乗り換わるが、瞬間的な
     // 誤検出にも過敏になりやすい。60fps換算で10フレーム≒約170ms。
-    OCTAVE_RELOCK_STREAK_FRAMES: 10,
+    OCTAVE_RELOCK_STREAK_FRAMES: 20,
   };
 
   const NOTE_NAMES = [
