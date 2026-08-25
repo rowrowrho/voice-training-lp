@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ボイスカルテ 画像作成ツール - RHOボイトレ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --navy:#173A5E;
+    --navy-2:#0F2A46;
+    --blue:#2E76B6;
+    --sky:#EAF2FB;
+    --bg:#F5F8FC;
+    --paper:#FFFFFF;
+    --text:#2B3A4A;
+    --text-dim:#66788C;
+    --line:#E1E8F0;
+    --amber:#F5B84E;
+    --sans:"Zen Kaku Gothic New", sans-serif;
+    --shadow: 0 16px 40px rgba(23,58,94,0.10);
+    --data:#17A98D;
+    --data-2:#0E7F69;
+    --data-bg:#E7F7F3;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+    padding:20px 16px 60px;
+  }
+  .page-title{font-size:19px; font-weight:900; color:var(--navy); margin-bottom:4px;}
+  .page-sub{font-size:12.5px; color:var(--text-dim); margin-bottom:24px;}
+
+  /* ---------- form ---------- */
+  .panel{
+    background:var(--paper); border:1px solid var(--line); border-radius:18px;
+    padding:20px 18px; box-shadow:var(--shadow); margin-bottom:20px;
+  }
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{display:block; font-size:11.5px; font-weight:700; color:var(--navy); margin-bottom:6px; letter-spacing:0.02em;}
+  .field .hint{font-size:10.5px; color:var(--text-dim); margin-top:5px;}
+  .field input[type="text"], .field textarea, .field select{
+    width:100%; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px;
+    font-family:var(--sans); font-size:14px; color:var(--text); background:#fff;
+  }
+  .field input[type="text"]:focus, .field textarea:focus, .field select:focus{
+    outline:none; border-color:var(--blue);
+  }
+  .field textarea{resize:vertical; min-height:56px; line-height:1.6;}
+  .range-row{display:flex; align-items:center; gap:10px;}
+  .range-row select{flex:1;}
+  .range-row span{color:var(--text-dim); font-size:12px;}
+  .subgroup{
+    border-top:1px dashed var(--line); margin-top:16px; padding-top:14px;
+  }
+  .subgroup-title{font-size:10.5px; font-weight:700; color:var(--text-dim); margin-bottom:10px; letter-spacing:0.04em;}
+  .toggle-row{display:flex; align-items:center; gap:8px; margin-top:2px;}
+  .toggle-row input{width:16px; height:16px;}
+  .toggle-row label{font-size:12.5px; color:var(--text); font-weight:500; margin:0;}
+
+  .save-btn{
+    width:100%; background:var(--navy); color:#fff; font-family:var(--sans);
+    font-weight:700; font-size:14.5px; padding:14px; border:none; border-radius:100px;
+    box-shadow:0 8px 20px rgba(23,58,94,0.25); cursor:pointer; margin-top:6px;
+  }
+  .save-btn:active{opacity:0.85;}
+
+  /* ---------- preview label ---------- */
+  .preview-label{font-size:11.5px; font-weight:700; color:var(--text-dim); margin:26px 0 10px; text-align:center; letter-spacing:0.04em;}
+
+  /* ---------- voice carte (exact brand styles) ---------- */
+  .carte-wrap{max-width:420px; margin:0 auto; position:relative;}
+  .carte-card{
+    background:var(--paper); border-radius:22px; padding:30px 26px; box-shadow:var(--shadow);
+    border:1px solid var(--line); position:relative; overflow:hidden;
+  }
+  .carte-stamp{
+    position:absolute; top:18px; right:-34px; background:var(--amber); color:var(--navy);
+    font-size:11px; font-weight:900; padding:5px 40px; transform:rotate(35deg); letter-spacing:0.06em;
+    box-shadow:0 3px 8px rgba(0,0,0,0.12);
+  }
+  .carte-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:22px;}
+  .carte-head .t1{font-size:11px; letter-spacing:0.12em; color:var(--data-2); font-weight:700;}
+  .carte-head .t2{font-size:17px; color:var(--navy); font-weight:900; margin-top:2px;}
+  .carte-row{margin-bottom:18px;}
+  .carte-row .label{font-size:11px; color:var(--text-dim); font-weight:700; margin-bottom:6px;}
+  .carte-row .value{font-size:14.5px; color:var(--navy); font-weight:900; white-space:pre-wrap;}
+  .carte-slider-labels{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-dim); margin-top:6px;}
+  .carte-range{height:8px; border-radius:100px; background:var(--sky); position:relative; margin-top:8px; overflow:hidden;}
+  .carte-range .fill{position:absolute; top:0; bottom:0; left:14%; right:22%; background:var(--data); border-radius:100px;}
+  .carte-note{background:var(--sky); border-radius:12px; padding:16px 16px; margin-top:20px;}
+  .carte-note .label{font-size:11px; font-weight:700; color:var(--navy); margin-bottom:6px;}
+  .carte-note p{font-size:12.5px; color:var(--text-dim); line-height:1.75; white-space:pre-wrap;}
+  .carte-footnote{text-align:center; font-size:11.5px; color:var(--text-dim); margin-top:16px;}
+
+  /* ---------- result modal ---------- */
+  .result-overlay{
+    display:none; position:fixed; inset:0; background:rgba(15,42,70,0.55);
+    z-index:50; align-items:center; justify-content:center; padding:20px;
+  }
+  .result-overlay.show{display:flex;}
+  .result-box{
+    background:#fff; border-radius:20px; padding:20px; max-width:440px; width:100%;
+    max-height:90vh; overflow-y:auto; text-align:center;
+  }
+  .result-box h3{font-size:15px; color:var(--navy); margin-bottom:10px;}
+  .result-box img{width:100%; border-radius:14px; border:1px solid var(--line); margin-bottom:12px;}
+  .result-box .note{font-size:12px; color:var(--text-dim); margin-bottom:14px; line-height:1.7;}
+  .result-actions{display:flex; gap:10px;}
+  .result-actions a, .result-actions button{
+    flex:1; display:block; padding:12px; border-radius:100px; font-size:13.5px; font-weight:700;
+    font-family:var(--sans); text-decoration:none; border:none; cursor:pointer;
+  }
+  .btn-download{background:var(--navy); color:#fff;}
+  .btn-close{background:var(--sky); color:var(--navy);}
+</style>
+</head>
+<body>
+
+  <div class="page-title">ボイスカルテ 画像作成ツール</div>
+  <div class="page-sub">項目を入力すると、下にカードのプレビューが表示されます。「画像として保存」で1枚のPNGを書き出せます。</div>
+
+  <div class="panel">
+    <div class="field">
+      <label>発声タイプ</label>
+      <input type="text" id="voiceType" value="Pull傾向">
+    </div>
+
+    <div class="field">
+      <label>換声ポイント</label>
+      <input type="text" id="passaggio" value="E4 〜 F#4 付近">
+    </div>
+
+    <div class="field">
+      <label>音域（実測）</label>
+      <div class="range-row">
+        <select id="rangeLow"></select>
+        <span>〜</span>
+        <select id="rangeHigh"></select>
+      </div>
+      <div class="hint">バー上の帯として自動で反映されます</div>
+
+      <div class="subgroup">
+        <div class="subgroup-title">バーの表示範囲（両端の目盛り）</div>
+        <div class="range-row">
+          <select id="scaleLow"></select>
+          <span>〜</span>
+          <select id="scaleHigh"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>今回のポイント</label>
+      <textarea id="pointText">高音域で地声を強く維持しようとする傾向があります。</textarea>
+    </div>
+
+    <div class="field">
+      <label>おすすめトレーニング</label>
+      <textarea id="trainingText">裏声から地声への接続を作る練習</textarea>
+    </div>
+
+    <div class="field">
+      <div class="toggle-row">
+        <input type="checkbox" id="showSample">
+        <label for="showSample">「SAMPLE」の帯を表示する</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-label">プレビュー</div>
+
+  <div class="carte-wrap">
+    <div class="carte-card" id="carteCard">
+      <div class="carte-stamp" id="stampEl" style="display:none;">SAMPLE</div>
+      <div class="carte-head">
+        <div><div class="t1">VOICE CARTE</div><div class="t2">ボイスカルテ</div></div>
+      </div>
+
+      <div class="carte-row">
+        <div class="label">発声タイプ</div>
+        <div class="value" id="outVoiceType">Pull傾向</div>
+      </div>
+
+      <div class="carte-row">
+        <div class="label">換声ポイント</div>
+        <div class="value" id="outPassaggio">E4 〜 F#4 付近</div>
+      </div>
+
+      <div class="carte-row">
+        <div class="label">音域</div>
+        <div class="carte-range"><div class="fill" id="rangeFill"></div></div>
+        <div class="carte-slider-labels"><span id="outScaleLow">G2</span><span id="outScaleHigh">B4</span></div>
+      </div>
+
+      <div class="carte-note">
+        <div class="label">今回のポイント</div>
+        <p id="outPoint">高音域で地声を強く維持しようとする傾向があります。</p>
+        <div class="label" style="margin-top:12px;">おすすめトレーニング</div>
+        <p id="outTraining">裏声から地声への接続を作る練習</p>
+      </div>
+    </div>
+    <p class="carte-footnote">※ 表示内容はサンプルです。実際の結果は録音内容に基づき異なります。</p>
+  </div>
+
+  <button class="save-btn" id="saveBtn">画像として保存</button>
+
+  <div class="result-overlay" id="resultOverlay">
+    <div class="result-box">
+      <h3>画像ができました</h3>
+      <img id="resultImg" alt="ボイスカルテ">
+      <div class="note">iPhoneの方は画像を長押しして「写真に追加」を選ぶと保存できます。</div>
+      <div class="result-actions">
+        <a class="btn-download" id="downloadLink" download="voice-carte.png">ダウンロード</a>
+        <button class="btn-close" id="closeResult">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- note helpers ----------
+  var NOTE_BASE = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+  var NOTE_ORDER = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+  function noteToNum(letter, accidental, octave){
+    var semis = NOTE_BASE[letter];
+    if(accidental === "#") semis += 1;
+    return octave*12 + semis;
+  }
+
+  function buildNoteOptions(selectEl, defaultLabel){
+    var options = [];
+    for(var oct=1; oct<=6; oct++){
+      for(var i=0; i<NOTE_ORDER.length; i++){
+        var label = NOTE_ORDER[i] + oct;
+        options.push(label);
+      }
+    }
+    selectEl.innerHTML = "";
+    for(var j=0; j<options.length; j++){
+      var opt = document.createElement("option");
+      opt.value = options[j];
+      opt.textContent = options[j];
+      if(options[j] === defaultLabel) opt.selected = true;
+      selectEl.appendChild(opt);
+    }
+  }
+
+  function labelToNum(label){
+    var m = label.match(/^([A-G])(#?)(\d)$/);
+    if(!m) return null;
+    return noteToNum(m[1], m[2], parseInt(m[3], 10));
+  }
+
+  var rangeLowEl = document.getElementById("rangeLow");
+  var rangeHighEl = document.getElementById("rangeHigh");
+  var scaleLowEl = document.getElementById("scaleLow");
+  var scaleHighEl = document.getElementById("scaleHigh");
+
+  buildNoteOptions(rangeLowEl, "A2");
+  buildNoteOptions(rangeHighEl, "G4");
+  buildNoteOptions(scaleLowEl, "G2");
+  buildNoteOptions(scaleHighEl, "B4");
+
+  // ---------- live update ----------
+  var voiceTypeEl = document.getElementById("voiceType");
+  var passaggioEl = document.getElementById("passaggio");
+  var pointTextEl = document.getElementById("pointText");
+  var trainingTextEl = document.getElementById("trainingText");
+  var showSampleEl = document.getElementById("showSample");
+
+  var outVoiceType = document.getElementById("outVoiceType");
+  var outPassaggio = document.getElementById("outPassaggio");
+  var outPoint = document.getElementById("outPoint");
+  var outTraining = document.getElementById("outTraining");
+  var outScaleLow = document.getElementById("outScaleLow");
+  var outScaleHigh = document.getElementById("outScaleHigh");
+  var rangeFill = document.getElementById("rangeFill");
+  var stampEl = document.getElementById("stampEl");
+
+  function update(){
+    outVoiceType.textContent = voiceTypeEl.value;
+    outPassaggio.textContent = passaggioEl.value;
+    outPoint.textContent = pointTextEl.value;
+    outTraining.textContent = trainingTextEl.value;
+    outScaleLow.textContent = scaleLowEl.value;
+    outScaleHigh.textContent = scaleHighEl.value;
+    stampEl.style.display = showSampleEl.checked ? "block" : "none";
+
+    var scaleLowNum = labelToNum(scaleLowEl.value);
+    var scaleHighNum = labelToNum(scaleHighEl.value);
+    var lowNum = labelToNum(rangeLowEl.value);
+    var highNum = labelToNum(rangeHighEl.value);
+
+    if(scaleLowNum !== null && scaleHighNum !== null && lowNum !== null && highNum !== null && scaleHighNum > scaleLowNum){
+      var span = scaleHighNum - scaleLowNum;
+      var leftPct = ((lowNum - scaleLowNum) / span) * 100;
+      var rightPct = 100 - ((highNum - scaleLowNum) / span) * 100;
+      leftPct = Math.max(0, Math.min(100, leftPct));
+      rightPct = Math.max(0, Math.min(100, rightPct));
+      rangeFill.style.left = leftPct + "%";
+      rangeFill.style.right = rightPct + "%";
+    }
+  }
+
+  [voiceTypeEl, passaggioEl, pointTextEl, trainingTextEl, showSampleEl,
+   rangeLowEl, rangeHighEl, scaleLowEl, scaleHighEl].forEach(function(el){
+    el.addEventListener("input", update);
+    el.addEventListener("change", update);
+  });
+
+  update();
+
+  // ---------- save as image ----------
+  var saveBtn = document.getElementById("saveBtn");
+  var resultOverlay = document.getElementById("resultOverlay");
+  var resultImg = document.getElementById("resultImg");
+  var downloadLink = document.getElementById("downloadLink");
+  var closeResult = document.getElementById("closeResult");
+
+  saveBtn.addEventListener("click", function(){
+    saveBtn.disabled = true;
+    saveBtn.textContent = "作成中…";
+    var wrap = document.querySelector(".carte-wrap");
+    html2canvas(wrap, {scale:3, backgroundColor:"#F5F8FC"}).then(function(canvas){
+      var dataUrl = canvas.toDataURL("image/png");
+      resultImg.src = dataUrl;
+      downloadLink.href = dataUrl;
+      resultOverlay.classList.add("show");
+      saveBtn.disabled = false;
+      saveBtn.textContent = "画像として保存";
+    }).catch(function(err){
+      alert("画像の作成に失敗しました。もう一度お試しください。");
+      saveBtn.disabled = false;
+      saveBtn.textContent = "画像として保存";
+    });
+  });
+
+  closeResult.addEventListener("click", function(){
+    resultOverlay.classList.remove("show");
+  });
+</script>
+</body>
+</html>
