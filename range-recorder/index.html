@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>音域測定(5tone)｜RHOボイトレ</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#173A5E;
+    --navy-2:#0F2A46;
+    --blue:#2E76B6;
+    --sky:#EAF2FB;
+    --bg:#F5F8FC;
+    --paper:#FFFFFF;
+    --text:#2B3A4A;
+    --text-dim:#66788C;
+    --line:#E1E8F0;
+    --amber:#F5B84E;
+    --data:#17A98D;
+    --danger:#D9634E;
+    --sans:"Zen Kaku Gothic New", sans-serif;
+    --shadow: 0 16px 40px rgba(23,58,94,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{overflow-x:hidden;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    padding-bottom:48px;
+  }
+  .wrap{max-width:520px; margin:0 auto; padding:20px 16px 0;}
+
+  .badge{
+    display:inline-block; font-size:12px; font-weight:700; letter-spacing:.04em;
+    color:var(--data); background:rgba(23,169,141,0.10);
+    border:1px solid rgba(23,169,141,0.30); border-radius:999px;
+    padding:4px 10px; margin-bottom:10px;
+  }
+  h1{font-size:19px; font-weight:900; color:var(--navy-2); margin-bottom:4px;}
+  .sub{font-size:12.5px; color:var(--text-dim); margin-bottom:18px;}
+
+  .card{
+    background:var(--paper); border:1px solid var(--line); border-radius:16px;
+    padding:18px; margin-bottom:14px; box-shadow:var(--shadow);
+  }
+  .label{font-size:11px; font-weight:700; color:var(--text-dim); letter-spacing:.06em;}
+
+  [hidden]{display:none !important;}
+
+  /* --- フォーム --- */
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field input[type="text"]{
+    width:100%; margin-top:6px; font-family:var(--sans); font-size:15px;
+    padding:11px 12px; border:1px solid var(--line); border-radius:10px;
+    background:var(--sky); color:var(--navy-2);
+  }
+
+  /* --- 性別選択ボタン --- */
+  .gender-row{display:flex; gap:10px; margin-top:6px;}
+  .gender-btn{
+    flex:1; padding:16px 10px; text-align:center; font-weight:800; font-size:14.5px;
+    border-radius:12px; border:1px solid var(--line); background:var(--sky);
+    color:var(--navy-2); cursor:pointer;
+  }
+  .gender-btn small{display:block; font-weight:600; font-size:11px; color:var(--text-dim); margin-top:3px;}
+  .gender-btn.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .gender-btn.active small{color:rgba(255,255,255,0.75);}
+
+  /* --- ボタン共通 --- */
+  .btn{
+    display:block; width:100%; padding:16px 12px; font-size:16px; font-weight:900;
+    font-family:var(--sans); color:#fff; background:var(--navy);
+    border:none; border-radius:14px; cursor:pointer; text-align:center;
+    box-shadow:0 10px 24px rgba(23,58,94,0.28);
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{opacity:.45; cursor:not-allowed; box-shadow:none;}
+  .btn-sub{
+    background:var(--sky); color:var(--navy-2); box-shadow:none;
+    border:1px solid var(--line); font-weight:800; font-size:14px; padding:13px 12px;
+  }
+  .btn-data{background:var(--data);}
+  .btn-danger-outline{
+    background:transparent; color:var(--danger); border:1px solid rgba(217,99,78,0.4);
+    box-shadow:none; font-weight:800; font-size:13.5px; padding:12px;
+  }
+  .btn-row{display:flex; gap:10px; margin-top:10px;}
+  .btn-row .btn{margin-top:0;}
+
+  #errorMsg{
+    margin-top:10px; padding:10px 12px; border-radius:10px;
+    background:rgba(217,99,78,0.10); border:1px solid rgba(217,99,78,0.35);
+    color:var(--danger); font-size:13px; font-weight:700;
+  }
+
+  /* --- TARGET表示 --- */
+  .target-block{text-align:center; padding:10px 0 4px;}
+  .target-eyebrow{font-size:11px; font-weight:700; color:var(--text-dim); letter-spacing:.08em;}
+  .target-display{font-size:52px; font-weight:900; color:var(--navy-2); line-height:1.1; margin:4px 0;}
+  .target-sub{font-size:12px; color:var(--text-dim);}
+
+  /* --- 録音ボタン --- */
+  #recordBtn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; padding:20px 12px; font-size:17px; font-weight:900;
+    font-family:var(--sans); color:#fff; background:var(--navy);
+    border:none; border-radius:14px; cursor:pointer; margin-top:14px;
+    box-shadow:0 10px 24px rgba(23,58,94,0.28);
+  }
+  #recordBtn.recording{background:var(--danger);}
+  #recordBtn .dot{
+    width:12px; height:12px; border-radius:50%; background:#fff; flex-shrink:0;
+  }
+  #recordBtn.recording .dot{animation:pulse 1s infinite;}
+  @keyframes pulse{
+    0%{opacity:1;} 50%{opacity:.35;} 100%{opacity:1;}
+  }
+  #recTimer{font-size:12.5px; color:var(--text-dim); text-align:center; margin-top:8px;}
+
+  /* --- テイクプレビュー --- */
+  .take-preview{margin-top:14px; padding:14px; border-radius:12px; background:var(--sky);}
+  .take-preview audio{width:100%; margin-top:8px;}
+
+  /* --- 録音済みリスト --- */
+  .rec-list{margin-top:4px;}
+  .rec-item{
+    display:flex; align-items:center; gap:10px; padding:10px 0;
+    border-top:1px dashed var(--line);
+  }
+  .rec-item:first-child{border-top:none;}
+  .rec-item-note{font-size:14px; font-weight:900; color:var(--navy-2); width:44px; flex-shrink:0;}
+  .rec-item audio{flex:1; height:32px;}
+  .rec-item-del{
+    flex-shrink:0; width:28px; height:28px; border-radius:50%; border:1px solid var(--line);
+    background:var(--paper); color:var(--text-dim); font-size:14px; font-weight:700;
+    cursor:pointer; line-height:1;
+  }
+  .rec-empty{font-size:12.5px; color:var(--text-dim); text-align:center; padding:6px 0;}
+  .rec-count{font-size:12.5px; color:var(--data); font-weight:800; margin-bottom:8px;}
+
+  .range-cap-note{
+    margin-top:12px; padding:12px; border-radius:10px; background:rgba(245,184,78,0.18);
+    color:#8A6414; font-size:12.5px; font-weight:700; text-align:center;
+  }
+
+  /* --- 送信完了 --- */
+  .done-icon{font-size:44px; text-align:center; margin-bottom:6px;}
+  .done-title{font-size:17px; font-weight:900; color:var(--navy-2); text-align:center;}
+  .done-sub{font-size:13px; color:var(--text-dim); text-align:center; margin-top:6px;}
+
+  footer{text-align:center; font-size:11px; color:var(--text-dim); margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="badge">VOICE CARTE RECORDER</span>
+  <h1>音域測定(5tone)</h1>
+  <p class="sub">お手本の5tone(ドレミファソファミレド)を聴いてから、同じ高さで歌って録音してください。録音データはボイスカルテ作成のために使用します。</p>
+
+  <div id="errorMsg" hidden></div>
+
+  <!-- STEP 0: 基本情報 -->
+  <section id="screenIntro">
+    <div class="card">
+      <span class="label">性別(音域の測定開始位置が変わります)</span>
+      <div class="gender-row">
+        <div class="gender-btn" id="genderMaleBtn">男性<small>E3から開始</small></div>
+        <div class="gender-btn" id="genderFemaleBtn">女性<small>A3から開始</small></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <span class="label">お名前 / ニックネーム(任意)</span>
+        <input type="text" id="nicknameInput" placeholder="例: ろー">
+      </div>
+      <div class="field">
+        <span class="label">連絡先(X ID・LINEなど・任意)</span>
+        <input type="text" id="contactInput" placeholder="例: @row_row_rho">
+      </div>
+    </div>
+
+    <button class="btn" id="startBtn" disabled>マイクを許可して測定を始める</button>
+  </section>
+
+  <!-- STEP 1: 測定 -->
+  <section id="screenPractice" hidden>
+    <div class="card">
+      <div class="target-block">
+        <div class="target-eyebrow">TARGET</div>
+        <div class="target-display" id="targetDisplay">--</div>
+        <div class="target-sub">この音を根音にした5toneで歌ってください</div>
+      </div>
+
+      <button class="btn btn-sub" id="playToneBtn">🔊 お手本の5toneを聴く</button>
+
+      <button id="recordBtn">
+        <span class="dot"></span>
+        <span id="recordBtnLabel">録音を開始する</span>
+      </button>
+      <div id="recTimer" hidden>録音中… <span id="recTimerValue">0.0</span>秒</div>
+
+      <div class="take-preview" id="takePreview" hidden>
+        <span class="label">今の録音を確認</span>
+        <audio id="takeAudio" controls></audio>
+        <div class="btn-row">
+          <button class="btn btn-sub" id="retakeBtn" style="margin-top:10px;">🔁 録り直す</button>
+          <button class="btn btn-data" id="acceptBtn" style="margin-top:10px;">✓ OK・次の音へ</button>
+        </div>
+      </div>
+
+      <div class="range-cap-note" id="rangeCapNote" hidden>
+        測定できる音域の上限に達しました。ここまでの録音で「録音完了」を押してください。
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="rec-count" id="recCount">これまでの録音: 0件</div>
+      <div class="rec-list" id="recList">
+        <p class="rec-empty">まだ録音はありません</p>
+      </div>
+    </div>
+
+    <button class="btn" id="submitBtn" disabled>録音完了・提出する</button>
+    <p style="font-size:11.5px; color:var(--text-dim); text-align:center; margin-top:8px;">最低1音の録音が必要です</p>
+  </section>
+
+  <!-- STEP 2: 送信完了 -->
+  <section id="screenDone" hidden>
+    <div class="card">
+      <div class="done-icon">✅</div>
+      <div class="done-title">録音を提出しました</div>
+      <p class="done-sub">ご協力ありがとうございました。ボイスカルテの結果は改めてお届けします。</p>
+    </div>
+  </section>
+
+  <!-- 送信中オーバーレイ -->
+  <section id="screenSubmitting" hidden>
+    <div class="card">
+      <div class="done-title">送信しています…</div>
+      <p class="done-sub" id="submittingSub">しばらくお待ちください</p>
+    </div>
+  </section>
+
+  <footer>RHOボイトレ 音域測定ツール(内部利用)</footer>
+</div>
+
+<script src="app.js?v=1"></script>
+</body>
+</html>
