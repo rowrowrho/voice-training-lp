@@ -236,20 +236,40 @@
   <section id="screenPayment" hidden>
     <div class="card">
       <span class="label">お支払い(¥500)</span>
-      <p style="font-size:13px; color:var(--text-dim); margin-top:8px; line-height:1.8;">
-        ボイスカルテ作成のため、お支払いをお願いします。下のボタンから別タブでお支払いを完了すると、この画面が自動で切り替わります。
-      </p>
 
-      <button class="btn" id="goToPaymentBtn" style="margin-top:14px;">💳 支払いに進む(別タブが開きます)</button>
+      <!-- 自己申告制ブロック(現在の方式) -->
+      <div id="selfReportBlock" hidden>
+        <p style="font-size:13px; color:var(--text-dim); margin-top:8px; line-height:1.8;">
+          ボイスカルテ作成のため、下記の方法でお支払いをお願いします。<br>
+          <!-- ここにPayPay送金リンクや振込先などの案内文を入れてください -->
+          <strong style="color:var(--navy-2);">【お支払い方法をここに記載してください】</strong>
+        </p>
 
-      <p id="paymentStatusText" style="font-size:12.5px; color:var(--text-dim); text-align:center; margin-top:14px;">
-        お支払いはまだ確認できていません。
-      </p>
-      <button class="btn btn-sub" id="checkPaymentBtn" style="margin-top:6px;">🔄 支払い状況を確認する</button>
+        <label style="display:flex; align-items:center; gap:10px; margin-top:16px; padding:12px; border-radius:10px; background:var(--sky); cursor:pointer;">
+          <input type="checkbox" id="selfReportCheckbox" style="width:20px; height:20px; accent-color:var(--data);">
+          <span style="font-size:13.5px; font-weight:700; color:var(--navy-2);">支払いを完了しました</span>
+        </label>
 
-      <div id="paymentConfirmedBlock" hidden style="margin-top:16px; padding:14px; border-radius:12px; background:rgba(23,169,141,0.12); text-align:center;">
-        <div style="font-weight:900; color:var(--data); font-size:14px;">✅ お支払いを確認しました</div>
-        <button class="btn btn-data" id="finalSubmitBtn" style="margin-top:12px;" disabled>この内容で提出する</button>
+        <button class="btn btn-data" id="selfReportSubmitBtn" style="margin-top:14px;" disabled>支払い完了・提出する</button>
+      </div>
+
+      <!-- Stripeブロック(準備でき次第切替可能) -->
+      <div id="stripeBlock" hidden>
+        <p style="font-size:13px; color:var(--text-dim); margin-top:8px; line-height:1.8;">
+          ボイスカルテ作成のため、お支払いをお願いします。下のボタンから別タブでお支払いを完了すると、この画面が自動で切り替わります。
+        </p>
+
+        <button class="btn" id="goToPaymentBtn" style="margin-top:14px;">💳 支払いに進む(別タブが開きます)</button>
+
+        <p id="paymentStatusText" style="font-size:12.5px; color:var(--text-dim); text-align:center; margin-top:14px;">
+          お支払いはまだ確認できていません。
+        </p>
+        <button class="btn btn-sub" id="checkPaymentBtn" style="margin-top:6px;">🔄 支払い状況を確認する</button>
+
+        <div id="paymentConfirmedBlock" hidden style="margin-top:16px; padding:14px; border-radius:12px; background:rgba(23,169,141,0.12); text-align:center;">
+          <div style="font-weight:900; color:var(--data); font-size:14px;">✅ お支払いを確認しました</div>
+          <button class="btn btn-data" id="finalSubmitBtn" style="margin-top:12px;" disabled>この内容で提出する</button>
+        </div>
       </div>
 
       <button class="btn btn-sub" id="backToPracticeBtn" style="margin-top:14px; background:transparent; border:none; box-shadow:none; color:var(--text-dim); font-weight:700;">← 録音画面に戻る</button>
@@ -276,6 +296,6 @@
   <footer>RHOボイトレ 音域測定ツール(内部利用)</footer>
 </div>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
