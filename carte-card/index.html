@@ -25,6 +25,11 @@
     --data:#17A98D;
     --data-2:#0E7F69;
     --data-bg:#E7F7F3;
+    --chest:#BBD8F2;   /* 地声域 */
+    --pass:#FBE3AC;    /* 換声点域 */
+    --head:#B3E6D9;    /* 裏声域 */
+    --out-white:#F4F6F9;
+    --out-black:#33465B;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{
@@ -59,6 +64,7 @@
     border-top:1px dashed var(--line); margin-top:16px; padding-top:14px;
   }
   .subgroup-title{font-size:10.5px; font-weight:700; color:var(--text-dim); margin-bottom:10px; letter-spacing:0.04em;}
+  .swatch-dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px;}
   .toggle-row{display:flex; align-items:center; gap:8px; margin-top:2px;}
   .toggle-row input{width:16px; height:16px;}
   .toggle-row label{font-size:12.5px; color:var(--text); font-weight:500; margin:0;}
@@ -90,9 +96,37 @@
   .carte-row{margin-bottom:18px;}
   .carte-row .label{font-size:11px; color:var(--text-dim); font-weight:700; margin-bottom:6px;}
   .carte-row .value{font-size:14.5px; color:var(--navy); font-weight:900; white-space:pre-wrap;}
-  .carte-slider-labels{display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-dim); margin-top:6px;}
-  .carte-range{height:8px; border-radius:100px; background:var(--sky); position:relative; margin-top:8px; overflow:hidden;}
-  .carte-range .fill{position:absolute; top:0; bottom:0; left:14%; right:22%; background:var(--data); border-radius:100px;}
+
+  /* ---------- keyboard ---------- */
+  .keyboard-box{margin-top:8px;}
+  .keyboard{
+    position:relative; height:76px; background:var(--paper); border-radius:8px;
+    border:1px solid var(--line); overflow:hidden; display:flex;
+  }
+  .wkey{
+    position:relative; height:100%; flex:1 1 0; border-right:1px solid #DCE4EC;
+    background:var(--out-white);
+  }
+  .wkey:last-child{border-right:none;}
+  .wkey.chest{background:var(--chest);}
+  .wkey.pass{background:var(--pass);}
+  .wkey.head{background:var(--head);}
+  .bkey{
+    position:absolute; top:0; height:60%; background:var(--out-black); border-radius:0 0 3px 3px;
+    z-index:2;
+  }
+  .bkey.chest{background:#9BC3E8;}
+  .bkey.pass{background:#F5D188;}
+  .bkey.head{background:#8FDAC8;}
+  .kbd-labels{display:flex; justify-content:space-between; font-size:10px; color:var(--text-dim); margin-top:6px;}
+
+  .legend{display:flex; gap:14px; margin-top:12px; flex-wrap:wrap;}
+  .legend-item{font-size:10.5px; color:var(--text-dim); display:flex; align-items:center;}
+  .legend-item .dot{width:9px; height:9px; border-radius:3px; margin-right:5px;}
+  .legend-item .dot.chest{background:var(--chest);}
+  .legend-item .dot.pass{background:var(--pass);}
+  .legend-item .dot.head{background:var(--head);}
+
   .carte-note{background:var(--sky); border-radius:12px; padding:16px 16px; margin-top:20px;}
   .carte-note .label{font-size:11px; font-weight:700; color:var(--navy); margin-bottom:6px;}
   .carte-note p{font-size:12.5px; color:var(--text-dim); line-height:1.75; white-space:pre-wrap;}
@@ -132,21 +166,26 @@
     </div>
 
     <div class="field">
-      <label>換声ポイント</label>
-      <input type="text" id="passaggio" value="E4 〜 F#4 付近">
-    </div>
-
-    <div class="field">
-      <label>音域（実測）</label>
+      <label>音域（実測 全体）</label>
       <div class="range-row">
         <select id="rangeLow"></select>
         <span>〜</span>
         <select id="rangeHigh"></select>
       </div>
-      <div class="hint">バー上の帯として自動で反映されます</div>
+      <div class="hint">地声域〜裏声域を含めた、出せる音の全体範囲</div>
 
       <div class="subgroup">
-        <div class="subgroup-title">バーの表示範囲（両端の目盛り）</div>
+        <div class="subgroup-title"><span class="swatch-dot" style="background:var(--pass);"></span>換声点域（Passaggio）</div>
+        <div class="range-row">
+          <select id="passLow"></select>
+          <span>〜</span>
+          <select id="passHigh"></select>
+        </div>
+        <div class="hint">この区間より下＝地声域、上＝裏声域として自動で色分けされます</div>
+      </div>
+
+      <div class="subgroup">
+        <div class="subgroup-title">鍵盤の表示範囲（両端）</div>
         <div class="range-row">
           <select id="scaleLow"></select>
           <span>〜</span>
@@ -194,8 +233,15 @@
 
       <div class="carte-row">
         <div class="label">音域</div>
-        <div class="carte-range"><div class="fill" id="rangeFill"></div></div>
-        <div class="carte-slider-labels"><span id="outScaleLow">G2</span><span id="outScaleHigh">B4</span></div>
+        <div class="keyboard-box">
+          <div class="keyboard" id="keyboard"></div>
+          <div class="kbd-labels"><span id="outScaleLow">G2</span><span id="outScaleHigh">B4</span></div>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="dot chest"></span>地声域</div>
+          <div class="legend-item"><span class="dot pass"></span>換声点域</div>
+          <div class="legend-item"><span class="dot head"></span>裏声域</div>
+        </div>
       </div>
 
       <div class="carte-note">
@@ -224,21 +270,39 @@
 
 <script>
   // ---------- note helpers ----------
-  var NOTE_BASE = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
   var NOTE_ORDER = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  var WHITE_LETTERS = ["C","D","E","F","G","A","B"];
+  var NOTE_BASE = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 
-  function noteToNum(letter, accidental, octave){
-    var semis = NOTE_BASE[letter];
-    if(accidental === "#") semis += 1;
-    return octave*12 + semis;
+  function isWhiteLabel(label){
+    return label.indexOf("#") === -1;
   }
 
-  function buildNoteOptions(selectEl, defaultLabel){
+  function labelToNum(label){
+    var m = label.match(/^([A-G])(#?)(\d)$/);
+    if(!m) return null;
+    var semis = NOTE_BASE[m[1]];
+    if(m[2] === "#") semis += 1;
+    return parseInt(m[3], 10) * 12 + semis;
+  }
+
+  function numToLabel(num){
+    var octave = Math.floor(num / 12);
+    var semis = ((num % 12) + 12) % 12;
+    return NOTE_ORDER[semis] + octave;
+  }
+
+  function buildNoteOptions(selectEl, defaultLabel, whiteOnly){
     var options = [];
     for(var oct=1; oct<=6; oct++){
-      for(var i=0; i<NOTE_ORDER.length; i++){
-        var label = NOTE_ORDER[i] + oct;
-        options.push(label);
+      if(whiteOnly){
+        for(var w=0; w<WHITE_LETTERS.length; w++){
+          options.push(WHITE_LETTERS[w] + oct);
+        }
+      } else {
+        for(var i=0; i<NOTE_ORDER.length; i++){
+          options.push(NOTE_ORDER[i] + oct);
+        }
       }
     }
     selectEl.innerHTML = "";
@@ -251,25 +315,22 @@
     }
   }
 
-  function labelToNum(label){
-    var m = label.match(/^([A-G])(#?)(\d)$/);
-    if(!m) return null;
-    return noteToNum(m[1], m[2], parseInt(m[3], 10));
-  }
-
   var rangeLowEl = document.getElementById("rangeLow");
   var rangeHighEl = document.getElementById("rangeHigh");
+  var passLowEl = document.getElementById("passLow");
+  var passHighEl = document.getElementById("passHigh");
   var scaleLowEl = document.getElementById("scaleLow");
   var scaleHighEl = document.getElementById("scaleHigh");
 
-  buildNoteOptions(rangeLowEl, "A2");
-  buildNoteOptions(rangeHighEl, "G4");
-  buildNoteOptions(scaleLowEl, "G2");
-  buildNoteOptions(scaleHighEl, "B4");
+  buildNoteOptions(rangeLowEl, "A2", false);
+  buildNoteOptions(rangeHighEl, "G4", false);
+  buildNoteOptions(passLowEl, "E4", false);
+  buildNoteOptions(passHighEl, "F#4", false);
+  buildNoteOptions(scaleLowEl, "G2", true);
+  buildNoteOptions(scaleHighEl, "B4", true);
 
   // ---------- live update ----------
   var voiceTypeEl = document.getElementById("voiceType");
-  var passaggioEl = document.getElementById("passaggio");
   var pointTextEl = document.getElementById("pointText");
   var trainingTextEl = document.getElementById("trainingText");
   var showSampleEl = document.getElementById("showSample");
@@ -280,36 +341,79 @@
   var outTraining = document.getElementById("outTraining");
   var outScaleLow = document.getElementById("outScaleLow");
   var outScaleHigh = document.getElementById("outScaleHigh");
-  var rangeFill = document.getElementById("rangeFill");
   var stampEl = document.getElementById("stampEl");
+  var keyboardEl = document.getElementById("keyboard");
+
+  function keyRegion(num, rangeLowNum, rangeHighNum, passLowNum, passHighNum){
+    if(num < rangeLowNum || num > rangeHighNum) return "out";
+    if(num < passLowNum) return "chest";
+    if(num <= passHighNum) return "pass";
+    return "head";
+  }
+
+  function buildKeyboard(scaleLowNum, scaleHighNum, rangeLowNum, rangeHighNum, passLowNum, passHighNum){
+    keyboardEl.innerHTML = "";
+
+    // collect white keys in order within scale
+    var whiteNums = [];
+    for(var n = scaleLowNum; n <= scaleHighNum; n++){
+      var semis = ((n % 12) + 12) % 12;
+      var letter = NOTE_ORDER[semis];
+      if(letter.indexOf("#") === -1) whiteNums.push(n);
+    }
+    if(whiteNums.length === 0) return;
+
+    var whiteWidthPct = 100 / whiteNums.length;
+
+    for(var i=0; i<whiteNums.length; i++){
+      var wkey = document.createElement("div");
+      wkey.className = "wkey";
+      var region = keyRegion(whiteNums[i], rangeLowNum, rangeHighNum, passLowNum, passHighNum);
+      if(region !== "out") wkey.className += " " + region;
+      keyboardEl.appendChild(wkey);
+
+      // check for a black key between this white key and the next
+      if(i < whiteNums.length - 1){
+        var gap = whiteNums[i+1] - whiteNums[i];
+        if(gap === 2){
+          var blackNum = whiteNums[i] + 1;
+          var bkey = document.createElement("div");
+          bkey.className = "bkey";
+          var bregion = keyRegion(blackNum, rangeLowNum, rangeHighNum, passLowNum, passHighNum);
+          if(bregion !== "out") bkey.className += " " + bregion;
+          var widthPct = whiteWidthPct * 0.58;
+          var centerPct = (i+1) * whiteWidthPct;
+          bkey.style.width = widthPct + "%";
+          bkey.style.left = (centerPct - widthPct/2) + "%";
+          keyboardEl.appendChild(bkey);
+        }
+      }
+    }
+  }
 
   function update(){
     outVoiceType.textContent = voiceTypeEl.value;
-    outPassaggio.textContent = passaggioEl.value;
     outPoint.textContent = pointTextEl.value;
     outTraining.textContent = trainingTextEl.value;
     outScaleLow.textContent = scaleLowEl.value;
     outScaleHigh.textContent = scaleHighEl.value;
     stampEl.style.display = showSampleEl.checked ? "block" : "none";
+    outPassaggio.textContent = passLowEl.value + " 〜 " + passHighEl.value + " 付近";
 
     var scaleLowNum = labelToNum(scaleLowEl.value);
     var scaleHighNum = labelToNum(scaleHighEl.value);
-    var lowNum = labelToNum(rangeLowEl.value);
-    var highNum = labelToNum(rangeHighEl.value);
+    var rangeLowNum = labelToNum(rangeLowEl.value);
+    var rangeHighNum = labelToNum(rangeHighEl.value);
+    var passLowNum = labelToNum(passLowEl.value);
+    var passHighNum = labelToNum(passHighEl.value);
 
-    if(scaleLowNum !== null && scaleHighNum !== null && lowNum !== null && highNum !== null && scaleHighNum > scaleLowNum){
-      var span = scaleHighNum - scaleLowNum;
-      var leftPct = ((lowNum - scaleLowNum) / span) * 100;
-      var rightPct = 100 - ((highNum - scaleLowNum) / span) * 100;
-      leftPct = Math.max(0, Math.min(100, leftPct));
-      rightPct = Math.max(0, Math.min(100, rightPct));
-      rangeFill.style.left = leftPct + "%";
-      rangeFill.style.right = rightPct + "%";
+    if(scaleLowNum !== null && scaleHighNum !== null && scaleHighNum > scaleLowNum){
+      buildKeyboard(scaleLowNum, scaleHighNum, rangeLowNum, rangeHighNum, passLowNum, passHighNum);
     }
   }
 
-  [voiceTypeEl, passaggioEl, pointTextEl, trainingTextEl, showSampleEl,
-   rangeLowEl, rangeHighEl, scaleLowEl, scaleHighEl].forEach(function(el){
+  [voiceTypeEl, pointTextEl, trainingTextEl, showSampleEl,
+   rangeLowEl, rangeHighEl, passLowEl, passHighEl, scaleLowEl, scaleHighEl].forEach(function(el){
     el.addEventListener("input", update);
     el.addEventListener("change", update);
   });
