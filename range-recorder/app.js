@@ -15,7 +15,7 @@
   //    貼り付けてください。詳しい手順は別途お渡しした設定ガイドを
   //    参照してください。
   // ==========================================================
-  var SUBMIT_ENDPOINT_URL = https://script.google.com/macros/s/AKfycbzoGlK2DZIC4hIW17A3kXho3_3jU2zn55jyKU4ORD1divJ3P4GMaleuWcxsu5TwWL42Ww/exec
+  var SUBMIT_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzoGlK2DZIC4hIW17A3kXho3_3jU2zn55jyKU4ORD1divJ3P4GMaleuWcxsu5TwWL42Ww/exec";
 
   // ==========================================================
   // 1. 音名・周波数まわりのユーティリティ
