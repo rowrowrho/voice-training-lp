@@ -215,9 +215,27 @@
     selectGender("female");
   });
 
+  function isValidEmail(value) {
+    // シンプルなメール形式チェック(厳密なRFC準拠ではなく実用レベル)
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
   el.startBtn.addEventListener("click", function () {
     if (!gender) return;
     clearError();
+
+    var email = (el.contactInput.value || "").trim();
+    if (!email) {
+      showError("メールアドレスを入力してください。ボイスカルテの結果をお送りするために必要です。");
+      el.contactInput.focus();
+      return;
+    }
+    if (!isValidEmail(email)) {
+      showError("メールアドレスの形式が正しくないようです。ご確認ください。");
+      el.contactInput.focus();
+      return;
+    }
+
     el.startBtn.disabled = true;
     el.startBtn.textContent = "マイクを準備しています…";
 
