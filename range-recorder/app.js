@@ -59,6 +59,7 @@
 
     targetDisplay: document.getElementById("targetDisplay"),
     playToneBtn: document.getElementById("playToneBtn"),
+    micToggleBtn: document.getElementById("micToggleBtn"),
 
     recordBtn: document.getElementById("recordBtn"),
     recordBtnLabel: document.getElementById("recordBtnLabel"),
@@ -84,6 +85,7 @@
   var gender = null;
   var currentMidi = null;
   var mediaStream = null;
+  var micEnabled = true;
   var mediaRecorder = null;
   var recordedChunks = [];
   var isRecording = false;
@@ -128,13 +130,16 @@
     var ctx = ensurePlaybackContext();
     if (!ctx || !rootFreq) return 0;
 
-    var dur = TONE_NOTE_DURATION_SEC;
-    var fade = Math.min(0.03, dur / 4);
     var startBase = ctx.currentTime + 0.05;
+    var elapsed = 0;
 
     FIVE_TONE_STEPS.forEach(function (semitoneOffset, idx) {
+      var isLastNote = idx === FIVE_TONE_STEPS.length - 1;
+      // 最後の音(締めの「ド」)は他の音の2倍の長さで伸ばす
+      var dur = isLastNote ? TONE_NOTE_DURATION_SEC * 2 : TONE_NOTE_DURATION_SEC;
+      var fade = Math.min(0.03, dur / 4);
       var freq = rootFreq * Math.pow(2, semitoneOffset / 12);
-      var startT = startBase + idx * dur;
+      var startT = startBase + elapsed;
 
       var osc = ctx.createOscillator();
       var gainNode = ctx.createGain();
@@ -150,9 +155,11 @@
       gainNode.connect(ctx.destination);
       osc.start(startT);
       osc.stop(startT + dur + 0.05);
+
+      elapsed += dur;
     });
 
-    return (FIVE_TONE_STEPS.length * dur + 0.15) * 1000; // ms
+    return (elapsed + 0.15) * 1000; // ms
   }
 
   el.playToneBtn.addEventListener("click", function () {
@@ -207,19 +214,47 @@
   // ==========================================================
   // 7. TARGET表示の更新
   // ==========================================================
+  function isRangeCapped() {
+    return currentMidi > MAX_MIDI;
+  }
+
+  // 録音ボタンの有効/無効を「音域の上限」と「マイクON/OFF」の両方から決める
+  function updateRecordAvailability() {
+    el.recordBtn.disabled = isRangeCapped() || !micEnabled;
+  }
+
   function updateTargetDisplay() {
-    if (currentMidi > MAX_MIDI) {
+    if (isRangeCapped()) {
       el.targetDisplay.textContent = "--";
       el.playToneBtn.disabled = true;
-      el.recordBtn.disabled = true;
       el.rangeCapNote.hidden = false;
+      updateRecordAvailability();
       return;
     }
     el.rangeCapNote.hidden = true;
     el.playToneBtn.disabled = false;
-    el.recordBtn.disabled = false;
     el.targetDisplay.textContent = midiToNoteLabel(currentMidi);
+    updateRecordAvailability();
   }
+
+  // ==========================================================
+  // 7b. マイクのON/OFF切り替え
+  // ==========================================================
+  function setMicEnabled(enabled) {
+    micEnabled = enabled;
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(function (t) {
+        t.enabled = enabled;
+      });
+    }
+    el.micToggleBtn.textContent = enabled ? "🎤 マイクをオフにする" : "🔇 マイクをオンにする";
+    updateRecordAvailability();
+  }
+
+  el.micToggleBtn.addEventListener("click", function () {
+    if (isRecording) return; // 録音中は切り替えさせない
+    setMicEnabled(!micEnabled);
+  });
 
   // ==========================================================
   // 8. 録音(MediaRecorder)
@@ -265,6 +300,10 @@
 
   function startRecording() {
     if (!mediaStream) return;
+    if (!micEnabled) {
+      showError("マイクがオフになっています。オンにしてから録音してください。");
+      return;
+    }
     if (!window.MediaRecorder) {
       showError("お使いのブラウザは録音に対応していません。");
       return;
@@ -303,6 +342,7 @@
     el.recordBtnLabel.textContent = "録音を終える";
     el.takePreview.hidden = true;
     el.playToneBtn.disabled = true;
+    el.micToggleBtn.disabled = true;
     startRecTimer();
   }
 
@@ -313,6 +353,7 @@
     el.recordBtn.classList.remove("recording");
     el.recordBtnLabel.textContent = "録音を開始する";
     el.playToneBtn.disabled = false;
+    el.micToggleBtn.disabled = false;
     stopRecTimer();
   }
 
