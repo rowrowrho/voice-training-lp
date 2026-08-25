@@ -17,6 +17,11 @@
   // ==========================================================
   var SUBMIT_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzoGlK2DZIC4hIW17A3kXho3_3jU2zn55jyKU4ORD1divJ3P4GMaleuWcxsu5TwWL42Ww/exec";
 
+  // 支払い確認の方式:
+  //   "self_report" = 自己申告制(チェックを入れたら提出可能・今はこちら)
+  //   "stripe"      = Stripe決済リンク + サーバー側自動確認(準備でき次第切替可能)
+  var PAYMENT_MODE = "self_report";
+
   // Stripeの支払いリンク(¥500)。デプロイ後、Payment LinkのURLに置き換えてください。
   // 「支払い後のリダイレクト先」は payment-complete.html?session_id={CHECKOUT_SESSION_ID}
   // に設定しておく必要があります(設定ガイド参照)。
@@ -87,11 +92,17 @@
     submitBtn: document.getElementById("submitBtn"),
 
     screenPayment: document.getElementById("screenPayment"),
+    stripeBlock: document.getElementById("stripeBlock"),
     goToPaymentBtn: document.getElementById("goToPaymentBtn"),
     paymentStatusText: document.getElementById("paymentStatusText"),
     checkPaymentBtn: document.getElementById("checkPaymentBtn"),
     paymentConfirmedBlock: document.getElementById("paymentConfirmedBlock"),
     finalSubmitBtn: document.getElementById("finalSubmitBtn"),
+
+    selfReportBlock: document.getElementById("selfReportBlock"),
+    selfReportCheckbox: document.getElementById("selfReportCheckbox"),
+    selfReportSubmitBtn: document.getElementById("selfReportSubmitBtn"),
+
     backToPracticeBtn: document.getElementById("backToPracticeBtn"),
   };
 
@@ -464,7 +475,7 @@
     clearError();
     el.screenPractice.hidden = true;
     el.screenPayment.hidden = false;
-    refreshPaymentStatusUI();
+    initPaymentScreen();
   });
 
   el.backToPracticeBtn.addEventListener("click", function () {
@@ -472,6 +483,35 @@
     el.screenPractice.hidden = false;
   });
 
+  // 支払い画面を開いたときに、現在のモードに応じて表示を切り替える
+  function initPaymentScreen() {
+    if (PAYMENT_MODE === "self_report") {
+      el.stripeBlock.hidden = true;
+      el.selfReportBlock.hidden = false;
+      el.selfReportCheckbox.checked = false;
+      el.selfReportSubmitBtn.disabled = true;
+    } else {
+      el.selfReportBlock.hidden = true;
+      el.stripeBlock.hidden = false;
+      refreshPaymentStatusUI();
+    }
+  }
+
+  // ---- 自己申告制(現在の方式) ----
+  el.selfReportCheckbox.addEventListener("change", function () {
+    el.selfReportSubmitBtn.disabled = !el.selfReportCheckbox.checked;
+  });
+
+  function generateSelfReportId() {
+    return "self_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+  }
+
+  el.selfReportSubmitBtn.addEventListener("click", function () {
+    if (!el.selfReportCheckbox.checked) return;
+    performFinalSubmit(generateSelfReportId(), "self_report");
+  });
+
+  // ---- Stripe決済(準備でき次第こちらに切替可能) ----
   el.goToPaymentBtn.addEventListener("click", function () {
     if (!STRIPE_PAYMENT_LINK_URL || STRIPE_PAYMENT_LINK_URL.indexOf("PUT_YOUR_") === 0) {
       showError("決済リンクが未設定です。app.js内のSTRIPE_PAYMENT_LINK_URLを設定してください。");
@@ -521,6 +561,12 @@
 
   el.finalSubmitBtn.addEventListener("click", function () {
     if (recordings.length === 0 || !confirmedPaymentSessionId) return;
+    performFinalSubmit(confirmedPaymentSessionId, "stripe");
+  });
+
+  // ---- 共通の送信処理(自己申告・Stripeどちらのモードでも使う) ----
+  function performFinalSubmit(paymentSessionId, paymentMode) {
+    if (recordings.length === 0) return;
     clearError();
 
     if (!SUBMIT_ENDPOINT_URL || SUBMIT_ENDPOINT_URL.indexOf("PUT_YOUR_") === 0) {
@@ -552,7 +598,8 @@
           nickname: el.nicknameInput.value || "",
           contact: el.contactInput.value || "",
           submittedAt: new Date().toISOString(),
-          paymentSessionId: confirmedPaymentSessionId,
+          paymentMode: paymentMode,
+          paymentSessionId: paymentSessionId,
           notes: recordings.map(function (r) {
             return { midi: r.midi, label: r.label };
           }),
@@ -585,12 +632,12 @@
         el.screenSubmitting.hidden = true;
         el.screenPayment.hidden = false;
         showError(
-          "送信できませんでした。決済状況・通信状況をご確認のうえ、もう一度お試しください。(" +
+          "送信できませんでした。通信状況をご確認のうえ、もう一度お試しください。(" +
             err.message +
             ")"
         );
       });
-  });
+  }
 
   // 初期表示
   renderRecordingsList();
