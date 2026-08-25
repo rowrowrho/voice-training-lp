@@ -170,6 +170,33 @@
   .debug-grid .dvalue{color:var(--navy-2); font-weight:700; font-family:monospace;}
 
   footer{text-align:center; font-size:11px; color:var(--text-dim); margin-top:20px;}
+
+  /* --- ボイスカルテ誘導(voice-checkページのcarte-cardと同系デザイン) --- */
+  .carte-teaser{margin-top:20px;}
+  .carte-teaser-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:18px;
+    padding:20px 18px; position:relative; overflow:hidden; box-shadow:var(--shadow);
+  }
+  .carte-teaser-stamp{
+    position:absolute; top:14px; right:-30px; background:var(--amber); color:var(--navy-2);
+    font-size:10px; font-weight:900; padding:4px 34px; transform:rotate(35deg); letter-spacing:.06em;
+    box-shadow:0 3px 8px rgba(0,0,0,0.12);
+  }
+  .carte-teaser-head{margin-bottom:14px;}
+  .carte-teaser-t1{font-size:10px; letter-spacing:.12em; color:var(--data); font-weight:700;}
+  .carte-teaser-t2{font-size:16px; color:var(--navy-2); font-weight:900; margin-top:2px;}
+  .carte-teaser-row{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-top:1px dashed var(--line);}
+  .carte-teaser-row:first-of-type{border-top:none;}
+  .carte-teaser-label{font-size:11px; color:var(--text-dim); font-weight:700;}
+  .carte-teaser-value{font-size:13px; color:var(--navy-2); font-weight:800; text-align:right;}
+  .carte-teaser-copy{text-align:center; font-size:12.5px; color:var(--text-dim); margin-top:16px; line-height:1.8;}
+  .carte-teaser-copy strong{color:var(--navy-2);}
+  .carte-teaser-cta{
+    display:block; margin-top:14px; padding:15px; border-radius:12px;
+    background:var(--navy); color:#fff; font-weight:900; font-size:14.5px;
+    text-align:center; text-decoration:none; box-shadow:0 10px 24px rgba(23,58,94,0.28);
+  }
+  .carte-teaser-cta:active{opacity:.85;}
 </style>
 </head>
 <body>
@@ -181,28 +208,6 @@
   <div class="card">
     <button id="micButton">マイクを開始</button>
     <p id="errorMsg" hidden></p>
-  </div>
-
-  <div class="card">
-    <div class="row" style="justify-content:space-between;">
-      <div>
-        <span class="label">TARGET</span>
-        <div class="target-display" id="targetDisplay">A3</div>
-      </div>
-      <select id="targetSelect" aria-label="TARGET音を選択"></select>
-    </div>
-
-    <button id="replayToneBtn" style="margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--sky); color:var(--navy-2); font-weight:800; font-size:13px; cursor:pointer;">🔊 お手本の音をもう一度聞く</button>
-
-    <div class="mode-toggle">
-      <div class="mode-btn" id="modeHighBtn">HIGH MODE</div>
-      <div class="mode-btn" id="modeLowBtn">LOW MODE</div>
-    </div>
-
-    <label class="row" style="margin-top:12px; gap:8px; cursor:pointer;">
-      <input type="checkbox" id="autoAdvanceToggle" style="width:18px; height:18px; accent-color:var(--data);">
-      <span class="label" style="font-size:12px;">音域チャレンジモード（CLEARで次の音へ・10秒以内にクリアできないと終了）</span>
-    </label>
   </div>
 
   <div class="card">
@@ -228,6 +233,29 @@
       <input type="range" id="relockSlider" min="5" max="100" step="5" style="width:100%;">
       <div class="meter-labels"><span>乗り換えやすい</span><span>しがみつく</span></div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;">
+      <div>
+        <span class="label">TARGET</span>
+        <div class="target-display" id="targetDisplay">A3</div>
+      </div>
+      <select id="targetSelect" aria-label="TARGET音を選択"></select>
+    </div>
+
+    <button id="replayToneBtn" style="margin-top:10px; width:100%; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--sky); color:var(--navy-2); font-weight:800; font-size:13px; cursor:pointer;">🔊 お手本の音をもう一度聞く</button>
+    <p style="margin-top:6px; font-size:11px; color:var(--text-dim); text-align:center;">※ 音が低くなるほどお手本の音が聞き取りづらくなる場合があります</p>
+
+    <div class="mode-toggle">
+      <div class="mode-btn" id="modeHighBtn">HIGH MODE</div>
+      <div class="mode-btn" id="modeLowBtn">LOW MODE</div>
+    </div>
+
+    <label class="row" style="margin-top:12px; gap:8px; cursor:pointer;">
+      <input type="checkbox" id="autoAdvanceToggle" style="width:18px; height:18px; accent-color:var(--data);">
+      <span class="label" style="font-size:12px;">音域チャレンジモード（CLEARで次の音へ・10秒以内にクリアできないと終了）</span>
+    </label>
   </div>
 
   <div class="card">
@@ -278,30 +306,42 @@
       <div id="finalResultBlock" hidden style="margin-top:6px;">
         <div class="label" style="margin-bottom:6px;">あなたの音域</div>
         <div style="font-size:28px; font-weight:900; color:var(--navy-2);" id="finalRangeText">-- ~ --</div>
+        <div style="font-size:15px; font-weight:700; color:var(--data); margin-top:4px;" id="finalOctaveText"></div>
+
+        <div class="carte-teaser">
+          <div class="carte-teaser-card">
+            <div class="carte-teaser-stamp">SAMPLE</div>
+            <div class="carte-teaser-head">
+              <div class="carte-teaser-t1">VOICE CARTE</div>
+              <div class="carte-teaser-t2">ボイスカルテ</div>
+            </div>
+            <div class="carte-teaser-row">
+              <span class="carte-teaser-label">発声タイプ</span>
+              <span class="carte-teaser-value">Pull傾向</span>
+            </div>
+            <div class="carte-teaser-row">
+              <span class="carte-teaser-label">換声ポイント</span>
+              <span class="carte-teaser-value">E4〜F#4付近</span>
+            </div>
+            <div class="carte-teaser-row">
+              <span class="carte-teaser-label">おすすめトレーニング</span>
+              <span class="carte-teaser-value">裏声→地声の接続練習</span>
+            </div>
+          </div>
+          <p class="carte-teaser-copy">
+            今わかったのは「音域」だけ。<br>
+            発声のクセ・換声点・おすすめの練習法まで含めた<br>
+            <strong>あなただけのボイスカルテ</strong>を作ってみませんか？
+          </p>
+          <a class="carte-teaser-cta" href="https://rowrowrho.github.io/voice-training-lp/voice-check/">✨ 自分だけのボイスカルテをつくる</a>
+        </div>
+
         <button id="shareBtn" style="margin-top:12px; padding:10px 20px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-weight:800; cursor:pointer; width:100%;">SNSでシェア</button>
         <button id="shareXBtn" style="margin-top:8px; padding:10px 20px; border-radius:10px; border:none; background:#000; color:#fff; font-weight:800; cursor:pointer; width:100%;">𝕏でシェア</button>
       </div>
 
       <button id="challengeResetBtn" style="margin-top:10px; padding:10px 20px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-weight:700; cursor:pointer; width:100%;">もう一度最初から</button>
     </div>
-  </div>
-
-  <div class="card">
-    <details>
-      <summary>Debug情報</summary>
-      <div class="debug-grid">
-        <div><span class="dlabel">raw F0</span><span class="dvalue" id="debugRawF0">--</span></div>
-        <div><span class="dlabel">smoothed F0</span><span class="dvalue" id="debugSmoothedF0">--</span></div>
-        <div><span class="dlabel">RMS（入力レベル）</span><span class="dvalue" id="debugRMS">--</span></div>
-        <div><span class="dlabel">TARGET周波数</span><span class="dvalue" id="debugTargetFreq">--</span></div>
-        <div><span class="dlabel">TARGETとの差(cents)</span><span class="dvalue" id="debugTargetCents">--</span></div>
-        <div><span class="dlabel">confidence</span><span class="dvalue" id="debugConfidence">--</span></div>
-        <div><span class="dlabel">MODE</span><span class="dvalue" id="debugMode">--</span></div>
-        <div><span class="dlabel">判定状態</span><span class="dvalue" id="debugState">--</span></div>
-        <div><span class="dlabel">連続維持時間</span><span class="dvalue" id="debugHeldMs">--</span></div>
-        <div><span class="dlabel">AudioContext sample rate</span><span class="dvalue" id="debugSampleRate">--</span></div>
-      </div>
-    </details>
   </div>
 
   <footer>RHOボイトレ内部検証用ページ（非公開・検索非表示）</footer>
