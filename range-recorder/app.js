@@ -17,6 +17,14 @@
   // ==========================================================
   var SUBMIT_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzoGlK2DZIC4hIW17A3kXho3_3jU2zn55jyKU4ORD1divJ3P4GMaleuWcxsu5TwWL42Ww/exec";
 
+  // Stripeの支払いリンク(¥500)。デプロイ後、Payment LinkのURLに置き換えてください。
+  // 「支払い後のリダイレクト先」は payment-complete.html?session_id={CHECKOUT_SESSION_ID}
+  // に設定しておく必要があります(設定ガイド参照)。
+  var STRIPE_PAYMENT_LINK_URL = "PUT_YOUR_STRIPE_PAYMENT_LINK_URL_HERE";
+
+  // 支払い確認結果を保存するlocalStorageのキー(payment-complete.html側と共通)
+  var PAYMENT_STORAGE_KEY = "rho_range_recorder_payment";
+
   // ==========================================================
   // 1. 音名・周波数まわりのユーティリティ
   // ==========================================================
@@ -77,6 +85,14 @@
     recList: document.getElementById("recList"),
 
     submitBtn: document.getElementById("submitBtn"),
+
+    screenPayment: document.getElementById("screenPayment"),
+    goToPaymentBtn: document.getElementById("goToPaymentBtn"),
+    paymentStatusText: document.getElementById("paymentStatusText"),
+    checkPaymentBtn: document.getElementById("checkPaymentBtn"),
+    paymentConfirmedBlock: document.getElementById("paymentConfirmedBlock"),
+    finalSubmitBtn: document.getElementById("finalSubmitBtn"),
+    backToPracticeBtn: document.getElementById("backToPracticeBtn"),
   };
 
   // ==========================================================
@@ -97,6 +113,7 @@
   var currentTakeUrl = null;
 
   var recordings = []; // { midi, label, blob, mimeType }
+  var confirmedPaymentSessionId = null;
 
   // ==========================================================
   // 4. エラー表示
@@ -420,17 +437,8 @@
       audio.controls = true;
       audio.src = URL.createObjectURL(rec.blob);
 
-      var delBtn = document.createElement("button");
-      delBtn.className = "rec-item-del";
-      delBtn.textContent = "✕";
-      delBtn.addEventListener("click", function () {
-        recordings.splice(index, 1);
-        renderRecordingsList();
-      });
-
       row.appendChild(noteSpan);
       row.appendChild(audio);
-      row.appendChild(delBtn);
       el.recList.appendChild(row);
     });
   }
@@ -454,6 +462,66 @@
   el.submitBtn.addEventListener("click", function () {
     if (recordings.length === 0) return;
     clearError();
+    el.screenPractice.hidden = true;
+    el.screenPayment.hidden = false;
+    refreshPaymentStatusUI();
+  });
+
+  el.backToPracticeBtn.addEventListener("click", function () {
+    el.screenPayment.hidden = true;
+    el.screenPractice.hidden = false;
+  });
+
+  el.goToPaymentBtn.addEventListener("click", function () {
+    if (!STRIPE_PAYMENT_LINK_URL || STRIPE_PAYMENT_LINK_URL.indexOf("PUT_YOUR_") === 0) {
+      showError("決済リンクが未設定です。app.js内のSTRIPE_PAYMENT_LINK_URLを設定してください。");
+      return;
+    }
+    window.open(STRIPE_PAYMENT_LINK_URL, "_blank");
+    el.paymentStatusText.textContent =
+      "別タブでお支払いを完了すると、この画面が自動で切り替わります。切り替わらない場合は「支払い状況を確認する」を押してください。";
+  });
+
+  // 支払いタブ(payment-complete.html)がlocalStorageに書き込むと、
+  // このタブでは storage イベントが発火する(書き込んだ本人のタブでは発火しない)
+  window.addEventListener("storage", function (evt) {
+    if (evt.key === PAYMENT_STORAGE_KEY) {
+      refreshPaymentStatusUI();
+    }
+  });
+
+  el.checkPaymentBtn.addEventListener("click", function () {
+    refreshPaymentStatusUI();
+  });
+
+  function readStoredPayment() {
+    try {
+      var raw = window.localStorage.getItem(PAYMENT_STORAGE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function refreshPaymentStatusUI() {
+    var stored = readStoredPayment();
+    if (stored && stored.sessionId) {
+      confirmedPaymentSessionId = stored.sessionId;
+      el.paymentStatusText.textContent = "お支払いを確認しました。";
+      el.paymentConfirmedBlock.hidden = false;
+      el.finalSubmitBtn.disabled = false;
+    } else {
+      confirmedPaymentSessionId = null;
+      el.paymentStatusText.textContent = "お支払いはまだ確認できていません。";
+      el.paymentConfirmedBlock.hidden = true;
+      el.finalSubmitBtn.disabled = true;
+    }
+  }
+
+  el.finalSubmitBtn.addEventListener("click", function () {
+    if (recordings.length === 0 || !confirmedPaymentSessionId) return;
+    clearError();
 
     if (!SUBMIT_ENDPOINT_URL || SUBMIT_ENDPOINT_URL.indexOf("PUT_YOUR_") === 0) {
       showError(
@@ -462,7 +530,7 @@
       return;
     }
 
-    el.screenPractice.hidden = true;
+    el.screenPayment.hidden = true;
     el.screenSubmitting.hidden = false;
     el.submittingSub.textContent = "しばらくお待ちください";
 
@@ -484,6 +552,7 @@
           nickname: el.nicknameInput.value || "",
           contact: el.contactInput.value || "",
           submittedAt: new Date().toISOString(),
+          paymentSessionId: confirmedPaymentSessionId,
           notes: recordings.map(function (r) {
             return { midi: r.midi, label: r.label };
           }),
@@ -503,6 +572,9 @@
       })
       .then(function (json) {
         if (json && json.result === "success") {
+          try {
+            window.localStorage.removeItem(PAYMENT_STORAGE_KEY);
+          } catch (e) {}
           el.screenSubmitting.hidden = true;
           el.screenDone.hidden = false;
         } else {
@@ -511,9 +583,9 @@
       })
       .catch(function (err) {
         el.screenSubmitting.hidden = true;
-        el.screenPractice.hidden = false;
+        el.screenPayment.hidden = false;
         showError(
-          "送信できませんでした。通信状況をご確認のうえ、もう一度「録音完了・提出する」を押してください。(" +
+          "送信できませんでした。決済状況・通信状況をご確認のうえ、もう一度お試しください。(" +
             err.message +
             ")"
         );
