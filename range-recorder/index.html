@@ -180,8 +180,9 @@
         <input type="text" id="nicknameInput" placeholder="例: ろー">
       </div>
       <div class="field">
-        <span class="label">連絡先(X ID・LINEなど・任意)</span>
-        <input type="text" id="contactInput" placeholder="例: @row_row_rho">
+        <span class="label">メールアドレス <span style="color:var(--danger);">(必須)</span></span>
+        <input type="email" id="contactInput" placeholder="例: your-address@example.com" required autocomplete="email" inputmode="email">
+        <p style="font-size:11px; color:var(--text-dim); margin-top:6px;">ボイスカルテの結果をお送りするために使用します。</p>
       </div>
     </div>
 
@@ -297,6 +298,6 @@
   <footer>RHOボイトレ 音域測定ツール　<a href="https://rowrowrho.github.io/voice-training-lp/" style="color:var(--text-dim);">トップページへ戻る</a></footer>
 </div>
 
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
