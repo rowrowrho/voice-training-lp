@@ -228,8 +228,32 @@
       </div>
     </div>
 
-    <button class="btn" id="submitBtn" disabled>録音完了・提出する</button>
+    <button class="btn" id="submitBtn" disabled>録音完了・お支払いへ進む</button>
     <p style="font-size:11.5px; color:var(--text-dim); text-align:center; margin-top:8px;">最低1音の録音が必要です</p>
+  </section>
+
+  <!-- STEP 1.5: お支払い -->
+  <section id="screenPayment" hidden>
+    <div class="card">
+      <span class="label">お支払い(¥500)</span>
+      <p style="font-size:13px; color:var(--text-dim); margin-top:8px; line-height:1.8;">
+        ボイスカルテ作成のため、お支払いをお願いします。下のボタンから別タブでお支払いを完了すると、この画面が自動で切り替わります。
+      </p>
+
+      <button class="btn" id="goToPaymentBtn" style="margin-top:14px;">💳 支払いに進む(別タブが開きます)</button>
+
+      <p id="paymentStatusText" style="font-size:12.5px; color:var(--text-dim); text-align:center; margin-top:14px;">
+        お支払いはまだ確認できていません。
+      </p>
+      <button class="btn btn-sub" id="checkPaymentBtn" style="margin-top:6px;">🔄 支払い状況を確認する</button>
+
+      <div id="paymentConfirmedBlock" hidden style="margin-top:16px; padding:14px; border-radius:12px; background:rgba(23,169,141,0.12); text-align:center;">
+        <div style="font-weight:900; color:var(--data); font-size:14px;">✅ お支払いを確認しました</div>
+        <button class="btn btn-data" id="finalSubmitBtn" style="margin-top:12px;" disabled>この内容で提出する</button>
+      </div>
+
+      <button class="btn btn-sub" id="backToPracticeBtn" style="margin-top:14px; background:transparent; border:none; box-shadow:none; color:var(--text-dim); font-weight:700;">← 録音画面に戻る</button>
+    </div>
   </section>
 
   <!-- STEP 2: 送信完了 -->
@@ -252,6 +276,6 @@
   <footer>RHOボイトレ 音域測定ツール(内部利用)</footer>
 </div>
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
