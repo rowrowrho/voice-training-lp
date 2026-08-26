@@ -540,33 +540,42 @@
 
   // ---- マイク開始（async/awaitを使わず、Promise.then()で統一） ----
   function startMic() {
+    alert("診断[1/7]: startMic呼び出し確認");
     clearError();
     el.micButton.disabled = true;
 
     var AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) {
+      alert("診断: AudioContextクラス無し");
       showLog("このブラウザはWeb Audio APIに対応していません。", true);
       el.micButton.disabled = false;
       return;
     }
+    alert("診断[2/7]: AudioContextクラスあり");
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("診断: getUserMedia無し");
       showLog("このブラウザはマイク入力(getUserMedia)に対応していません。", true);
       el.micButton.disabled = false;
       return;
     }
+    alert("診断[3/7]: getUserMediaあり");
 
     try {
       audioContext = new AudioContextClass();
+      alert("診断[4/7]: AudioContext作成成功 state=" + audioContext.state);
     } catch (e) {
+      alert("診断: AudioContext作成失敗 - " + e.message);
       showLog("AudioContext作成に失敗しました: " + e.message, true);
       el.micButton.disabled = false;
       return;
     }
 
+    alert("診断[5/7]: getUserMedia呼び出し開始（許可ダイアログ待ち）");
     navigator.mediaDevices
       .getUserMedia(getMicConstraints())
       .then(function (stream) {
+        alert("診断[6/7]: マイク取得成功！");
         createAudioGraph(stream);
 
         tracker.resetHold();
@@ -580,6 +589,7 @@
         el.micButton.disabled = false;
         el.micButton.classList.add("listening");
 
+        alert("診断[7/7]: 計測ループ開始");
         loop();
       })
       .catch(function (err) {
@@ -591,6 +601,7 @@
         } else if (err) {
           msg = "エラー: " + err.name + " - " + err.message;
         }
+        alert("診断: getUserMedia失敗 - " + (err ? err.name + ": " + err.message : "unknown"));
         showLog(msg, true);
         el.micButton.disabled = false;
         if (audioContext) {
@@ -634,6 +645,7 @@
   }
 
   el.micButton.addEventListener("click", function () {
+    alert("診断[0/7]: マイクボタンのクリックは検知しています。isRunning=" + isRunning);
     if (isRunning) {
       stopMic();
     } else {
