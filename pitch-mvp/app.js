@@ -61,6 +61,7 @@
     challengeOtherModeBtn: document.getElementById("challengeOtherModeBtn"),
     finalResultBlock: document.getElementById("finalResultBlock"),
     finalRangeText: document.getElementById("finalRangeText"),
+    finalOctaveText: document.getElementById("finalOctaveText"),
     shareBtn: document.getElementById("shareBtn"),
     shareXBtn: document.getElementById("shareXBtn"),
   };
@@ -71,6 +72,27 @@
   var timeDomainBuffer = null;
   var rafId = null;
   var isRunning = false;
+
+  // マイクのMediaStreamからWeb Audioの接続グラフ(source→analyser)を作る
+  function createAudioGraph(stream) {
+    mediaStream = stream;
+    var source = audioContext.createMediaStreamSource(mediaStream);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = CONFIG.FFT_SIZE;
+    analyser.smoothingTimeConstant = 0;
+    source.connect(analyser);
+    timeDomainBuffer = new Float32Array(analyser.fftSize);
+  }
+
+  function getMicConstraints() {
+    return {
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      },
+    };
+  }
 
   // ---- お手本音の再生(マイク入力とは独立したAudioContextを使う) ----
   var playbackContext = null;
@@ -88,26 +110,50 @@
     return playbackContext;
   }
 
-  // お手本再生中だけマイクの入力を一時的に無効化し、再生終了と同時に戻す
-  function muteMicDuringTone(durationMs) {
+  // お手本再生中はマイクを完全に停止(track.stop())し、OS側の録音セッションごと
+  // 解放する。再生が終わったらgetUserMediaを撮り直して再接続する。
+  // (track.enabled=falseだけだと録音セッションが残り続け、iPhoneのOSレベルの
+  //  ダッキングで再生音が小さくなる現象が起きるため、この方式に変更)
+  function stopMicDuringTone(durationMs) {
     if (micMuteTimeoutId !== null) {
       clearTimeout(micMuteTimeoutId);
       micMuteTimeoutId = null;
     }
-    if (!mediaStream) return; // マイクが起動していなければ何もしない
+    if (!isRunning) return; // マイクがそもそも起動していなければ何もしない
 
-    mediaStream.getTracks().forEach(function (t) {
-      t.enabled = false;
-    });
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(function (t) {
+        t.stop();
+      });
+      mediaStream = null;
+    }
+    analyser = null; // loop()側はanalyserが無い間は検出をスキップする
 
     micMuteTimeoutId = setTimeout(function () {
       micMuteTimeoutId = null;
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(function (t) {
-          t.enabled = true;
+      if (!isRunning) return; // 再生中にユーザーがマイクを止めていたら何もしない
+
+      navigator.mediaDevices
+        .getUserMedia(getMicConstraints())
+        .then(function (stream) {
+          createAudioGraph(stream);
+        })
+        .catch(function (err) {
+          showLog(
+            "マイクの再取得に失敗しました: " + (err && err.message ? err.message : err),
+            true
+          );
+          stopMic();
         });
-      }
     }, durationMs);
+  }
+
+  // 基準音程より低いTARGETほど音量を上げる補正（低音の聞こえにくさ対策）
+  function computeBoostedVolume() {
+    var refMidi = CONFIG.REFERENCE_TONE_VOLUME_REFERENCE_MIDI;
+    var octavesBelow = Math.max(0, (refMidi - tracker.targetMidi) / 12);
+    var boostFactor = 1 + octavesBelow * CONFIG.REFERENCE_TONE_LOW_BOOST_PER_OCTAVE;
+    return Math.min(1.0, CONFIG.REFERENCE_TONE_VOLUME * boostFactor);
   }
 
   function playReferenceTone(frequency) {
@@ -115,7 +161,7 @@
     if (!ctx || !frequency) return;
 
     var durationSec = CONFIG.REFERENCE_TONE_DURATION_MS / 1000;
-    var peakVolume = CONFIG.REFERENCE_TONE_VOLUME;
+    var peakVolume = computeBoostedVolume();
     var fade = Math.min(0.03, durationSec / 4);
 
     var osc = ctx.createOscillator();
@@ -134,7 +180,7 @@
     osc.start(now);
     osc.stop(now + durationSec + 0.05);
 
-    muteMicDuringTone(CONFIG.REFERENCE_TONE_DURATION_MS);
+    stopMicDuringTone(CONFIG.REFERENCE_TONE_DURATION_MS);
   }
 
   el.replayToneBtn.addEventListener("click", function () {
@@ -184,6 +230,7 @@
   // 両方向(HIGH/LOW)それぞれの結果を記録
   var directionTested = { HIGH: false, LOW: false };
   var directionResult = { HIGH: null, LOW: null }; // クリアできた最遠の音の表示名 | null(記録なし)
+  var directionResultMidi = { HIGH: null, LOW: null }; // クリアできた最遠の音のMIDI番号 | null
 
   function hideChallengeResult() {
     el.challengeResult.hidden = true;
@@ -244,6 +291,7 @@
     var currentMode = tracker.mode;
     directionTested[currentMode] = true;
     directionResult[currentMode] = lastClearedNoteLabel;
+    directionResultMidi[currentMode] = lastClearedNoteMidi;
 
     el.challengeResult.hidden = false;
     el.challengeResultLabel.textContent = directionLabel(currentMode) + "チャレンジ結果";
@@ -280,6 +328,22 @@
     var lowLabel = directionResult.LOW || "測定不可";
     var highLabel = directionResult.HIGH || "測定不可";
     el.finalRangeText.textContent = lowLabel + " 〜 " + highLabel;
+
+    var lowMidi = directionResultMidi.LOW;
+    var highMidi = directionResultMidi.HIGH;
+    if (lowMidi !== null && highMidi !== null && highMidi >= lowMidi) {
+      var totalSemitones = highMidi - lowMidi;
+      var octaves = Math.floor(totalSemitones / 12);
+      var remainderSemitones = totalSemitones % 12;
+      var octaveText = octaves + "オクターブ";
+      if (remainderSemitones > 0) {
+        octaveText += remainderSemitones + "半音";
+      }
+      el.finalOctaveText.textContent = octaveText;
+    } else {
+      el.finalOctaveText.textContent = "";
+    }
+
     el.finalResultBlock.hidden = false;
   }
 
@@ -305,6 +369,8 @@
     directionTested.LOW = false;
     directionResult.HIGH = null;
     directionResult.LOW = null;
+    directionResultMidi.HIGH = null;
+    directionResultMidi.LOW = null;
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
     setMode("HIGH");
@@ -391,6 +457,8 @@
     directionTested.LOW = false;
     directionResult.HIGH = null;
     directionResult.LOW = null;
+    directionResultMidi.HIGH = null;
+    directionResultMidi.LOW = null;
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
     startChallengeForCurrentTarget();
@@ -497,23 +565,10 @@
     }
 
     navigator.mediaDevices
-      .getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-        },
-      })
+      .getUserMedia(getMicConstraints())
       .then(function (stream) {
-        mediaStream = stream;
+        createAudioGraph(stream);
 
-        var source = audioContext.createMediaStreamSource(mediaStream);
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = CONFIG.FFT_SIZE;
-        analyser.smoothingTimeConstant = 0;
-        source.connect(analyser);
-
-        timeDomainBuffer = new Float32Array(analyser.fftSize);
         tracker.resetHold();
         hideChallengeResult();
         lastClearedNoteLabel = null;
@@ -590,17 +645,22 @@
   function loop() {
     if (!isRunning) return;
 
-    analyser.getFloatTimeDomainData(timeDomainBuffer);
-    var rms = PitchLib.computeRMS(timeDomainBuffer);
-
     var rawFrequency = null;
     var confidence = null;
+    var rms = 0;
 
-    if (rms >= CONFIG.INPUT_LEVEL_THRESHOLD) {
-      var result = PitchLib.yinDetect(timeDomainBuffer, audioContext.sampleRate, CONFIG);
-      if (result) {
-        rawFrequency = result.frequency;
-        confidence = result.confidence;
+    // お手本再生中はanalyserが一時的に存在しない(マイクを完全に停止しているため)。
+    // その間は検出をスキップし、NO_PITCH状態として扱う。
+    if (analyser) {
+      analyser.getFloatTimeDomainData(timeDomainBuffer);
+      rms = PitchLib.computeRMS(timeDomainBuffer);
+
+      if (rms >= CONFIG.INPUT_LEVEL_THRESHOLD) {
+        var result = PitchLib.yinDetect(timeDomainBuffer, audioContext.sampleRate, CONFIG);
+        if (result) {
+          rawFrequency = result.frequency;
+          confidence = result.confidence;
+        }
       }
     }
 
