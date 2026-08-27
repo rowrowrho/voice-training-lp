@@ -61,6 +61,7 @@
     challengeOtherModeBtn: document.getElementById("challengeOtherModeBtn"),
     finalResultBlock: document.getElementById("finalResultBlock"),
     finalRangeText: document.getElementById("finalRangeText"),
+    finalOctaveText: document.getElementById("finalOctaveText"),
     shareBtn: document.getElementById("shareBtn"),
     shareXBtn: document.getElementById("shareXBtn"),
   };
@@ -184,6 +185,7 @@
   // 両方向(HIGH/LOW)それぞれの結果を記録
   var directionTested = { HIGH: false, LOW: false };
   var directionResult = { HIGH: null, LOW: null }; // クリアできた最遠の音の表示名 | null(記録なし)
+  var directionResultMidi = { HIGH: null, LOW: null }; // クリアできた最遠の音のMIDI番号 | null
 
   function hideChallengeResult() {
     el.challengeResult.hidden = true;
@@ -244,6 +246,7 @@
     var currentMode = tracker.mode;
     directionTested[currentMode] = true;
     directionResult[currentMode] = lastClearedNoteLabel;
+    directionResultMidi[currentMode] = lastClearedNoteMidi;
 
     el.challengeResult.hidden = false;
     el.challengeResultLabel.textContent = directionLabel(currentMode) + "チャレンジ結果";
@@ -280,6 +283,22 @@
     var lowLabel = directionResult.LOW || "測定不可";
     var highLabel = directionResult.HIGH || "測定不可";
     el.finalRangeText.textContent = lowLabel + " 〜 " + highLabel;
+
+    var lowMidi = directionResultMidi.LOW;
+    var highMidi = directionResultMidi.HIGH;
+    if (lowMidi !== null && highMidi !== null && highMidi >= lowMidi) {
+      var totalSemitones = highMidi - lowMidi;
+      var octaves = Math.floor(totalSemitones / 12);
+      var remainderSemitones = totalSemitones % 12;
+      var octaveText = octaves + "オクターブ";
+      if (remainderSemitones > 0) {
+        octaveText += remainderSemitones + "半音";
+      }
+      el.finalOctaveText.textContent = octaveText;
+    } else {
+      el.finalOctaveText.textContent = "";
+    }
+
     el.finalResultBlock.hidden = false;
   }
 
@@ -305,6 +324,8 @@
     directionTested.LOW = false;
     directionResult.HIGH = null;
     directionResult.LOW = null;
+    directionResultMidi.HIGH = null;
+    directionResultMidi.LOW = null;
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
     setMode("HIGH");
@@ -391,6 +412,8 @@
     directionTested.LOW = false;
     directionResult.HIGH = null;
     directionResult.LOW = null;
+    directionResultMidi.HIGH = null;
+    directionResultMidi.LOW = null;
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
     startChallengeForCurrentTarget();
