@@ -13,6 +13,7 @@
   var el = {
     micButton: document.getElementById("micButton"),
     errorMsg: document.getElementById("errorMsg"),
+    nicknameInput: document.getElementById("nicknameInput"),
 
     targetSelect: document.getElementById("targetSelect"),
     targetDisplay: document.getElementById("targetDisplay"),
@@ -477,12 +478,17 @@
       el.submitResultStatus.textContent = "送信先が設定されていません。";
       return;
     }
+    if (!el.nicknameInput.value.trim()) {
+      el.submitResultStatus.textContent = "お名前が入力されていません。";
+      return;
+    }
 
     el.submitResultBtn.disabled = true;
     el.submitResultStatus.textContent = "送信中…";
 
     var payload = {
       source: "pitch-mvp-range-challenge", // range-recorderの録音データと区別するための印
+      nickname: el.nicknameInput.value.trim(),
       submittedAt: new Date().toISOString(),
       lowNote: directionResult.LOW || null,
       lowMidi: directionResultMidi.LOW,
@@ -645,6 +651,13 @@
   // ---- マイク開始（async/awaitを使わず、Promise.then()で統一） ----
   function startMic() {
     clearError();
+
+    if (!el.nicknameInput.value.trim()) {
+      showLog("先にお名前(ニックネーム)を入力してください。", true);
+      el.nicknameInput.focus();
+      return;
+    }
+
     el.micButton.disabled = true;
 
     var AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -683,6 +696,7 @@
         el.micButton.textContent = "計測を停止";
         el.micButton.disabled = false;
         el.micButton.classList.add("listening");
+        el.nicknameInput.disabled = true;
 
         loop();
       })
@@ -733,6 +747,7 @@
 
     el.micButton.textContent = "マイクを開始";
     el.micButton.classList.remove("listening");
+    el.nicknameInput.disabled = false;
     clearError();
     renderIdleState();
   }
