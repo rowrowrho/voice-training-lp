@@ -81,8 +81,16 @@
     // チャレンジモードでは、この再生が終わってから制限時間のカウントダウンが始まる。
     REFERENCE_TONE_DURATION_MS: 2000,
 
-    // お手本音の音量(0〜1)
+    // お手本音の音量(0〜1)。これは基準音程(REFERENCE_TONE_VOLUME_REFERENCE_MIDI)での音量。
     REFERENCE_TONE_VOLUME: 0.6,
+
+    // 音量補正の基準となる音程(MIDI番号)。この音より低いTARGETほど音量が上がる。
+    // iPhoneのスピーカーは低音が出にくく、人の耳も低音を小さく感じやすいための補正。
+    // 57 = A3（チャレンジの開始音）
+    REFERENCE_TONE_VOLUME_REFERENCE_MIDI: 57,
+
+    // 基準音程より1オクターブ低くなるごとに音量を何倍にするか
+    REFERENCE_TONE_LOW_BOOST_PER_OCTAVE: 0.5,
   };
 
   const NOTE_NAMES = [
