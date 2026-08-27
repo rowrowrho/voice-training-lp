@@ -73,6 +73,31 @@
   var rafId = null;
   var isRunning = false;
 
+  // お手本再生中のマイク対策を「完全停止→撮り直し」にするか「一時ミュート」にするかの切り替え。
+  // もし不具合が起きたら、このtrueをfalseに変えるだけで安全な方式に戻せる。
+  var USE_HARD_MIC_STOP = true;
+
+  // マイクのMediaStreamからWeb Audioの接続グラフ(source→analyser)を作る
+  function createAudioGraph(stream) {
+    mediaStream = stream;
+    var source = audioContext.createMediaStreamSource(mediaStream);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = CONFIG.FFT_SIZE;
+    analyser.smoothingTimeConstant = 0;
+    source.connect(analyser);
+    timeDomainBuffer = new Float32Array(analyser.fftSize);
+  }
+
+  function getMicConstraints() {
+    return {
+      audio: {
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      },
+    };
+  }
+
   // ---- お手本音の再生(マイク入力とは独立したAudioContextを使う) ----
   var playbackContext = null;
   var micMuteTimeoutId = null; // お手本再生中だけマイクをミュートするためのタイマー
@@ -89,7 +114,66 @@
     return playbackContext;
   }
 
+  // お手本再生中はマイクを完全に停止(track.stop())し、OS側の録音セッションごと
+  // 解放する。再生が終わったらgetUserMediaを撮り直して再接続する。
+  // 万一、再取得が固まってしまった場合に備えて、一定時間で諦めてマイクを
+  // 停止状態に戻す保険(タイムアウト)を入れてある。
+  function stopMicDuringTone(durationMs) {
+    if (micMuteTimeoutId !== null) {
+      clearTimeout(micMuteTimeoutId);
+      micMuteTimeoutId = null;
+    }
+    if (!isRunning) return; // マイクがそもそも起動していなければ何もしない
+
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(function (t) {
+        t.stop();
+      });
+      mediaStream = null;
+    }
+    analyser = null; // loop()側はanalyserが無い間は検出をスキップする
+
+    micMuteTimeoutId = setTimeout(function () {
+      micMuteTimeoutId = null;
+      if (!isRunning) return; // 再生中にユーザーがマイクを止めていたら何もしない
+
+      var reacquireTimedOut = false;
+      var safetyTimer = setTimeout(function () {
+        reacquireTimedOut = true;
+        showLog(
+          "マイクの再接続に時間がかかっています。お手数ですが、もう一度「マイクを開始」を押してください。",
+          true
+        );
+        stopMic();
+      }, 4000); // 4秒以上応答が無ければタイムアウトとして諦める
+
+      navigator.mediaDevices
+        .getUserMedia(getMicConstraints())
+        .then(function (stream) {
+          clearTimeout(safetyTimer);
+          if (reacquireTimedOut) {
+            // タイムアウト後に遅れて成功した場合は、使わずに閉じる
+            stream.getTracks().forEach(function (t) {
+              t.stop();
+            });
+            return;
+          }
+          createAudioGraph(stream);
+        })
+        .catch(function (err) {
+          clearTimeout(safetyTimer);
+          if (reacquireTimedOut) return;
+          showLog(
+            "マイクの再取得に失敗しました: " + (err && err.message ? err.message : err),
+            true
+          );
+          stopMic();
+        });
+    }, durationMs);
+  }
+
   // お手本再生中だけマイクの入力を一時的に無効化し、再生終了と同時に戻す
+  // (USE_HARD_MIC_STOP=falseのときに使う、より安全な代替方式)
   function muteMicDuringTone(durationMs) {
     if (micMuteTimeoutId !== null) {
       clearTimeout(micMuteTimeoutId);
@@ -143,7 +227,11 @@
     osc.start(now);
     osc.stop(now + durationSec + 0.05);
 
-    muteMicDuringTone(CONFIG.REFERENCE_TONE_DURATION_MS);
+    if (USE_HARD_MIC_STOP) {
+      stopMicDuringTone(CONFIG.REFERENCE_TONE_DURATION_MS);
+    } else {
+      muteMicDuringTone(CONFIG.REFERENCE_TONE_DURATION_MS);
+    }
   }
 
   el.replayToneBtn.addEventListener("click", function () {
@@ -528,23 +616,10 @@
     }
 
     navigator.mediaDevices
-      .getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-        },
-      })
+      .getUserMedia(getMicConstraints())
       .then(function (stream) {
-        mediaStream = stream;
+        createAudioGraph(stream);
 
-        var source = audioContext.createMediaStreamSource(mediaStream);
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = CONFIG.FFT_SIZE;
-        analyser.smoothingTimeConstant = 0;
-        source.connect(analyser);
-
-        timeDomainBuffer = new Float32Array(analyser.fftSize);
         tracker.resetHold();
         hideChallengeResult();
         lastClearedNoteLabel = null;
@@ -621,17 +696,22 @@
   function loop() {
     if (!isRunning) return;
 
-    analyser.getFloatTimeDomainData(timeDomainBuffer);
-    var rms = PitchLib.computeRMS(timeDomainBuffer);
-
     var rawFrequency = null;
     var confidence = null;
+    var rms = 0;
 
-    if (rms >= CONFIG.INPUT_LEVEL_THRESHOLD) {
-      var result = PitchLib.yinDetect(timeDomainBuffer, audioContext.sampleRate, CONFIG);
-      if (result) {
-        rawFrequency = result.frequency;
-        confidence = result.confidence;
+    // お手本再生中(USE_HARD_MIC_STOP=trueの場合)はanalyserが一時的に
+    // 存在しない。その間は検出をスキップし、NO_PITCH状態として扱う。
+    if (analyser) {
+      analyser.getFloatTimeDomainData(timeDomainBuffer);
+      rms = PitchLib.computeRMS(timeDomainBuffer);
+
+      if (rms >= CONFIG.INPUT_LEVEL_THRESHOLD) {
+        var result = PitchLib.yinDetect(timeDomainBuffer, audioContext.sampleRate, CONFIG);
+        if (result) {
+          rawFrequency = result.frequency;
+          confidence = result.confidence;
+        }
       }
     }
 
