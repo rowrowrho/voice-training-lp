@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>音域診断｜RHOボイトレ</title>
+<title>音域診断 MVP（技術検証用）｜RHOボイトレ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -202,7 +202,7 @@
 <div class="wrap">
 
   <h1>音域診断 リアルタイム音程検出テスト</h1>
-  <p class="sub">iPhone Safariでの動作確認済です。</p>
+  <p class="sub">iPhone Safariで動作確認済み。音声はサーバーへ送信されず、ブラウザ内でのみ処理されます。</p>
 
   <div class="card">
     <button id="micButton">マイクを開始</button>
@@ -337,6 +337,9 @@
 
         <button id="shareBtn" style="margin-top:12px; padding:10px 20px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-weight:800; cursor:pointer; width:100%;">SNSでシェア</button>
         <button id="shareXBtn" style="margin-top:8px; padding:10px 20px; border-radius:10px; border:none; background:#000; color:#fff; font-weight:800; cursor:pointer; width:100%;">𝕏でシェア</button>
+
+        <button id="submitResultBtn" style="margin-top:12px; padding:10px 20px; border-radius:10px; border:1px solid var(--data); background:#E7F7F3; color:var(--data); font-weight:800; cursor:pointer; width:100%;">この結果を送信する</button>
+        <p id="submitResultStatus" style="margin-top:6px; font-size:11px; color:var(--text-dim); text-align:center;"></p>
       </div>
 
       <button id="challengeResetBtn" style="margin-top:10px; padding:10px 20px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font-weight:700; cursor:pointer; width:100%;">もう一度最初から</button>
@@ -350,7 +353,7 @@
   </footer>
 </div>
 
-<script src="pitch-detector.js?v=21"></script>
-<script src="app.js?v=21"></script>
+<script src="pitch-detector.js?v=22"></script>
+<script src="app.js?v=22"></script>
 </body>
 </html>
