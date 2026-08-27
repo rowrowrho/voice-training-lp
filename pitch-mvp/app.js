@@ -64,6 +64,8 @@
     finalOctaveText: document.getElementById("finalOctaveText"),
     shareBtn: document.getElementById("shareBtn"),
     shareXBtn: document.getElementById("shareXBtn"),
+    submitResultBtn: document.getElementById("submitResultBtn"),
+    submitResultStatus: document.getElementById("submitResultStatus"),
   };
 
   var audioContext = null; // マイク入力用
@@ -424,6 +426,9 @@
     directionResultMidi.LOW = null;
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
+    el.submitResultBtn.disabled = false;
+    el.submitResultBtn.textContent = "この結果を送信する";
+    el.submitResultStatus.textContent = "";
     setMode("HIGH");
     goToStartingTarget();
     startChallengeForCurrentTarget();
@@ -460,6 +465,54 @@
       "&url=" +
       encodeURIComponent(shareUrl);
     window.open(intentUrl, "_blank");
+  });
+
+  // ---- 結果の送信(range-recorderと同じGoogle Apps Scriptエンドポイントへ) ----
+  // 音声ファイルは含めず、音域チャレンジの結果(テキストのみ)を送る。
+  var SUBMIT_ENDPOINT_URL =
+    "https://script.google.com/macros/s/AKfycbzoGlK2DZIC4hIW17A3kXho3_3jU2zn55jyKU4ORD1divJ3P4GMaleuWcxsu5TwWL42Ww/exec";
+
+  el.submitResultBtn.addEventListener("click", function () {
+    if (!SUBMIT_ENDPOINT_URL) {
+      el.submitResultStatus.textContent = "送信先が設定されていません。";
+      return;
+    }
+
+    el.submitResultBtn.disabled = true;
+    el.submitResultStatus.textContent = "送信中…";
+
+    var payload = {
+      source: "pitch-mvp-range-challenge", // range-recorderの録音データと区別するための印
+      submittedAt: new Date().toISOString(),
+      lowNote: directionResult.LOW || null,
+      lowMidi: directionResultMidi.LOW,
+      highNote: directionResult.HIGH || null,
+      highMidi: directionResultMidi.HIGH,
+      octaveSummary: el.finalOctaveText.textContent || null,
+    };
+
+    // Content-Typeを指定しない(=text/plainになる)ことでCORSプリフライトを避ける
+    // (range-recorder側の送信処理と同じ方式)
+    fetch(SUBMIT_ENDPOINT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (json) {
+        if (json && json.result === "success") {
+          el.submitResultStatus.textContent = "送信しました。ありがとうございます！";
+          el.submitResultBtn.textContent = "送信済み";
+        } else {
+          el.submitResultStatus.textContent = "送信に失敗しました。もう一度お試しください。";
+          el.submitResultBtn.disabled = false;
+        }
+      })
+      .catch(function () {
+        el.submitResultStatus.textContent = "送信に失敗しました。通信環境を確認してください。";
+        el.submitResultBtn.disabled = false;
+      });
   });
 
   el.autoAdvanceToggle.addEventListener("change", function () {
