@@ -111,12 +111,20 @@
     }, durationMs);
   }
 
+  // 基準音程より低いTARGETほど音量を上げる補正（低音の聞こえにくさ対策）
+  function computeBoostedVolume() {
+    var refMidi = CONFIG.REFERENCE_TONE_VOLUME_REFERENCE_MIDI;
+    var octavesBelow = Math.max(0, (refMidi - tracker.targetMidi) / 12);
+    var boostFactor = 1 + octavesBelow * CONFIG.REFERENCE_TONE_LOW_BOOST_PER_OCTAVE;
+    return Math.min(1.0, CONFIG.REFERENCE_TONE_VOLUME * boostFactor);
+  }
+
   function playReferenceTone(frequency) {
     var ctx = ensurePlaybackContext();
     if (!ctx || !frequency) return;
 
     var durationSec = CONFIG.REFERENCE_TONE_DURATION_MS / 1000;
-    var peakVolume = CONFIG.REFERENCE_TONE_VOLUME;
+    var peakVolume = computeBoostedVolume();
     var fade = Math.min(0.03, durationSec / 4);
 
     var osc = ctx.createOscillator();
