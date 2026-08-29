@@ -204,6 +204,19 @@
   <h1>音域診断 リアルタイム音程検出テスト</h1>
   <p class="sub">iPhone Safariで動作確認済み。音声はサーバーへ送信されず、ブラウザ内でのみ処理されます。</p>
 
+  <div class="card" style="background:var(--sky); border:none;">
+    <div class="label" style="margin-bottom:10px; font-size:12px;">📖 使い方</div>
+    <ol style="padding-left:20px; font-size:13px; color:var(--text); line-height:2;">
+      <li>下に<strong>お名前(ニックネーム)</strong>を入力</li>
+      <li>「<strong>音域チャレンジモード</strong>」にチェックを入れる(おすすめ)</li>
+      <li>「<strong>マイクを開始</strong>」を押す → マイクの許可が出たら「許可」を選ぶ</li>
+      <li>「ポーン」という<strong>お手本の音</strong>が流れたら、同じ高さの声を「あー」と伸ばして出す</li>
+      <li>音が合っていると1秒キープで<strong>CLEAR!</strong> → 自動で次の(少し高い)音に進む</li>
+      <li>出せなくなったら終了。続けて低い方にも挑戦できます</li>
+      <li>最後に音域の結果が表示されるので、送信・シェアできます</li>
+    </ol>
+  </div>
+
   <div class="card">
     <span class="label">お名前(ニックネームでもOK)</span>
     <input type="text" id="nicknameInput" placeholder="例: ろー" style="margin-top:8px; width:100%; padding:12px; border-radius:10px; border:1px solid var(--line); font-size:15px; font-family:var(--sans); background:var(--sky); color:var(--navy-2);">
@@ -358,7 +371,7 @@
   </footer>
 </div>
 
-<script src="pitch-detector.js?v=23"></script>
-<script src="app.js?v=23"></script>
+<script src="pitch-detector.js?v=24"></script>
+<script src="app.js?v=24"></script>
 </body>
 </html>
