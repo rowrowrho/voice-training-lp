@@ -63,6 +63,8 @@
     finalResultBlock: document.getElementById("finalResultBlock"),
     finalRangeText: document.getElementById("finalRangeText"),
     finalOctaveText: document.getElementById("finalOctaveText"),
+    redoHighBtn: document.getElementById("redoHighBtn"),
+    redoLowBtn: document.getElementById("redoLowBtn"),
     shareBtn: document.getElementById("shareBtn"),
     shareXBtn: document.getElementById("shareXBtn"),
     submitResultBtn: document.getElementById("submitResultBtn"),
@@ -483,6 +485,33 @@
     lastClearedNoteLabel = null;
     lastClearedNoteMidi = null;
     startChallengeForCurrentTarget();
+  });
+
+  // 片方向(HIGH or LOW)だけをその場でやり直す。もう片方の結果は保持したまま。
+  function redoDirection(mode) {
+    directionTested[mode] = false;
+    directionResult[mode] = null;
+    directionResultMidi[mode] = null;
+    saveProgress();
+
+    hideChallengeResult();
+    lastClearedNoteLabel = null;
+    lastClearedNoteMidi = null;
+    el.submitResultBtn.disabled = false;
+    el.submitResultBtn.textContent = "この結果を送信する";
+    el.submitResultStatus.textContent = "";
+
+    setMode(mode);
+    goToStartingTarget();
+    startChallengeForCurrentTarget();
+  }
+
+  el.redoHighBtn.addEventListener("click", function () {
+    redoDirection("HIGH");
+  });
+
+  el.redoLowBtn.addEventListener("click", function () {
+    redoDirection("LOW");
   });
 
   el.challengeResetBtn.addEventListener("click", function () {
