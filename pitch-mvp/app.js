@@ -286,6 +286,73 @@
   var directionResult = { HIGH: null, LOW: null }; // クリアできた最遠の音の表示名 | null(記録なし)
   var directionResultMidi = { HIGH: null, LOW: null }; // クリアできた最遠の音のMIDI番号 | null
 
+  // ---- 進捗のセーブ(片方だけ終えて後日もう片方をやる、を可能にする) ----
+  // localStorageに保存するので、このブラウザ・この端末限定(送信はしない)
+  var PROGRESS_STORAGE_KEY = "rhoPitchChallengeProgress_v1";
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(
+        PROGRESS_STORAGE_KEY,
+        JSON.stringify({
+          nickname: el.nicknameInput.value,
+          directionTested: directionTested,
+          directionResult: directionResult,
+          directionResultMidi: directionResultMidi,
+        })
+      );
+    } catch (e) {
+      // localStorageが使えない環境でも致命的にしない
+    }
+  }
+
+  function clearProgress() {
+    try {
+      localStorage.removeItem(PROGRESS_STORAGE_KEY);
+    } catch (e) {}
+  }
+
+  function loadSavedProgress() {
+    var raw;
+    try {
+      raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+    } catch (e) {
+      return;
+    }
+    if (!raw) return;
+
+    var saved;
+    try {
+      saved = JSON.parse(raw);
+    } catch (e) {
+      return;
+    }
+
+    if (saved.nickname) el.nicknameInput.value = saved.nickname;
+    if (saved.directionTested) {
+      directionTested.HIGH = !!saved.directionTested.HIGH;
+      directionTested.LOW = !!saved.directionTested.LOW;
+    }
+    if (saved.directionResult) {
+      directionResult.HIGH = saved.directionResult.HIGH || null;
+      directionResult.LOW = saved.directionResult.LOW || null;
+    }
+    if (saved.directionResultMidi) {
+      directionResultMidi.HIGH =
+        saved.directionResultMidi.HIGH != null ? saved.directionResultMidi.HIGH : null;
+      directionResultMidi.LOW =
+        saved.directionResultMidi.LOW != null ? saved.directionResultMidi.LOW : null;
+    }
+
+    // 片方だけ済んでいる場合は、その旨をひと目で分かるように表示しておく
+    var doneLabels = [];
+    if (directionTested.HIGH) doneLabels.push("高音域(" + (directionResult.HIGH || "記録なし") + ")");
+    if (directionTested.LOW) doneLabels.push("低音域(" + (directionResult.LOW || "記録なし") + ")");
+    if (doneLabels.length > 0) {
+      showLog("前回の結果を保持しています: " + doneLabels.join(" / ") + "。続きから挑戦できます。", false);
+    }
+  }
+
   function hideChallengeResult() {
     el.challengeResult.hidden = true;
   }
@@ -346,6 +413,7 @@
     directionTested[currentMode] = true;
     directionResult[currentMode] = lastClearedNoteLabel;
     directionResultMidi[currentMode] = lastClearedNoteMidi;
+    saveProgress();
 
     el.challengeResult.hidden = false;
     el.challengeResultLabel.textContent = directionLabel(currentMode) + "チャレンジ結果";
@@ -430,6 +498,7 @@
     el.submitResultBtn.disabled = false;
     el.submitResultBtn.textContent = "この結果を送信する";
     el.submitResultStatus.textContent = "";
+    clearProgress();
     setMode("HIGH");
     goToStartingTarget();
     startChallengeForCurrentTarget();
@@ -510,6 +579,7 @@
         if (json && json.result === "success") {
           el.submitResultStatus.textContent = "送信しました。ありがとうございます！";
           el.submitResultBtn.textContent = "送信済み";
+          clearProgress();
         } else {
           el.submitResultStatus.textContent = "送信に失敗しました。もう一度お試しください。";
           el.submitResultBtn.disabled = false;
@@ -893,4 +963,5 @@
   }
 
   renderIdleState();
+  loadSavedProgress();
 })();
