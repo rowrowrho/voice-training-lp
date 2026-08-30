@@ -23,7 +23,7 @@
     --shadow: 0 16px 40px rgba(23,58,94,0.10);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth; scroll-padding-top:90px;}
   body{
     background:var(--bg); color:var(--text); font-family:var(--sans);
     line-height:1.85; -webkit-font-smoothing:antialiased;
@@ -76,6 +76,12 @@
   }
   .hero-price .unit{font-size:13px; color:var(--text-dim);}
   .hero-price .amt{font-size:26px; font-weight:900; color:var(--navy);}
+  .hero-price .badge{
+    background:var(--amber); color:var(--navy-2); font-size:11px; font-weight:900;
+    padding:3px 10px; border-radius:100px; margin-right:2px;
+  }
+  .hero-price.trial{border-color:var(--amber);}
+  .hero-price + .hero-price{margin-top:10px;}
   .hero-ctas{margin-top:26px;}
   .hero-note{margin-top:10px; font-size:12px; color:var(--text-dim);}
 
@@ -305,6 +311,9 @@
         ハリウッド式ボイストレーニングの考え方をベースに、あなたの声を一緒に分析。<br>
         「なぜ歌えないのか」を見つけて、練習の方向性をはっきりさせるレッスンです。
       </p>
+      <div class="hero-price trial">
+        <span class="badge">体験</span><span class="unit">30分</span><span class="amt">1,000円</span>
+      </div>
       <div class="hero-price">
         <span class="unit">60分</span><span class="amt">5,000円</span>
       </div>
@@ -556,7 +565,7 @@
         <span class="mark2">自分の課題を知り、正しい練習を積み重ねてきただけ。</span><br><br>
         あなたもまずは「自分の声を知ること」から始めてみませんか？
       </p>
-      <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSfkravOwG7n7i8vuVl6sSmHfGVO362shkH5Uv_ZrWcbMHcD_g/viewform" target="_blank" rel="noopener" id="contact">
+      <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform?usp=publish-editor" target="_blank" rel="noopener" id="contact">
         <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
         <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
       </a>
@@ -597,7 +606,7 @@
 <section class="final-bar">
   <div class="wrap">
     <p>あなたの「歌いたい」をサポートします。まずはお気軽にご相談ください！</p>
-    <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSfkravOwG7n7i8vuVl6sSmHfGVO362shkH5Uv_ZrWcbMHcD_g/viewform" target="_blank" rel="noopener">
+    <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
       <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
       <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
     </a>
