@@ -1,1 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME8HE69PX8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME8HE69PX8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音感チェック｜相対音感の聞き分け力をテスト - RHOボイトレ</title>
+<meta name="description" content="2つの音を聞き比べて、どっちが高いかを当てる全10問の音感チェック。だんだん音の差が小さくなっていきます。あなたの相対音感はどのレベル？">
+<meta property="og:title" content="音感チェック｜相対音感の聞き分け力をテスト - RHOボイトレ">
+<meta property="og:description" content="2つの音を聞き比べて、どっちが高いかを当てる全10問。だんだん音の差が小さくなっていきます。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://rowrowrho.github.io/voice-training-lp/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#173A5E;
+    --navy-2:#0F2A46;
+    --blue:#2E76B6;
+    --sky:#EAF2FB;
+    --bg:#F5F8FC;
+    --paper:#FFFFFF;
+    --text:#2B3A4A;
+    --text-dim:#66788C;
+    --line:#E1E8F0;
+    --amber:#F5B84E;
+    --sans:"Zen Kaku Gothic New", sans-serif;
+    --shadow: 0 16px 40px rgba(23,58,94,0.10);
+    --data:#17A98D;
+    --data-2:#0E7F69;
+    --data-bg:#E7F7F3;
+    --bad:#E0685C;
+    --bad-bg:#FBEAE8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.85; -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  a{color:inherit; text-decoration:none;}
+  img,svg{display:block; max-width:100%;}
+  button{font-family:var(--sans); cursor:pointer; border:none;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 20px; width:100%;}
 
+  header.nav{
+    position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; max-width:640px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900; color:var(--navy); font-size:15px;}
+  .brand-tag{font-size:10.5px; font-weight:700; color:var(--data); background:var(--data-bg); padding:4px 9px; border-radius:100px; letter-spacing:0.02em; white-space:nowrap;}
+
+  main{flex:1; padding:36px 0 60px;}
+
+  .card{
+    background:var(--paper); border-radius:22px; box-shadow:var(--shadow); border:1px solid var(--line);
+    padding:36px 26px; text-align:center;
+  }
+
+  .eyebrow-pill{
+    display:inline-block; background:var(--navy); color:#fff; font-size:12px; font-weight:700;
+    padding:6px 15px; border-radius:100px; letter-spacing:0.04em; margin-bottom:18px;
+  }
+  h1{font-size:clamp(22px,5.5vw,28px); color:var(--navy); font-weight:900; line-height:1.5; margin-bottom:16px;}
+  h2{font-size:19px; color:var(--navy); font-weight:900; margin-bottom:14px;}
+  p{font-size:14.5px; color:var(--text-dim); line-height:1.85;}
+
+  .icon-circle{
+    width:76px; height:76px; border-radius:50%; background:var(--data-bg); color:var(--data-2);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:32px;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--navy); color:#fff; font-weight:700; font-size:15px;
+    padding:15px 30px; border-radius:12px; width:100%;
+    transition:transform .15s ease, box-shadow .15s ease; margin-top:22px;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn.data{background:var(--data);}
+  .btn.ghost{background:var(--sky); color:var(--navy);}
+  .btn:disabled{opacity:0.45; pointer-events:none;}
+
+  .rule-list{text-align:left; margin-top:22px; display:flex; flex-direction:column; gap:14px;}
+  .rule-list li{list-style:none; display:flex; gap:12px; align-items:flex-start; font-size:14px; color:var(--text);}
+  .rule-list li > span:not(.rule-num){flex:1; min-width:0;}
+  .rule-num{
+    flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--navy); color:#fff;
+    font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center; margin-top:1px;
+  }
+
+  /* --- quiz screen --- */
+  .progress-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .progress-label{font-size:12.5px; font-weight:700; color:var(--text-dim);}
+  .level-pill{font-size:11px; font-weight:700; color:var(--blue); background:var(--sky); padding:4px 11px; border-radius:100px;}
+  .progress-track{height:6px; background:var(--line); border-radius:100px; overflow:hidden; margin-bottom:28px;}
+  .progress-fill{height:100%; background:var(--data); border-radius:100px; transition:width .35s ease; width:0%;}
+
+  .play-zone{margin:14px 0 8px;}
+  .play-btn{
+    width:120px; height:120px; border-radius:50%; background:linear-gradient(165deg, var(--navy-2), var(--navy));
+    color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto;
+    box-shadow:0 14px 30px rgba(23,58,94,0.28); transition:transform .15s ease;
+  }
+  .play-btn:active{transform:scale(0.96);}
+  .play-btn .tri{width:0; height:0; border-style:solid; border-width:12px 0 12px 20px; border-color:transparent transparent transparent #fff; margin-bottom:4px;}
+  .play-btn span.lbl{font-size:11px; font-weight:700; letter-spacing:0.04em;}
+  .play-status{margin-top:14px; font-size:13px; color:var(--text-dim); min-height:18px;}
+  .base-freq{font-size:12px; color:var(--blue); font-weight:700; font-variant-numeric:tabular-nums; min-height:16px;}
+  .tone-dots{display:flex; gap:8px; justify-content:center; margin-top:10px;}
+  .tone-dots span{width:8px; height:8px; border-radius:50%; background:var(--line);}
+  .tone-dots span.active{background:var(--data);}
+
+  .answer-row{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:26px;}
+  .answer-btn{
+    background:var(--sky); color:var(--navy); font-weight:900; font-size:15px; padding:20px 10px;
+    border-radius:14px; display:flex; flex-direction:column; align-items:center; gap:4px;
+    border:2px solid transparent; transition:transform .15s ease;
+  }
+  .answer-btn .arrow{font-size:22px;}
+  .answer-btn .freq-val{font-size:11px; font-weight:700; color:var(--text-dim); font-variant-numeric:tabular-nums; min-height:14px;}
+  .answer-btn.correct .freq-val{color:var(--data-2);}
+  .answer-btn.wrong .freq-val{color:var(--bad);}
+  .answer-btn:active{transform:scale(0.97);}
+  .answer-btn:disabled{opacity:0.4; pointer-events:none;}
+  .answer-btn.correct{background:var(--data-bg); color:var(--data-2); border-color:var(--data);}
+  .answer-btn.wrong{background:var(--bad-bg); color:var(--bad); border-color:var(--bad);}
+
+  .feedback-tag{margin-top:16px; font-size:13.5px; font-weight:700; min-height:20px;}
+  .feedback-tag.correct{color:var(--data-2);}
+  .feedback-tag.wrong{color:var(--bad);}
+
+  /* --- result screen --- */
+  .score-num{font-size:52px; font-weight:900; color:var(--navy); line-height:1;}
+  .score-num span{font-size:20px; color:var(--text-dim); font-weight:700;}
+  .score-comment{margin-top:14px; font-size:15px; color:var(--navy); font-weight:700;}
+  .score-detail{margin-top:8px;}
+  .cta-box{
+    margin-top:28px; padding-top:24px; border-top:1px solid var(--line);
+  }
+  .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
+
+  footer{padding:20px; text-align:center; font-size:11.5px; color:var(--text-dim);}
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">RHOボイトレ <span class="brand-tag">音感チェック</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- 1. hero -->
+    <section id="screen-hero" class="card">
+      <div class="eyebrow-pill">全10問・約2分</div>
+      <div class="icon-circle">🎧</div>
+      <h1>あなたの相対音感、<br>どれくらい？</h1>
+      <p>2つの音を聞き比べて、<strong>後から鳴った音の方が高いか低いか</strong>を当てるだけ。<br>
+      だんだん音の差が小さくなっていくので、後半は耳の集中力が試されます。</p>
+      <button class="btn" id="btnToRules">ルールを見る</button>
+    </section>
+
+    <!-- 2. rules -->
+    <section id="screen-rules" class="card" hidden>
+      <h2>やり方はかんたん</h2>
+      <ul class="rule-list">
+        <li><span class="rule-num">1</span><span>ボタンを押すと「基準の音」→「比べる音」の順に2つ鳴ります</span></li>
+        <li><span class="rule-num">2</span><span>比べる音の方が<strong>高いか・低いか</strong>を2択で回答</span></li>
+        <li><span class="rule-num">3</span><span>全10問。後半にいくほど音の差が小さくなります</span></li>
+        <li><span class="rule-num">4</span><span>イヤホン・ヘッドホンの利用がおすすめです</span></li>
+      </ul>
+      <button class="btn" id="btnStartQuiz">音を出してスタート</button>
+    </section>
+
+    <!-- 3. quiz -->
+    <section id="screen-quiz" class="card" hidden>
+      <div class="progress-row">
+        <span class="progress-label" id="qLabel">Q1 / 10</span>
+        <span class="level-pill" id="levelLabel">レベル1</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="play-zone">
+        <button class="play-btn" id="btnPlay"><span class="tri"></span><span class="lbl">再生</span></button>
+        <div class="play-status" id="playStatus">タップして2つの音を聞く</div>
+        <div class="base-freq" id="baseFreq"></div>
+        <div class="tone-dots"><span id="dot1"></span><span id="dot2"></span></div>
+      </div>
+
+      <div class="answer-row">
+        <button class="answer-btn" id="btnLow" disabled><span class="arrow">↓</span>低い<span class="freq-val" id="freqLow"></span></button>
+        <button class="answer-btn" id="btnHigh" disabled><span class="arrow">↑</span>高い<span class="freq-val" id="freqHigh"></span></button>
+      </div>
+      <div class="feedback-tag" id="feedbackTag"></div>
+    </section>
+
+    <!-- 4. result -->
+    <section id="screen-result" class="card" hidden>
+      <div class="eyebrow-pill">結果発表</div>
+      <div class="score-num"><span id="scoreNum">0</span><span> / 10問 正解</span></div>
+      <div class="score-comment" id="scoreComment"></div>
+      <p class="score-detail" id="scoreDetail"></p>
+
+      <div class="cta-box">
+        <p>音の高さを聞き分ける力は、音程を安定させて歌う土台になります。<br>自分の声そのものも気になったら、無料のボイス診断もどうぞ。</p>
+        <a class="btn data" href="https://rowrowrho.github.io/voice-training-lp/voice-check/">✨ 無料のボイス診断を受けてみる</a>
+      </div>
+      <a class="replay-link" id="btnReplay">もう一度チャレンジする</a>
+    </section>
+
+  </div>
+</main>
+
+<footer>RHOボイトレ｜音感チェック</footer>
+
+<script>
+(function(){
+
+  // ---------- 出題設計 ----------
+  // Q1-2: ±2度(=2半音) / Q3-4: ±1度(=1半音) / Q5-7: ±10Hz / Q8-10: ±1Hz
+  // 半音系(Q1-4)は基準音を広めのレンジでランダム化しても、比率でズレを作るので難易度は揃う
+  // Hz固定系(Q5-10)は基準音のレンジを狭くして、体感の難易度が基準音の高さでブレないようにする
+  var QUESTIONS = [
+    {level:1, type:'semitone', n:2, range:[220,440]},
+    {level:1, type:'semitone', n:2, range:[220,440]},
+    {level:2, type:'semitone', n:1, range:[220,440]},
+    {level:2, type:'semitone', n:1, range:[220,440]},
+    {level:3, type:'hz', n:10, range:[300,380]},
+    {level:3, type:'hz', n:10, range:[300,380]},
+    {level:3, type:'hz', n:10, range:[300,380]},
+    {level:4, type:'hz', n:1, range:[300,380]},
+    {level:4, type:'hz', n:1, range:[300,380]},
+    {level:4, type:'hz', n:1, range:[300,380]}
+  ];
+
+  function rand(min, max){ return Math.random() * (max - min) + min; }
+
+  function buildQuiz(){
+    return QUESTIONS.map(function(q){
+      var base = rand(q.range[0], q.range[1]);
+      var goUp = Math.random() < 0.5; // テスト音が基準より高いかどうか
+      var upCandidate, downCandidate;
+      if(q.type === 'semitone'){
+        var ratio = Math.pow(2, q.n / 12);
+        upCandidate = base * ratio;
+        downCandidate = base / ratio;
+      } else {
+        upCandidate = base + q.n;
+        downCandidate = base - q.n;
+      }
+      var testFreq = goUp ? upCandidate : downCandidate;
+      // 片方が実際に鳴った音、もう片方は基準音を軸に対称なダミー周波数
+      return {level:q.level, base:base, test:testFreq, upCandidate:upCandidate, downCandidate:downCandidate, answer: goUp ? 'high' : 'low'};
+    });
+  }
+
+  var quiz = buildQuiz();
+  var current = 0;
+  var score = 0;
+  var answered = false;
+  var audioCtx = null;
+
+  // ---------- 画面切り替え ----------
+  var screens = {
+    hero: document.getElementById('screen-hero'),
+    rules: document.getElementById('screen-rules'),
+    quiz: document.getElementById('screen-quiz'),
+    result: document.getElementById('screen-result')
+  };
+  function showScreen(name){
+    Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.getElementById('btnToRules').addEventListener('click', function(){
+    showScreen('rules');
+  });
+
+  document.getElementById('btnStartQuiz').addEventListener('click', function(){
+    if(!audioCtx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
+    showScreen('quiz');
+    loadQuestion();
+  });
+
+  // ---------- 音再生 ----------
+  function playTone(freq, startTime, duration){
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    var fade = 0.02;
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(0.28, startTime + fade);
+    gain.gain.setValueAtTime(0.28, startTime + duration - fade);
+    gain.gain.linearRampToValueAtTime(0, startTime + duration);
+
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.02);
+  }
+
+  function loadQuestion(){
+    answered = false;
+    var q = quiz[current];
+    document.getElementById('qLabel').textContent = 'Q' + (current + 1) + ' / 10';
+    document.getElementById('levelLabel').textContent = 'レベル' + q.level;
+    document.getElementById('progressFill').style.width = ((current) / 10 * 100) + '%';
+    document.getElementById('playStatus').textContent = 'タップして2つの音を聞く';
+    document.getElementById('baseFreq').textContent = '';
+    document.getElementById('dot1').className = '';
+    document.getElementById('dot2').className = '';
+    document.getElementById('feedbackTag').textContent = '';
+    document.getElementById('feedbackTag').className = 'feedback-tag';
+    document.getElementById('btnLow').disabled = true;
+    document.getElementById('btnHigh').disabled = true;
+    document.getElementById('btnLow').className = 'answer-btn';
+    document.getElementById('btnHigh').className = 'answer-btn';
+    document.getElementById('freqLow').textContent = '';
+    document.getElementById('freqHigh').textContent = '';
+    document.getElementById('btnPlay').disabled = false;
+  }
+
+  document.getElementById('btnPlay').addEventListener('click', function(){
+    var q = quiz[current];
+    document.getElementById('btnPlay').disabled = true;
+    document.getElementById('btnLow').disabled = true;
+    document.getElementById('btnHigh').disabled = true;
+
+    var toneDur = 0.9;
+    var gap = 0.5;
+    var t0 = audioCtx.currentTime + 0.05;
+
+    playTone(q.base, t0, toneDur);
+    playTone(q.test, t0 + toneDur + gap, toneDur);
+
+    document.getElementById('playStatus').textContent = '① 基準の音...';
+    document.getElementById('baseFreq').textContent = '基準音: ' + q.base.toFixed(1) + 'Hz';
+    document.getElementById('dot1').className = 'active';
+    document.getElementById('dot2').className = '';
+
+    setTimeout(function(){
+      document.getElementById('playStatus').textContent = '② 比べる音...';
+      document.getElementById('dot1').className = '';
+      document.getElementById('dot2').className = 'active';
+    }, (toneDur + gap) * 1000);
+
+    setTimeout(function(){
+      document.getElementById('playStatus').textContent = 'どっちが高かった？';
+      document.getElementById('dot2').className = '';
+      document.getElementById('freqLow').textContent = q.downCandidate.toFixed(1) + 'Hz';
+      document.getElementById('freqHigh').textContent = q.upCandidate.toFixed(1) + 'Hz';
+      document.getElementById('btnPlay').disabled = false;
+      document.getElementById('btnLow').disabled = false;
+      document.getElementById('btnHigh').disabled = false;
+    }, (toneDur * 2 + gap) * 1000 + 150);
+  });
+
+  function handleAnswer(choice){
+    if(answered) return;
+    answered = true;
+    var q = quiz[current];
+    var correct = (choice === q.answer);
+    if(correct) score++;
+
+    document.getElementById('btnLow').disabled = true;
+    document.getElementById('btnHigh').disabled = true;
+    document.getElementById('btnPlay').disabled = true;
+
+    var chosenBtn = document.getElementById(choice === 'high' ? 'btnHigh' : 'btnLow');
+    var otherBtn = document.getElementById(choice === 'high' ? 'btnLow' : 'btnHigh');
+    if(correct){
+      chosenBtn.classList.add('correct');
+    } else {
+      chosenBtn.classList.add('wrong');
+      otherBtn.classList.add('correct');
+    }
+
+    var tag = document.getElementById('feedbackTag');
+    tag.textContent = correct ? '正解！' : '不正解';
+    tag.classList.add(correct ? 'correct' : 'wrong');
+
+    setTimeout(function(){
+      current++;
+      if(current < quiz.length){
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 900);
+  }
+
+  document.getElementById('btnLow').addEventListener('click', function(){ handleAnswer('low'); });
+  document.getElementById('btnHigh').addEventListener('click', function(){ handleAnswer('high'); });
+
+  function showResult(){
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('scoreNum').textContent = score;
+    var comment, detail;
+    if(score >= 9){
+      comment = 'かなり耳がいいです！プロレベルの聞き分け力';
+      detail = '1Hz差まで聞き分けられるのは訓練された耳の証拠です。';
+    } else if(score >= 7){
+      comment = 'しっかり聞き分けられています';
+      detail = '半音差は問題なく、細かいズレも半分以上取れています。';
+    } else if(score >= 5){
+      comment = '平均的な聞き分け力です';
+      detail = '半音〜1度差はよく聞こえていて、微妙な差は伸びしろあり。';
+    } else {
+      comment = 'これから伸びるタイプです';
+      detail = '聞き分ける力はトレーニングで鍛えられます。まずは半音差から意識してみましょう。';
+    }
+    document.getElementById('scoreComment').textContent = comment;
+    document.getElementById('scoreDetail').textContent = detail;
+    showScreen('result');
+  }
+
+  document.getElementById('btnReplay').addEventListener('click', function(){
+    quiz = buildQuiz();
+    current = 0;
+    score = 0;
+    showScreen('rules');
+  });
+
+})();
+</script>
+
+</body>
+</html>
