@@ -415,7 +415,7 @@
     }, (toneDur + gap) * 1000);
 
     setTimeout(function(){
-      document.getElementById('playStatus').textContent = 'どっちが高かった？';
+      document.getElementById('playStatus').textContent = '';
       document.getElementById('dot2').className = '';
       document.getElementById('freqLow').textContent = q.downCandidate.toFixed(1) + 'Hz';
       document.getElementById('freqHigh').textContent = q.upCandidate.toFixed(1) + 'Hz';
@@ -511,7 +511,8 @@
   var shareText = '';
 
   function setupShare(){
-    shareText = '音感チェックで' + score + '/10問正解でした🎧 #RHOボイトレ';
+    var comment = document.getElementById('scoreComment').textContent;
+    shareText = '音感チェックで10問中' + score + '問正解しました🎧\n' + comment + '\n#RHOボイトレ';
     var encodedText = encodeURIComponent(shareText);
     var encodedUrl = encodeURIComponent(PAGE_URL);
     document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl;
