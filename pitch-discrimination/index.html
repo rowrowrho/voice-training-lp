@@ -151,6 +151,19 @@
   .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
   .secondary-link{display:block; margin-top:10px; font-size:12.5px; color:var(--blue); text-decoration:underline;}
 
+  .result-grid{display:flex; flex-direction:column; gap:10px; margin-top:18px; text-align:left;}
+  .result-row{background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px;}
+  .result-row-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .result-q{font-size:12.5px; font-weight:700; color:var(--text-dim);}
+  .result-row-detail{font-size:12.5px; color:var(--text-dim); line-height:1.75;}
+  .result-row-detail b{color:var(--text); font-weight:700;}
+  .result-mark{
+    width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:12px; flex-shrink:0;
+  }
+  .result-mark.correct{background:var(--data-bg); color:var(--data-2);}
+  .result-mark.wrong{background:var(--bad-bg); color:var(--bad);}
+
   .share-box{margin-top:22px;}
   .share-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
   .share-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
@@ -231,6 +244,8 @@
       <div class="score-comment" id="scoreComment"></div>
       <p class="score-detail" id="scoreDetail"></p>
 
+      <div class="result-grid" id="resultGrid"></div>
+
       <div class="share-box">
         <div class="share-label">結果をシェアする</div>
         <div class="share-row">
@@ -304,6 +319,7 @@
   var quiz = buildQuiz();
   var current = 0;
   var score = 0;
+  var answerLog = [];
   var answered = false;
   var audioCtx = null;
 
@@ -414,6 +430,13 @@
     var q = quiz[current];
     var correct = (choice === q.answer);
     if(correct) score++;
+    answerLog.push({
+      correct: correct,
+      base: q.base,
+      low: q.downCandidate,
+      high: q.upCandidate,
+      chosen: choice
+    });
 
     document.getElementById('btnLow').disabled = true;
     document.getElementById('btnHigh').disabled = true;
@@ -464,6 +487,19 @@
     }
     document.getElementById('scoreComment').textContent = comment;
     document.getElementById('scoreDetail').textContent = detail;
+    document.getElementById('resultGrid').innerHTML = answerLog.map(function(r, i){
+      var chosenLabel = (r.chosen === 'low') ? '低い' : '高い';
+      var chosenFreq = (r.chosen === 'low') ? r.low : r.high;
+      return '<div class="result-row">' +
+        '<div class="result-row-head"><span class="result-q">Q' + (i + 1) + '</span>' +
+        '<span class="result-mark ' + (r.correct ? 'correct' : 'wrong') + '">' + (r.correct ? '○' : '×') + '</span></div>' +
+        '<div class="result-row-detail">' +
+          '基準音: <b>' + r.base.toFixed(1) + 'Hz</b><br>' +
+          '選択肢: 低い ' + r.low.toFixed(1) + 'Hz ／ 高い ' + r.high.toFixed(1) + 'Hz<br>' +
+          'あなたの回答: <b>' + chosenLabel + '（' + chosenFreq.toFixed(1) + 'Hz）</b>' +
+        '</div>' +
+      '</div>';
+    }).join('');
     setupShare();
     showScreen('result');
   }
@@ -512,6 +548,7 @@
     quiz = buildQuiz();
     current = 0;
     score = 0;
+    answerLog = [];
     showScreen('rules');
   });
 
