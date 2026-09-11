@@ -127,15 +127,15 @@
   .pk{transition:filter .1s ease;}
   .pk:active{filter:brightness(0.9);}
   .pk-white{
-    width:32px; height:96px; background:#fff; border:1px solid var(--line); border-left:none;
+    width:30px; height:100px; background:#fff; border:1px solid var(--line); border-left:none;
     border-radius:0 0 6px 6px; flex-shrink:0; display:flex; align-items:flex-end; justify-content:center;
     padding-bottom:6px; box-sizing:border-box; position:relative; z-index:1;
   }
   .pk-white:first-child{border-left:1px solid var(--line);}
   .pk-white .pk-label{font-size:8.5px; color:var(--text-dim); font-weight:700;}
-  .pk-black-row{position:absolute; top:0; left:0; height:60px; width:100%; pointer-events:none;}
+  .pk-black-row{position:absolute; top:0; left:0; height:62px; width:100%; pointer-events:none;}
   .pk-black{
-    position:absolute; width:18px; height:60px; background:var(--navy-2); border-radius:0 0 4px 4px;
+    position:absolute; width:17px; height:62px; background:var(--navy-2); border-radius:0 0 4px 4px;
     display:flex; align-items:flex-end; justify-content:center; padding-bottom:4px; box-sizing:border-box;
     z-index:2; pointer-events:auto;
   }
@@ -164,6 +164,19 @@
   .cta-box{margin-top:28px; padding-top:24px; border-top:1px solid var(--line);}
   .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
   .secondary-link{display:block; margin-top:10px; font-size:12.5px; color:var(--blue); text-decoration:underline;}
+
+  .result-grid{display:flex; flex-direction:column; gap:10px; margin-top:18px; text-align:left;}
+  .result-row{background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px;}
+  .result-row-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .result-q{font-size:12.5px; font-weight:700; color:var(--text-dim);}
+  .result-row-detail{font-size:12.5px; color:var(--text-dim); line-height:1.75;}
+  .result-row-detail b{color:var(--text); font-weight:700;}
+  .result-mark{
+    width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:12px; flex-shrink:0;
+  }
+  .result-mark.correct{background:var(--data-bg); color:var(--data-2);}
+  .result-mark.wrong{background:var(--bad-bg); color:var(--bad);}
 
   .share-box{margin-top:22px;}
   .share-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
@@ -231,6 +244,7 @@
       </div>
 
       <div class="answer-caption">この鍵盤だと思う場所をタップ</div>
+      <div class="kb-hint-note">← 横にスクロールできます →</div>
       <div class="keyboard-scroll" id="answerKeyboardWrap"></div>
       <div class="feedback-tag" id="feedbackTag"></div>
 
@@ -246,6 +260,8 @@
       <div class="eyebrow-pill">結果発表</div>
       <div class="score-num"><span id="scoreNum">0</span><span> / 10問 正解</span></div>
       <div class="score-comment" id="scoreComment"></div>
+
+      <div class="result-grid" id="resultGrid"></div>
 
       <div class="share-box">
         <div class="share-label">結果をシェアする</div>
@@ -281,23 +297,36 @@
 
   // ---------- 音名・周波数まわり ----------
   var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  var WHITE_NOTES = ['C','D','E','F','G','A','B'];
-  var BLACK_AFTER = {'C':'C#','D':'D#','F':'F#','G':'G#','A':'A#'};
-  var OCTAVES = [3,4,5]; // C3〜B5 の3オクターブを出題範囲にする
 
+  function midiOf(name, octave){
+    return (octave + 1) * 12 + NOTE_NAMES.indexOf(name);
+  }
+  function noteAtMidi(midi){
+    var idx = ((midi % 12) + 12) % 12;
+    var octave = Math.floor(midi / 12) - 1;
+    var name = NOTE_NAMES[idx];
+    return {name:name, octave:octave, label:name + octave, isBlack:name.indexOf('#') !== -1};
+  }
   function noteFreq(name, octave){
-    var idx = NOTE_NAMES.indexOf(name);
-    var midi = (octave + 1) * 12 + idx;
+    var midi = midiOf(name, octave);
     return 440 * Math.pow(2, (midi - 69) / 12);
   }
+
+  // 出題範囲: F3〜E5
+  var RANGE_NOTES = (function(){
+    var list = [];
+    for(var m = midiOf('F', 3); m <= midiOf('E', 5); m++){
+      list.push(noteAtMidi(m));
+    }
+    return list;
+  })();
 
   // ---------- 出題設計 ----------
   function buildQuiz(){
     var qs = [];
     for(var i = 0; i < 10; i++){
-      var name = NOTE_NAMES[Math.floor(Math.random() * NOTE_NAMES.length)];
-      var octave = OCTAVES[Math.floor(Math.random() * OCTAVES.length)];
-      qs.push({name:name, octave:octave, label:name + octave, freq:noteFreq(name, octave)});
+      var n = RANGE_NOTES[Math.floor(Math.random() * RANGE_NOTES.length)];
+      qs.push({name:n.name, octave:n.octave, label:n.label, freq:noteFreq(n.name, n.octave)});
     }
     return qs;
   }
@@ -305,6 +334,7 @@
   var quiz = buildQuiz();
   var current = 0;
   var score = 0;
+  var answerLog = [];
   var answered = false;
   var hasPlayed = false;
   var hintOpen = false;
@@ -338,22 +368,19 @@
 
   // ---------- 鍵盤の描画 ----------
   function buildKeyboard(container, labeled, onKeyTap){
-    var whiteWidth = 32, blackWidth = 18;
+    var whiteWidth = 30, blackWidth = 17;
     var whiteHtml = '', blackHtml = '';
     var whiteIndex = 0;
-    OCTAVES.forEach(function(oct){
-      WHITE_NOTES.forEach(function(wn){
-        var label = wn + oct;
-        whiteHtml += '<div class="pk pk-white" data-note="' + label + '">' +
-          (labeled ? '<span class="pk-label">' + label + '</span>' : '') + '</div>';
-        if(BLACK_AFTER[wn]){
-          var bn = BLACK_AFTER[wn] + oct;
-          var left = (whiteIndex + 1) * whiteWidth - blackWidth / 2;
-          blackHtml += '<div class="pk pk-black" data-note="' + bn + '" style="left:' + left + 'px;">' +
-            (labeled ? '<span class="pk-label">' + bn + '</span>' : '') + '</div>';
-        }
+    RANGE_NOTES.forEach(function(n){
+      if(!n.isBlack){
+        whiteHtml += '<div class="pk pk-white" data-note="' + n.label + '">' +
+          (labeled ? '<span class="pk-label">' + n.label + '</span>' : '') + '</div>';
         whiteIndex++;
-      });
+      } else {
+        var left = whiteIndex * whiteWidth - blackWidth / 2;
+        blackHtml += '<div class="pk pk-black" data-note="' + n.label + '" style="left:' + left + 'px;">' +
+          (labeled ? '<span class="pk-label">' + n.label + '</span>' : '') + '</div>';
+      }
     });
     container.innerHTML =
       '<div class="keyboard" style="width:' + (whiteIndex * whiteWidth) + 'px;">' +
@@ -467,6 +494,7 @@
     var q = quiz[current];
     var correct = (note === q.label);
     if(correct) score++;
+    answerLog.push({ correct: correct, correctNote: q.label, chosenNote: note });
 
     answerKbWrap.classList.add('kb-disabled');
     document.getElementById('btnPlay').disabled = true;
@@ -505,6 +533,16 @@
       comment = '絶対音感は訓練でも伸びる力です';
     }
     document.getElementById('scoreComment').textContent = comment;
+    document.getElementById('resultGrid').innerHTML = answerLog.map(function(r, i){
+      return '<div class="result-row">' +
+        '<div class="result-row-head"><span class="result-q">Q' + (i + 1) + '</span>' +
+        '<span class="result-mark ' + (r.correct ? 'correct' : 'wrong') + '">' + (r.correct ? '○' : '×') + '</span></div>' +
+        '<div class="result-row-detail">' +
+          '正しい音: <b>' + r.correctNote + '</b><br>' +
+          'あなたの回答: <b>' + r.chosenNote + '</b>' +
+        '</div>' +
+      '</div>';
+    }).join('');
     setupShare();
     showScreen('result');
   }
@@ -553,6 +591,7 @@
     quiz = buildQuiz();
     current = 0;
     score = 0;
+    answerLog = [];
     showScreen('rules');
   });
 
