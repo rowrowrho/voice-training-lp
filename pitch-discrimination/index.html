@@ -512,11 +512,9 @@
 
   function setupShare(){
     var comment = document.getElementById('scoreComment').textContent;
-    shareText = '音感チェックで10問中' + score + '問正解しました🎧\n' + comment + '\n#RHOボイトレ';
-    var encodedText = encodeURIComponent(shareText);
-    var encodedUrl = encodeURIComponent(PAGE_URL);
-    document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl;
-    document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(shareText + '\n' + PAGE_URL);
+    shareText = '音感チェックで10問中' + score + '問正解しました🎧\n\n' + comment + '\n\n#RHOボイトレ';
+    document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
+    document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
   }
 
   document.getElementById('shareCopy').addEventListener('click', function(){
