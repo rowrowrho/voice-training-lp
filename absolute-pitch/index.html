@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME8HE69PX8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME8HE69PX8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>絶対音感チェック｜単音を聞いて音名を当てる - RHOボイトレ</title>
+<meta name="description" content="基準音なしで単音を聞いて、C4のように音名＋オクターブで当てる全10問の絶対音感チェック。迷ったらヒントの鍵盤で音を確認できます。">
+<meta property="og:title" content="絶対音感チェック｜単音を聞いて音名を当てる - RHOボイトレ">
+<meta property="og:description" content="基準音なしで単音を聞いて、音名＋オクターブを当てる全10問。ヒントの鍵盤で確認もできます。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://rowrowrho.github.io/voice-training-lp/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#173A5E;
+    --navy-2:#0F2A46;
+    --blue:#2E76B6;
+    --sky:#EAF2FB;
+    --bg:#F5F8FC;
+    --paper:#FFFFFF;
+    --text:#2B3A4A;
+    --text-dim:#66788C;
+    --line:#E1E8F0;
+    --amber:#F5B84E;
+    --sans:"Zen Kaku Gothic New", sans-serif;
+    --shadow: 0 16px 40px rgba(23,58,94,0.10);
+    --data:#17A98D;
+    --data-2:#0E7F69;
+    --data-bg:#E7F7F3;
+    --bad:#E0685C;
+    --bad-bg:#FBEAE8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.85; -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; flex-direction:column;
+  }
+  a{color:inherit; text-decoration:none;}
+  img,svg{display:block; max-width:100%;}
+  button{font-family:var(--sans); cursor:pointer; border:none;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 20px; width:100%;}
+
+  header.nav{
+    position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; max-width:640px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900; color:var(--navy); font-size:15px;}
+  .brand-tag{font-size:10.5px; font-weight:700; color:var(--data); background:var(--data-bg); padding:4px 9px; border-radius:100px; letter-spacing:0.02em; white-space:nowrap;}
+
+  main{flex:1; padding:36px 0 60px;}
+
+  .card{
+    background:var(--paper); border-radius:22px; box-shadow:var(--shadow); border:1px solid var(--line);
+    padding:36px 26px; text-align:center;
+  }
+
+  .eyebrow-pill{
+    display:inline-block; background:var(--navy); color:#fff; font-size:12px; font-weight:700;
+    padding:6px 15px; border-radius:100px; letter-spacing:0.04em; margin-bottom:18px;
+  }
+  h1{font-size:clamp(22px,5.5vw,28px); color:var(--navy); font-weight:900; line-height:1.5; margin-bottom:16px;}
+  h2{font-size:19px; color:var(--navy); font-weight:900; margin-bottom:14px;}
+  p{font-size:14.5px; color:var(--text-dim); line-height:1.85;}
+
+  .icon-circle{
+    width:76px; height:76px; border-radius:50%; background:var(--data-bg); color:var(--data-2);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:32px;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--navy); color:#fff; font-weight:700; font-size:15px;
+    padding:15px 30px; border-radius:12px; width:100%;
+    transition:transform .15s ease, box-shadow .15s ease; margin-top:22px;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn.data{background:var(--data);}
+  .btn.ghost{background:var(--sky); color:var(--navy);}
+  .btn:disabled{opacity:0.45; pointer-events:none;}
+
+  .rule-list{text-align:left; margin-top:22px; display:flex; flex-direction:column; gap:14px;}
+  .rule-list li{list-style:none; display:flex; gap:12px; align-items:flex-start; font-size:14px; color:var(--text);}
+  .rule-list li > span:not(.rule-num){flex:1; min-width:0;}
+  .rule-num{
+    flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--navy); color:#fff;
+    font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center; margin-top:1px;
+  }
+
+  /* --- quiz screen --- */
+  .progress-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .progress-label{font-size:12.5px; font-weight:700; color:var(--text-dim);}
+  .level-pill{font-size:11px; font-weight:700; color:var(--blue); background:var(--sky); padding:4px 11px; border-radius:100px;}
+  .progress-track{height:6px; background:var(--line); border-radius:100px; overflow:hidden; margin-bottom:28px;}
+  .progress-fill{height:100%; background:var(--data); border-radius:100px; transition:width .35s ease; width:0%;}
+
+  .play-zone{margin:14px 0 8px;}
+  .play-btn{
+    width:120px; height:120px; border-radius:50%; background:linear-gradient(165deg, var(--navy-2), var(--navy));
+    color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; margin:0 auto;
+    box-shadow:0 14px 30px rgba(23,58,94,0.28); transition:transform .15s ease;
+  }
+  .play-btn:active{transform:scale(0.96);}
+  .play-btn .tri{width:0; height:0; border-style:solid; border-width:12px 0 12px 20px; border-color:transparent transparent transparent #fff; margin-bottom:4px;}
+  .play-btn span.lbl{font-size:11px; font-weight:700; letter-spacing:0.04em;}
+  .play-status{margin-top:14px; font-size:13px; color:var(--text-dim); min-height:18px;}
+
+  .answer-caption{margin-top:24px; font-size:13px; color:var(--text-dim); font-weight:700;}
+  .kb-hint-note{font-size:11.5px; color:var(--text-dim); margin-top:4px;}
+
+  /* --- piano keyboard --- */
+  .keyboard-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; margin-top:12px; padding:4px 2px 10px;}
+  .keyboard{position:relative; margin:0 auto;}
+  .pk-white-row{display:flex;}
+  .pk{transition:filter .1s ease;}
+  .pk:active{filter:brightness(0.9);}
+  .pk-white{
+    width:32px; height:96px; background:#fff; border:1px solid var(--line); border-left:none;
+    border-radius:0 0 6px 6px; flex-shrink:0; display:flex; align-items:flex-end; justify-content:center;
+    padding-bottom:6px; box-sizing:border-box; position:relative; z-index:1;
+  }
+  .pk-white:first-child{border-left:1px solid var(--line);}
+  .pk-white .pk-label{font-size:8.5px; color:var(--text-dim); font-weight:700;}
+  .pk-black-row{position:absolute; top:0; left:0; height:60px; width:100%; pointer-events:none;}
+  .pk-black{
+    position:absolute; width:18px; height:60px; background:var(--navy-2); border-radius:0 0 4px 4px;
+    display:flex; align-items:flex-end; justify-content:center; padding-bottom:4px; box-sizing:border-box;
+    z-index:2; pointer-events:auto;
+  }
+  .pk-black .pk-label{font-size:7.5px; color:#fff; font-weight:700;}
+  .kb-disabled{opacity:0.4; pointer-events:none;}
+  .pk-white.correct{background:var(--data-bg); border-color:var(--data);}
+  .pk-white.wrong{background:var(--bad-bg); border-color:var(--bad);}
+  .pk-black.correct{background:var(--data-2);}
+  .pk-black.wrong{background:var(--bad);}
+
+  .hint-toggle{
+    display:inline-flex; align-items:center; gap:6px; background:var(--sky); color:var(--navy);
+    font-weight:700; font-size:13px; padding:10px 18px; border-radius:100px; margin-top:22px;
+  }
+  .hint-panel{margin-top:14px; border-top:1px dashed var(--line); padding-top:14px;}
+  .hint-panel-label{font-size:12.5px; color:var(--text-dim); margin-bottom:2px;}
+
+  .feedback-tag{margin-top:16px; font-size:13.5px; font-weight:700; min-height:20px;}
+  .feedback-tag.correct{color:var(--data-2);}
+  .feedback-tag.wrong{color:var(--bad);}
+
+  /* --- result screen --- */
+  .score-num{font-size:52px; font-weight:900; color:var(--navy); line-height:1;}
+  .score-num span{font-size:20px; color:var(--text-dim); font-weight:700;}
+  .score-comment{margin-top:14px; font-size:15px; color:var(--navy); font-weight:700;}
+  .cta-box{margin-top:28px; padding-top:24px; border-top:1px solid var(--line);}
+  .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
+  .secondary-link{display:block; margin-top:10px; font-size:12.5px; color:var(--blue); text-decoration:underline;}
+
+  .share-box{margin-top:22px;}
+  .share-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
+  .share-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .share-btn{
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700;
+    padding:10px 16px; border-radius:100px; color:#fff; border:none;
+  }
+  .share-btn svg{width:14px; height:14px; flex-shrink:0;}
+  .share-btn.x{background:#000;}
+  .share-btn.line{background:#06C755;}
+  .share-btn.copy{background:var(--sky); color:var(--navy);}
+  .share-toast{margin-top:8px; font-size:12px; color:var(--data-2); min-height:16px;}
+
+  footer{padding:20px; text-align:center; font-size:11.5px; color:var(--text-dim);}
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">RHOボイトレ <span class="brand-tag">絶対音感チェック</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- 1. hero -->
+    <section id="screen-hero" class="card">
+      <div class="eyebrow-pill">全10問・約2分</div>
+      <div class="icon-circle">🎹</div>
+      <h1>単音だけ聞いて、<br>音名を当てられる？</h1>
+      <p>基準音なしで単音が1つ鳴ります。<br>
+      その音を<strong>「C4」のように音名＋オクターブ</strong>で当ててください。<br>
+      迷ったらヒントの鍵盤で音を確認できます。</p>
+      <button class="btn" id="btnToRules">ルールを見る</button>
+    </section>
+
+    <!-- 2. rules -->
+    <section id="screen-rules" class="card" hidden>
+      <h2>やり方はかんたん</h2>
+      <ul class="rule-list">
+        <li><span class="rule-num">1</span><span>ボタンを押すと単音が1つ鳴ります（何度でも聞き直せます）</span></li>
+        <li><span class="rule-num">2</span><span>下の鍵盤から「この音だ」と思う鍵盤をタップして回答</span></li>
+        <li><span class="rule-num">3</span><span>オクターブ（音の高さの帯）も含めて当てるので、C4とC5は別の音として判定します</span></li>
+        <li><span class="rule-num">4</span><span>鍵盤には音名が書いてあります。迷ったら「ヒントを見る」で鍵盤を鳴らして音を確認できます</span></li>
+        <li><span class="rule-num">5</span><span>全10問。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+      </ul>
+      <button class="btn" id="btnStartQuiz">音を出してスタート</button>
+    </section>
+
+    <!-- 3. quiz -->
+    <section id="screen-quiz" class="card" hidden>
+      <div class="progress-row">
+        <span class="progress-label" id="qLabel">Q1 / 10</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="play-zone">
+        <button class="play-btn" id="btnPlay"><span class="tri"></span><span class="lbl">再生</span></button>
+        <div class="play-status" id="playStatus">タップして音を聞く（聞き直しOK）</div>
+      </div>
+
+      <div class="answer-caption">この鍵盤だと思う場所をタップ</div>
+      <div class="keyboard-scroll" id="answerKeyboardWrap"></div>
+      <div class="feedback-tag" id="feedbackTag"></div>
+
+      <button class="hint-toggle" id="btnHintToggle">💡 ヒントを見る</button>
+      <div class="hint-panel" id="hintPanel" hidden>
+        <div class="hint-panel-label">鍵盤をタップすると、その音名のピアノ音が鳴ります</div>
+        <div class="keyboard-scroll" id="hintKeyboardWrap"></div>
+      </div>
+    </section>
+
+    <!-- 4. result -->
+    <section id="screen-result" class="card" hidden>
+      <div class="eyebrow-pill">結果発表</div>
+      <div class="score-num"><span id="scoreNum">0</span><span> / 10問 正解</span></div>
+      <div class="score-comment" id="scoreComment"></div>
+
+      <div class="share-box">
+        <div class="share-label">結果をシェアする</div>
+        <div class="share-row">
+          <a class="share-btn x" id="shareX" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M18.9 2H22l-7.6 8.7L23.3 22H16.6l-5.2-6.8L5.4 22H2.3l8.1-9.3L1.4 2h6.9l4.7 6.2L18.9 2Zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20Z"/></svg>
+            Xでシェア
+          </a>
+          <a class="share-btn line" id="shareLine" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.6 1.1-.4 5.9-3.5 8.1-6C21.6 12.8 22 11.4 22 10c0-4.4-4.5-8-10-8Z"/></svg>
+            LINEで送る
+          </a>
+          <button class="share-btn copy" id="shareCopy" type="button">🔗 リンクをコピー</button>
+        </div>
+        <div class="share-toast" id="shareToast"></div>
+      </div>
+
+      <div class="cta-box">
+        <p>音名まで聞き分けられると、耳コピやハモリづくりがぐっと楽になります。<br>自分の声そのものも気になったら、無料のボイス診断もどうぞ。</p>
+        <a class="btn data" href="https://rowrowrho.github.io/voice-training-lp/voice-check/">✨ 無料のボイス診断を受けてみる</a>
+        <a class="secondary-link" href="https://rowrowrho.github.io/voice-training-lp/pitch-discrimination/">相対音感チェックもやってみる →</a>
+      </div>
+      <a class="replay-link" id="btnReplay">もう一度チャレンジする</a>
+    </section>
+
+  </div>
+</main>
+
+<footer>RHOボイトレ｜絶対音感チェック</footer>
+
+<script>
+(function(){
+
+  // ---------- 音名・周波数まわり ----------
+  var NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var WHITE_NOTES = ['C','D','E','F','G','A','B'];
+  var BLACK_AFTER = {'C':'C#','D':'D#','F':'F#','G':'G#','A':'A#'};
+  var OCTAVES = [3,4,5]; // C3〜B5 の3オクターブを出題範囲にする
+
+  function noteFreq(name, octave){
+    var idx = NOTE_NAMES.indexOf(name);
+    var midi = (octave + 1) * 12 + idx;
+    return 440 * Math.pow(2, (midi - 69) / 12);
+  }
+
+  // ---------- 出題設計 ----------
+  function buildQuiz(){
+    var qs = [];
+    for(var i = 0; i < 10; i++){
+      var name = NOTE_NAMES[Math.floor(Math.random() * NOTE_NAMES.length)];
+      var octave = OCTAVES[Math.floor(Math.random() * OCTAVES.length)];
+      qs.push({name:name, octave:octave, label:name + octave, freq:noteFreq(name, octave)});
+    }
+    return qs;
+  }
+
+  var quiz = buildQuiz();
+  var current = 0;
+  var score = 0;
+  var answered = false;
+  var hasPlayed = false;
+  var hintOpen = false;
+  var audioCtx = null;
+
+  // ---------- 画面切り替え ----------
+  var screens = {
+    hero: document.getElementById('screen-hero'),
+    rules: document.getElementById('screen-rules'),
+    quiz: document.getElementById('screen-quiz'),
+    result: document.getElementById('screen-result')
+  };
+  function showScreen(name){
+    Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.getElementById('btnToRules').addEventListener('click', function(){
+    showScreen('rules');
+  });
+
+  document.getElementById('btnStartQuiz').addEventListener('click', function(){
+    if(!audioCtx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
+    showScreen('quiz');
+    loadQuestion();
+  });
+
+  // ---------- 鍵盤の描画 ----------
+  function buildKeyboard(container, labeled, onKeyTap){
+    var whiteWidth = 32, blackWidth = 18;
+    var whiteHtml = '', blackHtml = '';
+    var whiteIndex = 0;
+    OCTAVES.forEach(function(oct){
+      WHITE_NOTES.forEach(function(wn){
+        var label = wn + oct;
+        whiteHtml += '<div class="pk pk-white" data-note="' + label + '">' +
+          (labeled ? '<span class="pk-label">' + label + '</span>' : '') + '</div>';
+        if(BLACK_AFTER[wn]){
+          var bn = BLACK_AFTER[wn] + oct;
+          var left = (whiteIndex + 1) * whiteWidth - blackWidth / 2;
+          blackHtml += '<div class="pk pk-black" data-note="' + bn + '" style="left:' + left + 'px;">' +
+            (labeled ? '<span class="pk-label">' + bn + '</span>' : '') + '</div>';
+        }
+        whiteIndex++;
+      });
+    });
+    container.innerHTML =
+      '<div class="keyboard" style="width:' + (whiteIndex * whiteWidth) + 'px;">' +
+        '<div class="pk-white-row">' + whiteHtml + '</div>' +
+        '<div class="pk-black-row">' + blackHtml + '</div>' +
+      '</div>';
+    container.addEventListener('click', function(e){
+      var key = e.target.closest('.pk');
+      if(!key) return;
+      onKeyTap(key.getAttribute('data-note'), key);
+    });
+  }
+
+  var answerKbWrap = document.getElementById('answerKeyboardWrap');
+  var hintKbWrap = document.getElementById('hintKeyboardWrap');
+
+  buildKeyboard(answerKbWrap, true, function(note, el){ handleAnswer(note, el); });
+  buildKeyboard(hintKbWrap, true, function(note){ playPianoTone(noteFreqFromLabel(note)); });
+
+  function noteFreqFromLabel(label){
+    var m = label.match(/^([A-G]#?)(\d)$/);
+    return noteFreq(m[1], parseInt(m[2], 10));
+  }
+
+  document.getElementById('btnHintToggle').addEventListener('click', function(){
+    hintOpen = !hintOpen;
+    document.getElementById('hintPanel').hidden = !hintOpen;
+    this.textContent = hintOpen ? '💡 ヒントを閉じる' : '💡 ヒントを見る';
+  });
+
+  // ---------- 音再生 ----------
+  function playPureTone(freq, duration){
+    var t0 = audioCtx.currentTime + 0.03;
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    var fade = 0.03;
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(0.3, t0 + fade);
+    gain.gain.setValueAtTime(0.3, t0 + duration - fade);
+    gain.gain.linearRampToValueAtTime(0, t0 + duration);
+
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.05);
+    return duration;
+  }
+
+  function playPianoTone(freq){
+    var t0 = audioCtx.currentTime + 0.02;
+    var duration = 1.1;
+    var partials = [[1, 0.28], [2, 0.11], [3, 0.045]];
+    partials.forEach(function(p){
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq * p[0];
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(p[1], t0 + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.05);
+    });
+  }
+
+  // ---------- 出題進行 ----------
+  function loadQuestion(){
+    answered = false;
+    hasPlayed = false;
+    hintOpen = false;
+    var q = quiz[current];
+    document.getElementById('qLabel').textContent = 'Q' + (current + 1) + ' / 10';
+    document.getElementById('progressFill').style.width = (current / 10 * 100) + '%';
+    document.getElementById('playStatus').textContent = 'タップして音を聞く（聞き直しOK）';
+    document.getElementById('feedbackTag').textContent = '';
+    document.getElementById('feedbackTag').className = 'feedback-tag';
+    document.getElementById('hintPanel').hidden = true;
+    document.getElementById('btnHintToggle').textContent = '💡 ヒントを見る';
+    document.getElementById('btnPlay').disabled = false;
+
+    answerKbWrap.querySelectorAll('.pk').forEach(function(el){
+      el.classList.remove('correct', 'wrong');
+    });
+    answerKbWrap.classList.add('kb-disabled');
+  }
+
+  document.getElementById('btnPlay').addEventListener('click', function(){
+    var q = quiz[current];
+    var btn = this;
+    btn.disabled = true;
+    document.getElementById('playStatus').textContent = '再生中...';
+    var dur = playPureTone(q.freq, 1.3);
+    setTimeout(function(){
+      btn.disabled = false;
+      if(!answered){
+        document.getElementById('playStatus').textContent = 'この音は何の音？';
+        hasPlayed = true;
+        answerKbWrap.classList.remove('kb-disabled');
+      }
+    }, dur * 1000 + 150);
+  });
+
+  function handleAnswer(note, el){
+    if(answered || !hasPlayed) return;
+    answered = true;
+    var q = quiz[current];
+    var correct = (note === q.label);
+    if(correct) score++;
+
+    answerKbWrap.classList.add('kb-disabled');
+    document.getElementById('btnPlay').disabled = true;
+
+    el.classList.add(correct ? 'correct' : 'wrong');
+    if(!correct){
+      var correctEl = answerKbWrap.querySelector('[data-note="' + q.label + '"]');
+      if(correctEl) correctEl.classList.add('correct');
+    }
+
+    var tag = document.getElementById('feedbackTag');
+    tag.textContent = correct ? '正解！' : ('不正解（正解は ' + q.label + '）');
+    tag.classList.add(correct ? 'correct' : 'wrong');
+
+    setTimeout(function(){
+      current++;
+      if(current < quiz.length){
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1300);
+  }
+
+  function showResult(){
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('scoreNum').textContent = score;
+    var comment;
+    if(score >= 9){
+      comment = 'かなりの精度です。絶対音感レベルかも';
+    } else if(score >= 6){
+      comment = 'よく当たっています。センスあり';
+    } else if(score >= 3){
+      comment = 'いくつか当たる音がありましたね';
+    } else {
+      comment = '絶対音感は訓練でも伸びる力です';
+    }
+    document.getElementById('scoreComment').textContent = comment;
+    setupShare();
+    showScreen('result');
+  }
+
+  // ---------- シェア ----------
+  var PAGE_URL = 'https://rowrowrho.github.io/voice-training-lp/absolute-pitch/';
+
+  function setupShare(){
+    var text = '絶対音感チェックで' + score + '/10問正解でした🎹 #RHOボイトレ';
+    var encodedText = encodeURIComponent(text);
+    var encodedUrl = encodeURIComponent(PAGE_URL);
+    document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl;
+    document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(text + '\n' + PAGE_URL);
+  }
+
+  document.getElementById('shareCopy').addEventListener('click', function(){
+    var toast = document.getElementById('shareToast');
+    var showDone = function(){
+      toast.textContent = 'コピーしました！';
+      setTimeout(function(){ toast.textContent = ''; }, 2000);
+    };
+    var fallbackCopy = function(){
+      var tmp = document.createElement('input');
+      tmp.value = PAGE_URL;
+      tmp.style.position = 'fixed';
+      tmp.style.opacity = '0';
+      document.body.appendChild(tmp);
+      tmp.select();
+      tmp.setSelectionRange(0, 99999);
+      try{
+        document.execCommand('copy');
+        showDone();
+      }catch(e){
+        toast.textContent = 'コピーできませんでした';
+      }
+      document.body.removeChild(tmp);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(PAGE_URL).then(showDone).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  });
+
+  document.getElementById('btnReplay').addEventListener('click', function(){
+    quiz = buildQuiz();
+    current = 0;
+    score = 0;
+    showScreen('rules');
+  });
+
+})();
+</script>
+
+</body>
+</html>
