@@ -20,6 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
     --navy:#173A5E;
@@ -176,6 +177,24 @@
   .share-btn.line{background:#06C755;}
   .share-btn.copy{background:var(--sky); color:var(--navy);}
   .share-toast{margin-top:8px; font-size:12px; color:var(--data-2); min-height:16px;}
+  .share-btn:disabled{opacity:0.6; pointer-events:none;}
+
+  /* 画像シェア用カード（画面には出さず、html2canvasで書き出す専用） */
+  .share-card-offscreen{position:absolute; left:-9999px; top:0; pointer-events:none;}
+  .share-card{
+    width:600px; padding:64px 50px; text-align:center; font-family:var(--sans);
+    background:linear-gradient(160deg, var(--navy-2), var(--navy)); color:#fff;
+  }
+  .share-card-badge{
+    display:inline-block; background:var(--amber); color:var(--navy-2); font-size:15px; font-weight:900;
+    padding:8px 22px; border-radius:100px; letter-spacing:0.03em;
+  }
+  .share-card-title{font-size:30px; font-weight:900; margin:26px 0 6px;}
+  .share-card-score{margin-top:26px;}
+  .share-card-score .num{font-size:100px; font-weight:900; line-height:1;}
+  .share-card-score .unit{font-size:30px; font-weight:700; color:#B9C7D6; margin-left:8px;}
+  .share-card-comment{font-size:19px; color:#EAF2FB; margin-top:22px; font-weight:700;}
+  .share-card-footer{margin-top:46px; font-size:13.5px; color:#8FA3B8;}
 
   footer{padding:20px; text-align:center; font-size:11.5px; color:var(--text-dim);}
 
@@ -249,10 +268,10 @@
       <div class="share-box">
         <div class="share-label">結果をシェアする</div>
         <div class="share-row">
-          <a class="share-btn x" id="shareX" target="_blank" rel="noopener">
+          <button class="share-btn x" id="shareX" type="button">
             <svg viewBox="0 0 24 24" fill="#fff"><path d="M18.9 2H22l-7.6 8.7L23.3 22H16.6l-5.2-6.8L5.4 22H2.3l8.1-9.3L1.4 2h6.9l4.7 6.2L18.9 2Zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20Z"/></svg>
-            Xでシェア
-          </a>
+            <span class="lbl">Xでシェア</span>
+          </button>
           <a class="share-btn line" id="shareLine" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.6 1.1-.4 5.9-3.5 8.1-6C21.6 12.8 22 11.4 22 10c0-4.4-4.5-8-10-8Z"/></svg>
             LINEで送る
@@ -260,6 +279,16 @@
           <button class="share-btn copy" id="shareCopy" type="button">🔗 リンクをコピー</button>
         </div>
         <div class="share-toast" id="shareToast"></div>
+      </div>
+
+      <div class="share-card-offscreen">
+        <div class="share-card" id="shareCard">
+          <span class="share-card-badge">RHOボイトレ</span>
+          <div class="share-card-title">音感チェック</div>
+          <div class="share-card-score"><span class="num" id="shareScoreNum">0</span><span class="unit">/ 10問正解</span></div>
+          <div class="share-card-comment" id="shareCardComment"></div>
+          <div class="share-card-footer">rowrowrho.github.io/voice-training-lp/pitch-discrimination/</div>
+        </div>
       </div>
 
       <div class="cta-box">
@@ -507,13 +536,62 @@
   // ---------- シェア ----------
   var PAGE_URL = 'https://rowrowrho.github.io/voice-training-lp/pitch-discrimination/';
 
+  var shareText = '';
+
   function setupShare(){
-    var text = '音感チェックで' + score + '/10問正解でした🎧 #RHOボイトレ';
-    var encodedText = encodeURIComponent(text);
+    shareText = '音感チェックで' + score + '/10問正解でした🎧 #RHOボイトレ';
+    var encodedText = encodeURIComponent(shareText);
     var encodedUrl = encodeURIComponent(PAGE_URL);
-    document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl;
-    document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(text + '\n' + PAGE_URL);
+    document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(shareText + '\n' + PAGE_URL);
+
+    document.getElementById('shareScoreNum').textContent = score;
+    document.getElementById('shareCardComment').textContent = document.getElementById('scoreComment').textContent;
   }
+
+  function openXIntent(){
+    var encodedText = encodeURIComponent(shareText);
+    var encodedUrl = encodeURIComponent(PAGE_URL);
+    window.open('https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl, '_blank', 'noopener');
+  }
+
+  document.getElementById('shareX').addEventListener('click', function(){
+    var btn = this;
+    var lbl = btn.querySelector('.lbl');
+    var toast = document.getElementById('shareToast');
+    var originalLabel = lbl.textContent;
+    btn.disabled = true;
+    lbl.textContent = '画像を準備中…';
+
+    html2canvas(document.getElementById('shareCard'), {scale:2, backgroundColor:'#0F2A46'}).then(function(canvas){
+      canvas.toBlob(function(blob){
+        btn.disabled = false;
+        lbl.textContent = originalLabel;
+        if(!blob){
+          openXIntent();
+          return;
+        }
+        var file = new File([blob], 'pitch-discrimination-result.png', {type:'image/png'});
+        if(navigator.canShare && navigator.canShare({files:[file]})){
+          navigator.share({files:[file], text: shareText, url: PAGE_URL}).catch(function(){});
+        } else {
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = 'pitch-discrimination-result.png';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          toast.textContent = '画像を保存しました。ツイート画面に添付してください';
+          setTimeout(function(){ toast.textContent = ''; }, 3000);
+          openXIntent();
+        }
+      }, 'image/png');
+    }).catch(function(err){
+      btn.disabled = false;
+      lbl.textContent = originalLabel;
+      openXIntent();
+    });
+  });
 
   document.getElementById('shareCopy').addEventListener('click', function(){
     var toast = document.getElementById('shareToast');
