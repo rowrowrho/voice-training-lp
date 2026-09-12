@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME8HE69PX8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME8HE69PX8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>リズムキープチャレンジ｜あなたのリズム感をチェック - RHOボイトレ</title>
+<meta name="description" content="メトロノームに合わせてタップするだけ。全20拍、あなたのリズムキープ力を測定します。">
+<meta property="og:title" content="リズムキープチャレンジ｜あなたのリズム感をチェック - RHOボイトレ">
+<meta property="og:description" content="メトロノームに合わせてタップするだけ。あなたのリズム感を診断します。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://rowrowrho.github.io/voice-training-lp/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#173A5E;
+    --navy-2:#0F2A46;
+    --blue:#2E76B6;
+    --sky:#EAF2FB;
+    --bg:#F5F8FC;
+    --paper:#FFFFFF;
+    --text:#2B3A4A;
+    --text-dim:#66788C;
+    --line:#E1E8F0;
+    --amber:#F5B84E;
+    --sans:"Zen Kaku Gothic New", sans-serif;
+    --shadow: 0 16px 40px rgba(23,58,94,0.10);
+    --data:#17A98D;
+    --data-2:#0E7F69;
+    --data-bg:#E7F7F3;
+    --bad:#E0685C;
+    --bad-bg:#FBEAE8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.85; -webkit-font-smoothing:antialiased;
+    min-height:100vh; display:flex; flex-direction:column;
+    -webkit-tap-highlight-color: transparent;
+  }
+  a{color:inherit; text-decoration:none;}
+  img,svg{display:block; max-width:100%;}
+  button{font-family:var(--sans); cursor:pointer; border:none;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 20px; width:100%;}
+
+  header.nav{
+    position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; max-width:640px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900; color:var(--navy); font-size:15px;}
+  .brand-tag{font-size:10.5px; font-weight:700; color:var(--data); background:var(--data-bg); padding:4px 9px; border-radius:100px; letter-spacing:0.02em; white-space:nowrap;}
+
+  main{flex:1; padding:36px 0 60px;}
+
+  .card{
+    background:var(--paper); border-radius:22px; box-shadow:var(--shadow); border:1px solid var(--line);
+    padding:36px 26px; text-align:center;
+  }
+
+  .eyebrow-pill{
+    display:inline-block; background:var(--navy); color:#fff; font-size:12px; font-weight:700;
+    padding:6px 15px; border-radius:100px; letter-spacing:0.04em; margin-bottom:18px;
+  }
+  h1{font-size:clamp(22px,5.5vw,28px); color:var(--navy); font-weight:900; line-height:1.5; margin-bottom:16px;}
+  h2{font-size:19px; color:var(--navy); font-weight:900; margin-bottom:14px;}
+  p{font-size:14.5px; color:var(--text-dim); line-height:1.85;}
+
+  .icon-circle{
+    width:76px; height:76px; border-radius:50%; background:var(--data-bg); color:var(--data-2);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:32px;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--navy); color:#fff; font-weight:700; font-size:15px;
+    padding:15px 30px; border-radius:12px; width:100%;
+    transition:transform .15s ease, box-shadow .15s ease; margin-top:22px;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn.data{background:var(--data);}
+
+  .rule-list{text-align:left; margin-top:22px; display:flex; flex-direction:column; gap:14px;}
+  .rule-list li{list-style:none; display:flex; gap:12px; align-items:flex-start; font-size:14px; color:var(--text);}
+  .rule-list li > span:not(.rule-num){flex:1; min-width:0;}
+  .rule-num{
+    flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--navy); color:#fff;
+    font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center; margin-top:1px;
+  }
+
+  /* --- game screen --- */
+  .progress-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .progress-label{font-size:12.5px; font-weight:700; color:var(--text-dim);}
+  .progress-track{height:6px; background:var(--line); border-radius:100px; overflow:hidden; margin-bottom:10px;}
+  .progress-fill{height:100%; background:var(--data); border-radius:100px; transition:width .2s ease; width:0%;}
+
+  .game-zone{position:relative; margin:26px 0 10px; display:flex; align-items:center; justify-content:center;}
+  .pulse-ring{
+    position:absolute; width:170px; height:170px; border-radius:50%; border:3px solid var(--data);
+    opacity:0; transform:scale(0.8);
+  }
+  .pulse-ring.beat{ animation: pulseOut .5s ease-out; }
+  @keyframes pulseOut{
+    0%{ opacity:0.7; transform:scale(0.8); }
+    100%{ opacity:0; transform:scale(1.35); }
+  }
+  .tap-btn{
+    width:170px; height:170px; border-radius:50%; background:linear-gradient(165deg, var(--navy-2), var(--navy));
+    color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    box-shadow:0 14px 30px rgba(23,58,94,0.28); transition:transform .1s ease; font-size:20px; font-weight:900;
+    position:relative; z-index:1;
+  }
+  .tap-btn:active{transform:scale(0.94);}
+  .tap-btn:disabled{opacity:0.5;}
+  .tap-btn .sub{font-size:11px; font-weight:700; color:#B9C7D6; margin-top:4px;}
+
+  .feedback-tag{
+    margin-top:16px; font-size:15px; font-weight:900; min-height:24px; color:var(--text-dim);
+  }
+  .feedback-tag.perfect{color:var(--data-2);}
+  .feedback-tag.ok{color:var(--blue);}
+  .feedback-tag.miss{color:var(--bad);}
+
+  .countdown-overlay{
+    position:absolute; inset:0; background:rgba(255,255,255,0.94); border-radius:22px;
+    display:flex; align-items:center; justify-content:center; font-size:64px; font-weight:900; color:var(--navy);
+    z-index:10;
+  }
+  .countdown-overlay[hidden]{display:none;}
+
+  /* --- result screen --- */
+  .score-num{font-size:46px; font-weight:900; color:var(--navy); line-height:1;}
+  .score-num span{font-size:16px; color:var(--text-dim); font-weight:700; margin-left:6px;}
+  .score-comment{margin-top:14px; font-size:15px; color:var(--navy); font-weight:700;}
+  .score-detail{margin-top:8px;}
+  .score-sub{margin-top:6px; font-size:13px; color:var(--text-dim);}
+
+  .beat-strip{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:20px;}
+  .beat-dot{width:16px; height:16px; border-radius:50%; background:var(--line);}
+  .beat-dot.good{background:var(--data);}
+  .beat-dot.ok{background:var(--blue);}
+  .beat-dot.bad{background:var(--bad);}
+  .beat-dot.miss{background:var(--bad-bg); border:2px solid var(--bad);}
+
+  .share-box{margin-top:24px;}
+  .share-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
+  .share-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .share-btn{
+    display:inline-flex; align-items:center; gap:7px; padding:10px 16px; border-radius:100px;
+    font-size:13px; font-weight:700; color:#fff;
+  }
+  .share-btn svg{width:14px; height:14px; flex-shrink:0;}
+  .share-btn.x{background:#000;}
+  .share-btn.line{background:#06C755;}
+  .share-btn.copy{background:var(--sky); color:var(--navy);}
+  .share-toast{margin-top:8px; font-size:12px; color:var(--data-2); min-height:16px;}
+
+  .cta-box{margin-top:28px; padding-top:24px; border-top:1px solid var(--line);}
+  .secondary-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
+  .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
+
+  footer{padding:20px; text-align:center; font-size:11.5px; color:var(--text-dim);}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="https://rowrowrho.github.io/voice-training-lp/">RHOボイトレ <span class="brand-tag">リズムキープチャレンジ</span></a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- 1. hero -->
+    <section id="screen-hero" class="card">
+      <div class="eyebrow-pill">全20拍・約30秒</div>
+      <div class="icon-circle">🥁</div>
+      <h1>あなたのリズム感、<br>どれくらい？</h1>
+      <p>メトロノームに合わせて画面をタップするだけ。<strong>ズレの少なさ</strong>で、あなたのリズムキープ力を測定します。</p>
+      <button class="btn" id="btnToRules">ルールを見る</button>
+    </section>
+
+    <!-- 2. rules -->
+    <section id="screen-rules" class="card" hidden>
+      <h2>やり方はかんたん</h2>
+      <ul class="rule-list">
+        <li><span class="rule-num">1</span><span>「3・2・1」の合図のあと、メトロノームが流れます</span></li>
+        <li><span class="rule-num">2</span><span>音に合わせて、画面中央のボタンをタップしてください</span></li>
+        <li><span class="rule-num">3</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
+        <li><span class="rule-num">4</span><span>全20拍。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+      </ul>
+      <button class="btn" id="btnStartGame">チャレンジをはじめる</button>
+    </section>
+
+    <!-- 3. game -->
+    <section id="screen-game" class="card" hidden style="position:relative;">
+      <div class="progress-row">
+        <span class="progress-label" id="beatLabel">0 / 20</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+      <div class="game-zone">
+        <div class="pulse-ring" id="pulseRing"></div>
+        <button class="tap-btn" id="tapBtn" disabled>
+          <span>TAP</span>
+          <span class="sub">音に合わせて</span>
+        </button>
+      </div>
+      <div class="feedback-tag" id="feedbackTag"></div>
+
+      <div class="countdown-overlay" id="countdownOverlay" hidden></div>
+    </section>
+
+    <!-- 4. result -->
+    <section id="screen-result" class="card" hidden>
+      <div class="eyebrow-pill">結果発表</div>
+      <div class="score-num"><span id="avgMs">0</span><span>ms 平均ズレ</span></div>
+      <div class="score-comment" id="scoreComment"></div>
+      <p class="score-detail" id="scoreDetail"></p>
+      <p class="score-sub" id="scoreSub"></p>
+
+      <div class="beat-strip" id="beatStrip"></div>
+
+      <div class="share-box">
+        <div class="share-label">結果をシェアする</div>
+        <div class="share-row">
+          <a class="share-btn x" id="shareX" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M18.9 2H22l-7.6 8.7L23.3 22H16.6l-5.2-6.8L5.4 22H2.3l8.1-9.3L1.4 2h6.9l4.7 6.2L18.9 2Zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20Z"/></svg>
+            Xでシェア
+          </a>
+          <a class="share-btn line" id="shareLine" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.6 1.1-.4 5.9-3.5 8.1-6C21.6 12.8 22 11.4 22 10c0-4.4-4.5-8-10-8Z"/></svg>
+            LINEで送る
+          </a>
+          <button class="share-btn copy" id="shareCopy" type="button">🔗 リンクをコピー</button>
+        </div>
+        <div class="share-toast" id="shareToast"></div>
+      </div>
+
+      <div class="cta-box">
+        <p>リズムキープ力は、歌のノリや安定感に直結します。<br>自分の声そのものも気になったら、無料のボイス診断もどうぞ。</p>
+        <a class="btn data" href="https://rowrowrho.github.io/voice-training-lp/voice-check/">✨ 無料のボイス診断を受けてみる</a>
+        <a class="secondary-link" href="https://rowrowrho.github.io/voice-training-lp/voice-type-check/">ボイスタイプ診断もやってみる →</a>
+      </div>
+      <a class="replay-link" id="btnReplay">もう一度チャレンジする</a>
+    </section>
+
+  </div>
+</main>
+
+<footer>RHOボイトレ｜リズムキープチャレンジ</footer>
+
+<script>
+(function(){
+
+  // ---------- 設定 ----------
+  var BPM = 100;
+  var INTERVAL = 60 / BPM; // 秒
+  var TOTAL_BEATS = 20;
+  var HIT_WINDOW = INTERVAL / 2; // この半分より近い拍にタップを割り当てる
+
+  var audioCtx = null;
+  var beatTimes = [];
+  var beatResults = []; // {tapped:boolean, deviation:number(seconds)|null}
+  var gameActive = false;
+  var endTimer = null;
+
+  // ---------- 画面切り替え ----------
+  var screens = {
+    hero: document.getElementById('screen-hero'),
+    rules: document.getElementById('screen-rules'),
+    game: document.getElementById('screen-game'),
+    result: document.getElementById('screen-result')
+  };
+  function showScreen(name){
+    Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  document.getElementById('btnToRules').addEventListener('click', function(){
+    showScreen('rules');
+  });
+
+  document.getElementById('btnStartGame').addEventListener('click', function(){
+    if(!audioCtx){
+      var AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
+    showScreen('game');
+    resetGameUI();
+    runCountdown();
+  });
+
+  function resetGameUI(){
+    document.getElementById('beatLabel').textContent = '0 / ' + TOTAL_BEATS;
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('feedbackTag').textContent = '';
+    document.getElementById('feedbackTag').className = 'feedback-tag';
+    document.getElementById('tapBtn').disabled = true;
+  }
+
+  function runCountdown(){
+    var overlay = document.getElementById('countdownOverlay');
+    overlay.hidden = false;
+    var steps = ['3', '2', '1', 'タップ！'];
+    var i = 0;
+    function next(){
+      if(i < steps.length){
+        overlay.textContent = steps[i];
+        i++;
+        setTimeout(next, 700);
+      } else {
+        overlay.hidden = true;
+        startGame();
+      }
+    }
+    next();
+  }
+
+  // ---------- 音 ----------
+  function playClick(time){
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 1200;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.001, time);
+    gain.gain.exponentialRampToValueAtTime(0.25, time + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+    osc.start(time);
+    osc.stop(time + 0.06);
+  }
+
+  // ---------- ゲーム進行 ----------
+  var tappedCount = 0;
+
+  function startGame(){
+    gameActive = true;
+    tappedCount = 0;
+    beatResults = [];
+    for(var i = 0; i < TOTAL_BEATS; i++){ beatResults.push({tapped:false, deviation:null}); }
+
+    var startTime = audioCtx.currentTime + 0.15;
+    beatTimes = [];
+    for(var b = 0; b < TOTAL_BEATS; b++){
+      var t = startTime + b * INTERVAL;
+      beatTimes.push(t);
+      playClick(t);
+      scheduleVisualPulse(t, b);
+    }
+
+    document.getElementById('tapBtn').disabled = false;
+
+    var totalDuration = (beatTimes[TOTAL_BEATS - 1] - audioCtx.currentTime) + HIT_WINDOW;
+    endTimer = setTimeout(endGame, totalDuration * 1000 + 50);
+  }
+
+  function scheduleVisualPulse(time, beatIndex){
+    var delayMs = (time - audioCtx.currentTime) * 1000;
+    setTimeout(function(){
+      var ring = document.getElementById('pulseRing');
+      ring.classList.remove('beat');
+      // force reflow so the animation can restart
+      void ring.offsetWidth;
+      ring.classList.add('beat');
+      document.getElementById('beatLabel').textContent = (beatIndex + 1) + ' / ' + TOTAL_BEATS;
+      document.getElementById('progressFill').style.width = ((beatIndex + 1) / TOTAL_BEATS * 100) + '%';
+    }, Math.max(0, delayMs));
+  }
+
+  document.getElementById('tapBtn').addEventListener('click', function(){
+    if(!gameActive) return;
+    var tapTime = audioCtx.currentTime;
+    var elapsed = tapTime - beatTimes[0];
+    var nearest = Math.round(elapsed / INTERVAL);
+    if(nearest < 0) nearest = 0;
+    if(nearest > TOTAL_BEATS - 1) nearest = TOTAL_BEATS - 1;
+
+    var deviation = tapTime - beatTimes[nearest];
+    var tag = document.getElementById('feedbackTag');
+
+    if(Math.abs(deviation) > HIT_WINDOW){
+      tag.textContent = 'タイミング外';
+      tag.className = 'feedback-tag miss';
+      return;
+    }
+
+    var slot = beatResults[nearest];
+    if(!slot.tapped || Math.abs(deviation) < Math.abs(slot.deviation)){
+      slot.tapped = true;
+      slot.deviation = deviation;
+    }
+
+    var ms = Math.round(deviation * 1000);
+    var absMs = Math.abs(ms);
+    if(absMs <= 40){
+      tag.textContent = 'PERFECT！';
+      tag.className = 'feedback-tag perfect';
+    } else if(absMs <= 90){
+      tag.textContent = (ms > 0 ? '少し遅い' : '少し早い');
+      tag.className = 'feedback-tag ok';
+    } else {
+      tag.textContent = (ms > 0 ? '遅い' : '早い');
+      tag.className = 'feedback-tag miss';
+    }
+  });
+
+  function endGame(){
+    if(!gameActive) return;
+    gameActive = false;
+    document.getElementById('tapBtn').disabled = true;
+    showResult();
+  }
+
+  function showResult(){
+    var deviations = [];
+    var missCount = 0;
+    beatResults.forEach(function(r){
+      if(r.tapped){ deviations.push(r.deviation); }
+      else { missCount++; }
+    });
+
+    var avgAbsMs = 0;
+    var avgSignedMs = 0;
+    if(deviations.length > 0){
+      var sumAbs = 0, sumSigned = 0;
+      deviations.forEach(function(d){ sumAbs += Math.abs(d); sumSigned += d; });
+      avgAbsMs = Math.round(sumAbs / deviations.length * 1000);
+      avgSignedMs = Math.round(sumSigned / deviations.length * 1000);
+    } else {
+      avgAbsMs = 999;
+    }
+
+    document.getElementById('avgMs').textContent = deviations.length > 0 ? avgAbsMs : '--';
+
+    var comment, detail;
+    if(deviations.length === 0){
+      comment = 'タップが記録できませんでした';
+      detail = 'もう一度チャレンジしてみてください。';
+    } else if(avgAbsMs <= 30){
+      comment = 'リズム感が抜群です！プロレベルの正確さ';
+      detail = '平均ズレ30ms以下は、かなり安定してリズムをキープできている証拠です。';
+    } else if(avgAbsMs <= 60){
+      comment = 'しっかりリズムに乗れています';
+      detail = '大きなズレはなく、安定してタップできています。';
+    } else if(avgAbsMs <= 100){
+      comment = '平均的なリズム感です';
+      detail = 'タイミングは大きく外れていませんが、まだ伸びしろがあります。';
+    } else {
+      comment = 'リズム感はこれから伸ばせます';
+      detail = 'まずはゆっくりのテンポから、音に合わせる感覚を意識してみましょう。';
+    }
+    document.getElementById('scoreComment').textContent = comment;
+    document.getElementById('scoreDetail').textContent = detail;
+
+    var subParts = [];
+    if(deviations.length > 0){
+      subParts.push((avgSignedMs > 5 ? 'やや遅れがち' : (avgSignedMs < -5 ? 'やや早めがち' : 'タイミングの偏りは少なめ')));
+    }
+    if(missCount > 0){
+      subParts.push('タップできなかった拍：' + missCount + ' / ' + TOTAL_BEATS);
+    }
+    document.getElementById('scoreSub').textContent = subParts.join('　');
+
+    document.getElementById('beatStrip').innerHTML = beatResults.map(function(r){
+      if(!r.tapped) return '<span class="beat-dot miss"></span>';
+      var absMs = Math.abs(r.deviation * 1000);
+      var cls = absMs <= 40 ? 'good' : (absMs <= 90 ? 'ok' : 'bad');
+      return '<span class="beat-dot ' + cls + '"></span>';
+    }).join('');
+
+    setupShare(deviations.length > 0 ? avgAbsMs : null, comment);
+    showScreen('result');
+  }
+
+  // ---------- シェア ----------
+  var PAGE_URL = 'https://rowrowrho.github.io/voice-training-lp/rhythm-check/';
+  var shareText = '';
+
+  function setupShare(avgAbsMs, comment){
+    var scoreLine = (avgAbsMs === null) ? 'リズムキープチャレンジに挑戦しました🥁' : ('リズムキープチャレンジで平均ズレ' + avgAbsMs + 'msでした🥁');
+    shareText = scoreLine + '\n\n' + comment + '\n\n#RHOボイトレ';
+    document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
+    document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
+  }
+
+  document.getElementById('shareCopy').addEventListener('click', function(){
+    var toast = document.getElementById('shareToast');
+    var showDone = function(){
+      toast.textContent = 'コピーしました！';
+      setTimeout(function(){ toast.textContent = ''; }, 2000);
+    };
+    var fallbackCopy = function(){
+      var tmp = document.createElement('input');
+      tmp.value = PAGE_URL;
+      tmp.style.position = 'fixed';
+      tmp.style.opacity = '0';
+      document.body.appendChild(tmp);
+      tmp.select();
+      tmp.setSelectionRange(0, 99999);
+      try{
+        document.execCommand('copy');
+        showDone();
+      }catch(e){
+        toast.textContent = 'コピーできませんでした';
+      }
+      document.body.removeChild(tmp);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(PAGE_URL).then(showDone).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  });
+
+  document.getElementById('btnReplay').addEventListener('click', function(){
+    if(endTimer){ clearTimeout(endTimer); endTimer = null; }
+    gameActive = false;
+    showScreen('rules');
+  });
+
+})();
+</script>
+</body>
+</html>
