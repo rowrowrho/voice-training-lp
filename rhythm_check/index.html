@@ -89,6 +89,7 @@
   }
   .btn:active{transform:scale(0.98);}
   .btn.data{background:var(--data);}
+  .btn[hidden]{display:none;}
 
   .rule-list{text-align:left; margin-top:22px; display:flex; flex-direction:column; gap:14px;}
   .rule-list li{list-style:none; display:flex; gap:12px; align-items:flex-start; font-size:14px; color:var(--text);}
@@ -141,13 +142,6 @@
   .feedback-tag.ok{color:var(--blue);}
   .feedback-tag.miss{color:var(--bad);}
 
-  .countdown-overlay{
-    position:absolute; inset:0; background:rgba(255,255,255,0.94); border-radius:22px;
-    display:flex; align-items:center; justify-content:center; font-size:64px; font-weight:900; color:var(--navy);
-    z-index:10;
-  }
-  .countdown-overlay[hidden]{display:none;}
-
   /* --- result screen --- */
   .score-num{font-size:46px; font-weight:900; color:var(--navy); line-height:1;}
   .score-num span{font-size:16px; color:var(--text-dim); font-weight:700; margin-left:6px;}
@@ -195,10 +189,10 @@
 
     <!-- 1. hero -->
     <section id="screen-hero" class="card">
-      <div class="eyebrow-pill">全4小節・拍子チェンジあり</div>
+      <div class="eyebrow-pill">全4拍子×各4小節</div>
       <div class="icon-circle">🥁</div>
       <h1>あなたのリズム感、<br>どれくらい？</h1>
-      <p>メトロノームに合わせて画面をタップするだけ。<strong>ズレの少なさ</strong>で、あなたのリズムキープ力を測定します。1小節ごとに拍子が変わるので要注意！</p>
+      <p>メトロノームに合わせて、<strong>各小節の最後の拍だけ</strong>タップするだけ。ズレの少なさで、あなたのリズムキープ力を測定します。拍子ごとに4小節ずつ挑戦します！</p>
       <button class="btn" id="btnToRules">ルールを見る</button>
     </section>
 
@@ -206,16 +200,17 @@
     <section id="screen-rules" class="card" hidden>
       <h2>やり方はかんたん</h2>
       <ul class="rule-list">
-        <li><span class="rule-num">1</span><span>「3・2・1」の合図のあと、メトロノームが流れます</span></li>
-        <li><span class="rule-num">2</span><span>音に合わせて、画面中央のボタンをタップしてください</span></li>
-        <li><span class="rule-num">3</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
-        <li><span class="rule-num">4</span><span>拍子が変わるたびに、また「3・2・1」からスタートします（下記の順番）</span></li>
+        <li><span class="rule-num">1</span><span>拍子に入るとすぐにメトロノームが鳴りはじめます</span></li>
+        <li><span class="rule-num">2</span><span>リズムを感じられたら「スタート」ボタンを押してください（聞くのは自由な長さでOK）</span></li>
+        <li><span class="rule-num">3</span><span>スタート後、4小節続けて演奏されます。タップするのは<strong>各小節の最後の拍だけ</strong>（4/4なら4拍目、6/8なら6拍目…）</span></li>
+        <li><span class="rule-num">4</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
         <li><span class="rule-num">5</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
-        <li><span class="rule-num">6</span><span>全4小節終わったら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+        <li><span class="rule-num">6</span><span>4小節終わったら次の拍子へ。またスタートボタンを押し直してください（下記の順番）</span></li>
+        <li><span class="rule-num">7</span><span>全4拍子×4小節終わったら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
       </ul>
 
       <div class="sig-select">
-        <div class="sig-label">拍子の順番</div>
+        <div class="sig-label">拍子の順番（各4小節）</div>
         <div class="sig-row">
           <span class="sig-chip">① 4/4拍子</span>
           <span class="sig-chip">② 3/4拍子</span>
@@ -230,7 +225,7 @@
     <!-- 3. game -->
     <section id="screen-game" class="card" hidden style="position:relative;">
       <div class="progress-row">
-        <span class="progress-label" id="beatLabel">0 / 4</span>
+        <span class="progress-label" id="beatLabel">0 / 4 小節</span>
         <span class="sig-now" id="sigNow"></span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -244,7 +239,7 @@
       </div>
       <div class="feedback-tag" id="feedbackTag"></div>
 
-      <div class="countdown-overlay" id="countdownOverlay" hidden></div>
+      <button class="btn data" id="btnRoundGo">準備ができたらスタート</button>
     </section>
 
     <!-- 4. result -->
@@ -298,18 +293,27 @@
     { sig: '6/8', beatsPerMeasure: 6 },
     { sig: '5/4', beatsPerMeasure: 5 }
   ];
-  var TOTAL_BEATS = SEQUENCE.reduce(function(sum, m){ return sum + m.beatsPerMeasure; }, 0);
+  var MEASURES_PER_ROUND = 4; // 1つの拍子につき何小節続けて演奏するか
+  var TOTAL_TAPS = SEQUENCE.length * MEASURES_PER_ROUND; // タップ対象の総数（拍子4種×4小節）
   var HIT_WINDOW = INTERVAL / 2; // この半分より近い拍にタップを割り当てる
   var PERFECT_MS = 60; // この範囲内ならパーフェクト判定
   var OK_MS = 120; // この範囲内なら「少し早い／遅い」判定
 
   var audioCtx = null;
-  var beatTimes = [];       // 現在の小節（ラウンド）の拍タイミング
-  var roundResults = [];    // 現在の小節のタップ結果
-  var allBeatResults = [];  // 全小節分のタップ結果（結果画面で使用）
+  var beatTimes = [];       // 現在の拍子ラウンドで採点対象となる「各小節の最後の拍」タイミング（4小節分）
+  var roundResults = [];    // 現在の拍子ラウンドのタップ結果（小節ごとに1件、計4件）
+  var allBeatResults = [];  // 全拍子ラウンド分のタップ結果（結果画面で使用）
   var roundIndex = 0;
-  var gameActive = false;
+  var scoring = false;      // スタート後、採点中かどうか
   var endTimer = null;
+
+  // 常時ループするメトロノーム用（スタート前から鳴り続ける）
+  var schedulerTimer = null;
+  var LOOKAHEAD_MS = 25;
+  var SCHEDULE_AHEAD = 0.15; // 秒
+  var nextClickTime = 0;
+  var loopBeatIndex = 0;
+  var beatsPerMeasureCurrent = 4;
 
   // ---------- 画面切り替え ----------
   var screens = {
@@ -363,33 +367,25 @@
     startRound();
   }
 
+  // 各小節の開始：メトロノームをすぐに鳴らし始め、「スタート」を押すまでは採点しない
   function startRound(){
     document.getElementById('feedbackTag').textContent = '';
     document.getElementById('feedbackTag').className = 'feedback-tag';
     document.getElementById('tapBtn').disabled = true;
     document.getElementById('progressFill').style.width = '0%';
-    var round = SEQUENCE[roundIndex];
-    document.getElementById('beatLabel').textContent = '0 / ' + round.beatsPerMeasure;
-    document.getElementById('sigNow').textContent = (roundIndex + 1) + '/' + SEQUENCE.length + '小節目・' + round.sig + '拍子';
-    runCountdown();
-  }
+    var goBtn = document.getElementById('btnRoundGo');
+    goBtn.hidden = false;
+    goBtn.disabled = false;
 
-  function runCountdown(){
-    var overlay = document.getElementById('countdownOverlay');
-    overlay.hidden = false;
-    var steps = ['3', '2', '1', 'タップ！'];
-    var i = 0;
-    function next(){
-      if(i < steps.length){
-        overlay.textContent = steps[i];
-        i++;
-        setTimeout(next, 700);
-      } else {
-        overlay.hidden = true;
-        playRound();
-      }
-    }
-    next();
+    var round = SEQUENCE[roundIndex];
+    beatsPerMeasureCurrent = round.beatsPerMeasure;
+    document.getElementById('beatLabel').textContent = '0 / ' + MEASURES_PER_ROUND + ' 小節';
+    document.getElementById('sigNow').textContent = (roundIndex + 1) + '/' + SEQUENCE.length + '拍子目・' + round.sig + '拍子';
+
+    scoring = false;
+    loopBeatIndex = 0;
+    nextClickTime = audioCtx.currentTime + 0.1;
+    startScheduler();
   }
 
   // ---------- 音 ----------
@@ -408,31 +404,29 @@
     osc.stop(time + 0.08);
   }
 
-  // ---------- 1小節分の再生 ----------
-  function playRound(){
-    var round = SEQUENCE[roundIndex];
-    var n = round.beatsPerMeasure;
-    roundResults = [];
-    for(var i = 0; i < n; i++){ roundResults.push({tapped:false, deviation:null}); }
-
-    var startTime = audioCtx.currentTime + 0.1;
-    beatTimes = [];
-    for(var b = 0; b < n; b++){
-      var t = startTime + b * INTERVAL;
-      var isAccent = (b === 0);
-      beatTimes.push(t);
-      playClick(t, isAccent);
-      scheduleVisualPulse(t, b, n, isAccent);
+  // ---------- 常時ループするメトロノーム（スタート前から鳴り続ける） ----------
+  function scheduler(){
+    while(nextClickTime < audioCtx.currentTime + SCHEDULE_AHEAD){
+      var isAccent = (loopBeatIndex === 0);
+      playClick(nextClickTime, isAccent);
+      schedulePulse(nextClickTime, isAccent);
+      loopBeatIndex = (loopBeatIndex + 1) % beatsPerMeasureCurrent;
+      nextClickTime += INTERVAL;
     }
-
-    gameActive = true;
-    document.getElementById('tapBtn').disabled = false;
-
-    var totalDuration = (beatTimes[n - 1] - audioCtx.currentTime) + HIT_WINDOW;
-    endTimer = setTimeout(endRound, totalDuration * 1000 + 50);
   }
 
-  function scheduleVisualPulse(time, beatIndex, roundTotal, isAccent){
+  function startScheduler(){
+    stopScheduler();
+    schedulerTimer = setInterval(scheduler, LOOKAHEAD_MS);
+    scheduler();
+  }
+
+  function stopScheduler(){
+    if(schedulerTimer){ clearInterval(schedulerTimer); schedulerTimer = null; }
+  }
+
+  // 拍が鳴るたびのビジュアル（採点中かどうかに関わらず常に動く）
+  function schedulePulse(time, isAccent){
     var delayMs = (time - audioCtx.currentTime) * 1000;
     setTimeout(function(){
       var ring = document.getElementById('pulseRing');
@@ -441,16 +435,49 @@
       void ring.offsetWidth;
       ring.classList.add('beat');
       if(isAccent){ ring.classList.add('accent'); }
-      document.getElementById('beatLabel').textContent = (beatIndex + 1) + ' / ' + roundTotal;
-      document.getElementById('progressFill').style.width = ((beatIndex + 1) / roundTotal * 100) + '%';
     }, Math.max(0, delayMs));
   }
 
+  // 採点対象（各小節の最後の拍）だけ進捗表示を更新
+  function scheduleScoreProgress(time, measureIndex, measureTotal){
+    var delayMs = (time - audioCtx.currentTime) * 1000;
+    setTimeout(function(){
+      document.getElementById('beatLabel').textContent = (measureIndex + 1) + ' / ' + measureTotal + ' 小節';
+      document.getElementById('progressFill').style.width = ((measureIndex + 1) / measureTotal * 100) + '%';
+    }, Math.max(0, delayMs));
+  }
+
+  // ---------- 「スタート」ボタン：次の小節頭（1拍目）から4小節分の採点を開始 ----------
+  document.getElementById('btnRoundGo').addEventListener('click', function(){
+    if(scoring) return;
+    var t = nextClickTime, idx = loopBeatIndex;
+    while(idx !== 0){ t += INTERVAL; idx = (idx + 1) % beatsPerMeasureCurrent; }
+
+    var n = beatsPerMeasureCurrent;
+    // タップ対象は各小節の「最後の拍」のみ（4/4なら4拍目、6/8なら6拍目…）を4小節分
+    beatTimes = [];
+    roundResults = [];
+    for(var m = 0; m < MEASURES_PER_ROUND; m++){
+      var lastBeatOffset = (m + 1) * n - 1; // 開始小節頭から数えて何拍目か
+      beatTimes.push(t + lastBeatOffset * INTERVAL);
+      roundResults.push({tapped:false, deviation:null});
+    }
+    for(var i = 0; i < beatTimes.length; i++){ scheduleScoreProgress(beatTimes[i], i, MEASURES_PER_ROUND); }
+
+    scoring = true;
+    this.hidden = true;
+    document.getElementById('tapBtn').disabled = false;
+
+    var totalDuration = (beatTimes[beatTimes.length - 1] - audioCtx.currentTime) + HIT_WINDOW;
+    endTimer = setTimeout(endRound, totalDuration * 1000 + 50);
+  });
+
   document.getElementById('tapBtn').addEventListener('click', function(){
-    if(!gameActive) return;
+    if(!scoring) return;
     var tapTime = audioCtx.currentTime;
+    var measureLen = beatsPerMeasureCurrent * INTERVAL;
     var elapsed = tapTime - beatTimes[0];
-    var nearest = Math.round(elapsed / INTERVAL);
+    var nearest = Math.round(elapsed / measureLen);
     if(nearest < 0) nearest = 0;
     if(nearest > beatTimes.length - 1) nearest = beatTimes.length - 1;
 
@@ -484,8 +511,9 @@
   });
 
   function endRound(){
-    if(!gameActive) return;
-    gameActive = false;
+    if(!scoring) return;
+    scoring = false;
+    stopScheduler();
     document.getElementById('tapBtn').disabled = true;
     allBeatResults = allBeatResults.concat(roundResults);
 
@@ -543,7 +571,7 @@
       subParts.push((avgSignedMs > 5 ? 'やや遅れがち' : (avgSignedMs < -5 ? 'やや早めがち' : 'タイミングの偏りは少なめ')));
     }
     if(missCount > 0){
-      subParts.push('タップできなかった拍：' + missCount + ' / ' + TOTAL_BEATS);
+      subParts.push('タップできなかった小節：' + missCount + ' / ' + TOTAL_TAPS);
     }
     document.getElementById('scoreSub').textContent = subParts.join('　');
 
@@ -600,7 +628,8 @@
 
   document.getElementById('btnReplay').addEventListener('click', function(){
     if(endTimer){ clearTimeout(endTimer); endTimer = null; }
-    gameActive = false;
+    scoring = false;
+    stopScheduler();
     showScreen('rules');
   });
 
