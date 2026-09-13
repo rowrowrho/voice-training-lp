@@ -189,10 +189,10 @@
 
     <!-- 1. hero -->
     <section id="screen-hero" class="card">
-      <div class="eyebrow-pill">全4拍子×各4小節</div>
+      <div class="eyebrow-pill">全4拍子×各4回成功</div>
       <div class="icon-circle">🥁</div>
       <h1>あなたのリズム感、<br>どれくらい？</h1>
-      <p>メトロノームに合わせて、<strong>各小節の最後の拍だけ</strong>タップするだけ。ズレの少なさで、あなたのリズムキープ力を測定します。拍子ごとに4小節ずつ挑戦します！</p>
+      <p>メトロノームに合わせて、<strong>各小節の最後の拍だけ</strong>タップするだけ。ズレの少なさで、あなたのリズムキープ力を測定します。拍子ごとに4回成功するまで挑戦します！</p>
       <button class="btn" id="btnToRules">ルールを見る</button>
     </section>
 
@@ -200,17 +200,18 @@
     <section id="screen-rules" class="card" hidden>
       <h2>やり方はかんたん</h2>
       <ul class="rule-list">
-        <li><span class="rule-num">1</span><span>拍子に入るとすぐにメトロノームが鳴りはじめます（テンポは拍子ごとにランダム、6/8は少し速めです）</span></li>
+        <li><span class="rule-num">1</span><span>拍子に入るとすぐにメトロノームが鳴りはじめます（テンポは拍子ごとにランダム。6/8・12/8はBPM180以上とかなり速めです）</span></li>
         <li><span class="rule-num">2</span><span>リズムを感じられたら「スタート」ボタンを押してください（聞くのは自由な長さでOK）</span></li>
-        <li><span class="rule-num">3</span><span>スタート後、4小節続けて演奏されます。タップするのは<strong>各小節の最後の拍だけ</strong>（4/4なら4拍目、6/8なら6拍目…）</span></li>
+        <li><span class="rule-num">3</span><span>スタート後、タップするのは<strong>各小節の最後の拍だけ</strong>（4/4なら4拍目、6/8なら6拍目…）</span></li>
         <li><span class="rule-num">4</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
         <li><span class="rule-num">5</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
-        <li><span class="rule-num">6</span><span>4小節終わったら次の拍子へ。テンポも変わるので、またスタートボタンを押し直してください（下記の順番）</span></li>
-        <li><span class="rule-num">7</span><span>全4拍子×4小節終わったら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+        <li><span class="rule-num">6</span><span>タイミングを見逃しても大丈夫。判定はされないので、次の小節でまた挑戦できます</span></li>
+        <li><span class="rule-num">7</span><span>各拍子で<strong>4回成功</strong>したら次の拍子へ。テンポも変わるので、またスタートボタンを押し直してください（下記の順番）</span></li>
+        <li><span class="rule-num">8</span><span>全4拍子×4回成功したら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
       </ul>
 
       <div class="sig-select">
-        <div class="sig-label">拍子の順番（各4小節・テンポはランダム）</div>
+        <div class="sig-label">拍子の順番（各4回成功・テンポはランダム）</div>
         <div class="sig-row">
           <span class="sig-chip">① 4/4拍子</span>
           <span class="sig-chip">② 3/4拍子</span>
@@ -225,7 +226,7 @@
     <!-- 3. game -->
     <section id="screen-game" class="card" hidden style="position:relative;">
       <div class="progress-row">
-        <span class="progress-label" id="beatLabel">0 / 4 小節</span>
+        <span class="progress-label" id="beatLabel">0 / 4 成功</span>
         <span class="sig-now" id="sigNow"></span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -287,34 +288,36 @@
   // ---------- 設定 ----------
   var BPM_MIN = 90;
   var BPM_MAX = 120;
-  var SIX_EIGHT_BPM_BOOST = 20; // 6/8は体感が速いので、ランダム幅に上乗せして少し早めにする
+  var FAST_BPM_MIN = 180; // 6/8・12/8はここから
+  var FAST_BPM_MAX = 210; // ここまででランダム（かなり速め）
   var SEQUENCE = [
     { sig: '4/4', beatsPerMeasure: 4 },
     { sig: '3/4', beatsPerMeasure: 3 },
     { sig: '6/8', beatsPerMeasure: 6 },
     { sig: '12/8', beatsPerMeasure: 12 }
   ];
-  var MEASURES_PER_ROUND = 4; // 1つの拍子につき何小節続けて演奏するか
-  var TOTAL_TAPS = SEQUENCE.length * MEASURES_PER_ROUND; // タップ対象の総数（拍子4種×4小節）
+  var HITS_NEEDED = 4; // 1つの拍子につき何回成功したら次に進むか
+  var TOTAL_TAPS = SEQUENCE.length * HITS_NEEDED; // タップ対象の総数（拍子4種×4回成功）
   var INTERVAL = 60 / 100; // 秒（拍子ラウンドごとにランダムなBPMで上書きされる）
   var HIT_WINDOW = INTERVAL / 2; // この半分より近い拍にタップを割り当てる（拍子ラウンドごとに更新）
   var PERFECT_MS = 60; // この範囲内ならパーフェクト判定
   var OK_MS = 120; // この範囲内なら「少し早い／遅い」判定
 
-  // 拍子ごとにランダムなBPMを決める（6/8は少し速めに）
+  // 拍子ごとにランダムなBPMを決める（6/8・12/8はBPM180以上のランダムでかなり速く）
   function pickBpmForSignature(sig){
-    var base = BPM_MIN + Math.random() * (BPM_MAX - BPM_MIN);
-    if(sig === '6/8'){ base += SIX_EIGHT_BPM_BOOST; }
-    return Math.round(base);
+    if(sig === '6/8' || sig === '12/8'){
+      return Math.round(FAST_BPM_MIN + Math.random() * (FAST_BPM_MAX - FAST_BPM_MIN));
+    }
+    return Math.round(BPM_MIN + Math.random() * (BPM_MAX - BPM_MIN));
   }
 
   var audioCtx = null;
-  var beatTimes = [];       // 現在の拍子ラウンドで採点対象となる「各小節の最後の拍」タイミング（4小節分）
-  var roundResults = [];    // 現在の拍子ラウンドのタップ結果（小節ごとに1件、計4件）
+  var currentTargetTime = 0; // 現在ねらっている「小節の最後の拍」の時刻（見逃したら次の小節へ自動的に進む）
+  var missAdvanceTimer = null; // 見逃したときに次の小節の最後の拍へ進めるタイマー
+  var roundResults = [];    // 現在の拍子ラウンドで成功したタップの結果（成功した分だけ積み上がる）
   var allBeatResults = [];  // 全拍子ラウンド分のタップ結果（結果画面で使用）
   var roundIndex = 0;
   var scoring = false;      // スタート後、採点中かどうか
-  var endTimer = null;
 
   // 常時ループするメトロノーム用（スタート前から鳴り続ける）
   var schedulerTimer = null;
@@ -393,7 +396,7 @@
     INTERVAL = 60 / bpm;
     HIT_WINDOW = INTERVAL / 2;
 
-    document.getElementById('beatLabel').textContent = '0 / ' + MEASURES_PER_ROUND + ' 小節';
+    document.getElementById('beatLabel').textContent = '0 / ' + HITS_NEEDED + ' 成功';
     document.getElementById('sigNow').textContent = (roundIndex + 1) + '/' + SEQUENCE.length + '拍子目・' + round.sig + '拍子・BPM' + bpm;
 
     scoring = false;
@@ -452,63 +455,49 @@
     }, Math.max(0, delayMs));
   }
 
-  // 採点対象（各小節の最後の拍）だけ進捗表示を更新
-  function scheduleScoreProgress(time, measureIndex, measureTotal){
-    var delayMs = (time - audioCtx.currentTime) * 1000;
-    setTimeout(function(){
-      document.getElementById('beatLabel').textContent = (measureIndex + 1) + ' / ' + measureTotal + ' 小節';
-      document.getElementById('progressFill').style.width = ((measureIndex + 1) / measureTotal * 100) + '%';
+  // 次に狙う「小節の最後の拍」をセットし、見逃したら自動で次の小節へ送る
+  function armTarget(targetTime){
+    currentTargetTime = targetTime;
+    if(missAdvanceTimer){ clearTimeout(missAdvanceTimer); missAdvanceTimer = null; }
+    var delayMs = (targetTime - audioCtx.currentTime + HIT_WINDOW) * 1000;
+    missAdvanceTimer = setTimeout(function(){
+      if(!scoring) return;
+      // 見逃した拍は判定せず（記録せず）、次の小節の最後の拍へそのまま進む
+      var measureLen = beatsPerMeasureCurrent * INTERVAL;
+      armTarget(currentTargetTime + measureLen);
     }, Math.max(0, delayMs));
   }
 
-  // ---------- 「スタート」ボタン：次の小節頭（1拍目）から4小節分の採点を開始 ----------
+  // ---------- 「スタート」ボタン：次の小節頭（1拍目）から採点を開始 ----------
   document.getElementById('btnRoundGo').addEventListener('click', function(){
     if(scoring) return;
     var t = nextClickTime, idx = loopBeatIndex;
     while(idx !== 0){ t += INTERVAL; idx = (idx + 1) % beatsPerMeasureCurrent; }
 
     var n = beatsPerMeasureCurrent;
-    // タップ対象は各小節の「最後の拍」のみ（4/4なら4拍目、6/8なら6拍目…）を4小節分
-    beatTimes = [];
     roundResults = [];
-    for(var m = 0; m < MEASURES_PER_ROUND; m++){
-      var lastBeatOffset = (m + 1) * n - 1; // 開始小節頭から数えて何拍目か
-      beatTimes.push(t + lastBeatOffset * INTERVAL);
-      roundResults.push({tapped:false, deviation:null});
-    }
-    for(var i = 0; i < beatTimes.length; i++){ scheduleScoreProgress(beatTimes[i], i, MEASURES_PER_ROUND); }
-
     scoring = true;
     this.hidden = true;
     document.getElementById('tapBtn').disabled = false;
 
-    var totalDuration = (beatTimes[beatTimes.length - 1] - audioCtx.currentTime) + HIT_WINDOW;
-    endTimer = setTimeout(endRound, totalDuration * 1000 + 50);
+    // 最初に狙う「最後の拍」＝開始小節頭からn拍目
+    armTarget(t + (n - 1) * INTERVAL);
   });
 
   document.getElementById('tapBtn').addEventListener('click', function(){
     if(!scoring) return;
     var tapTime = audioCtx.currentTime;
-    var measureLen = beatsPerMeasureCurrent * INTERVAL;
-    var elapsed = tapTime - beatTimes[0];
-    var nearest = Math.round(elapsed / measureLen);
-    if(nearest < 0) nearest = 0;
-    if(nearest > beatTimes.length - 1) nearest = beatTimes.length - 1;
-
-    var deviation = tapTime - beatTimes[nearest];
+    var deviation = tapTime - currentTargetTime;
     var tag = document.getElementById('feedbackTag');
 
     if(Math.abs(deviation) > HIT_WINDOW){
-      tag.textContent = 'タイミング外';
-      tag.className = 'feedback-tag miss';
+      // 見逃し・タイミングが合わないタップは判定しない（記録もしない）。そのまま同じ拍を狙い続けられる
       return;
     }
 
-    var slot = roundResults[nearest];
-    if(!slot.tapped || Math.abs(deviation) < Math.abs(slot.deviation)){
-      slot.tapped = true;
-      slot.deviation = deviation;
-    }
+    roundResults.push({tapped:true, deviation:deviation});
+    document.getElementById('beatLabel').textContent = roundResults.length + ' / ' + HITS_NEEDED + ' 成功';
+    document.getElementById('progressFill').style.width = (roundResults.length / HITS_NEEDED * 100) + '%';
 
     var ms = Math.round(deviation * 1000);
     var absMs = Math.abs(ms);
@@ -522,11 +511,19 @@
       tag.textContent = (ms > 0 ? '遅い' : '早い');
       tag.className = 'feedback-tag miss';
     }
+
+    if(roundResults.length >= HITS_NEEDED){
+      endRound();
+    } else {
+      var measureLen = beatsPerMeasureCurrent * INTERVAL;
+      armTarget(currentTargetTime + measureLen);
+    }
   });
 
   function endRound(){
     if(!scoring) return;
     scoring = false;
+    if(missAdvanceTimer){ clearTimeout(missAdvanceTimer); missAdvanceTimer = null; }
     stopScheduler();
     document.getElementById('tapBtn').disabled = true;
     allBeatResults = allBeatResults.concat(roundResults);
@@ -641,7 +638,7 @@
   });
 
   document.getElementById('btnReplay').addEventListener('click', function(){
-    if(endTimer){ clearTimeout(endTimer); endTimer = null; }
+    if(missAdvanceTimer){ clearTimeout(missAdvanceTimer); missAdvanceTimer = null; }
     scoring = false;
     stopScheduler();
     showScreen('rules');
