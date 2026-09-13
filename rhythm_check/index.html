@@ -209,9 +209,9 @@
         <li><span class="rule-num">1</span><span>「3・2・1」の合図のあと、メトロノームが流れます</span></li>
         <li><span class="rule-num">2</span><span>音に合わせて、画面中央のボタンをタップしてください</span></li>
         <li><span class="rule-num">3</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
-        <li><span class="rule-num">4</span><span>小節ごとに拍子が自動で切り替わります（下記の順番）</span></li>
+        <li><span class="rule-num">4</span><span>拍子が変わるたびに、また「3・2・1」からスタートします（下記の順番）</span></li>
         <li><span class="rule-num">5</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
-        <li><span class="rule-num">6</span><span>全4小節タップしたら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+        <li><span class="rule-num">6</span><span>全4小節終わったら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
       </ul>
 
       <div class="sig-select">
@@ -230,7 +230,7 @@
     <!-- 3. game -->
     <section id="screen-game" class="card" hidden style="position:relative;">
       <div class="progress-row">
-        <span class="progress-label" id="beatLabel">0 / 18</span>
+        <span class="progress-label" id="beatLabel">0 / 4</span>
         <span class="sig-now" id="sigNow"></span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
@@ -298,15 +298,16 @@
     { sig: '6/8', beatsPerMeasure: 6 },
     { sig: '5/4', beatsPerMeasure: 5 }
   ];
-  var MEASURES = SEQUENCE.length;
   var TOTAL_BEATS = SEQUENCE.reduce(function(sum, m){ return sum + m.beatsPerMeasure; }, 0);
   var HIT_WINDOW = INTERVAL / 2; // この半分より近い拍にタップを割り当てる
   var PERFECT_MS = 60; // この範囲内ならパーフェクト判定
   var OK_MS = 120; // この範囲内なら「少し早い／遅い」判定
 
   var audioCtx = null;
-  var beatTimes = [];
-  var beatResults = []; // {tapped:boolean, deviation:number(seconds)|null}
+  var beatTimes = [];       // 現在の小節（ラウンド）の拍タイミング
+  var roundResults = [];    // 現在の小節のタップ結果
+  var allBeatResults = [];  // 全小節分のタップ結果（結果画面で使用）
+  var roundIndex = 0;
   var gameActive = false;
   var endTimer = null;
 
@@ -326,23 +327,51 @@
     showScreen('rules');
   });
 
+  // iOSで音が鳴らない対策：無音バッファを一度再生してAudioContextを確実に有効化する
+  function unlockAudio(){
+    try{
+      var buffer = audioCtx.createBuffer(1, 1, 22050);
+      var source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
+    }catch(e){}
+  }
+
   document.getElementById('btnStartGame').addEventListener('click', function(){
     if(!audioCtx){
       var AC = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AC();
     }
-    if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
-    showScreen('game');
-    resetGameUI();
-    runCountdown();
+    unlockAudio();
+    if(audioCtx.state === 'suspended'){
+      audioCtx.resume().then(function(){
+        startChallenge();
+      }).catch(function(){
+        startChallenge();
+      });
+    } else {
+      startChallenge();
+    }
   });
 
-  function resetGameUI(){
-    document.getElementById('beatLabel').textContent = '0 / ' + TOTAL_BEATS;
-    document.getElementById('progressFill').style.width = '0%';
+  // ---------- 挑戦全体の進行（拍子が変わるたびに小節ごとリスタート） ----------
+  function startChallenge(){
+    roundIndex = 0;
+    allBeatResults = [];
+    showScreen('game');
+    startRound();
+  }
+
+  function startRound(){
     document.getElementById('feedbackTag').textContent = '';
     document.getElementById('feedbackTag').className = 'feedback-tag';
     document.getElementById('tapBtn').disabled = true;
+    document.getElementById('progressFill').style.width = '0%';
+    var round = SEQUENCE[roundIndex];
+    document.getElementById('beatLabel').textContent = '0 / ' + round.beatsPerMeasure;
+    document.getElementById('sigNow').textContent = (roundIndex + 1) + '/' + SEQUENCE.length + '小節目・' + round.sig + '拍子';
+    runCountdown();
   }
 
   function runCountdown(){
@@ -357,7 +386,7 @@
         setTimeout(next, 700);
       } else {
         overlay.hidden = true;
-        startGame();
+        playRound();
       }
     }
     next();
@@ -379,37 +408,31 @@
     osc.stop(time + 0.08);
   }
 
-  // ---------- ゲーム進行 ----------
-  var tappedCount = 0;
+  // ---------- 1小節分の再生 ----------
+  function playRound(){
+    var round = SEQUENCE[roundIndex];
+    var n = round.beatsPerMeasure;
+    roundResults = [];
+    for(var i = 0; i < n; i++){ roundResults.push({tapped:false, deviation:null}); }
 
-  function startGame(){
-    gameActive = true;
-    tappedCount = 0;
-    beatResults = [];
-    for(var i = 0; i < TOTAL_BEATS; i++){ beatResults.push({tapped:false, deviation:null}); }
-
-    var startTime = audioCtx.currentTime + 0.15;
+    var startTime = audioCtx.currentTime + 0.1;
     beatTimes = [];
-    var t = startTime;
-    var beatIndex = 0;
-    SEQUENCE.forEach(function(measure, mi){
-      for(var i = 0; i < measure.beatsPerMeasure; i++){
-        var isAccent = (i === 0);
-        beatTimes.push(t);
-        playClick(t, isAccent);
-        scheduleVisualPulse(t, beatIndex, isAccent, mi);
-        t += INTERVAL;
-        beatIndex++;
-      }
-    });
+    for(var b = 0; b < n; b++){
+      var t = startTime + b * INTERVAL;
+      var isAccent = (b === 0);
+      beatTimes.push(t);
+      playClick(t, isAccent);
+      scheduleVisualPulse(t, b, n, isAccent);
+    }
 
+    gameActive = true;
     document.getElementById('tapBtn').disabled = false;
 
-    var totalDuration = (beatTimes[TOTAL_BEATS - 1] - audioCtx.currentTime) + HIT_WINDOW;
-    endTimer = setTimeout(endGame, totalDuration * 1000 + 50);
+    var totalDuration = (beatTimes[n - 1] - audioCtx.currentTime) + HIT_WINDOW;
+    endTimer = setTimeout(endRound, totalDuration * 1000 + 50);
   }
 
-  function scheduleVisualPulse(time, beatIndex, isAccent, measureIndex){
+  function scheduleVisualPulse(time, beatIndex, roundTotal, isAccent){
     var delayMs = (time - audioCtx.currentTime) * 1000;
     setTimeout(function(){
       var ring = document.getElementById('pulseRing');
@@ -418,9 +441,8 @@
       void ring.offsetWidth;
       ring.classList.add('beat');
       if(isAccent){ ring.classList.add('accent'); }
-      document.getElementById('beatLabel').textContent = (beatIndex + 1) + ' / ' + TOTAL_BEATS;
-      document.getElementById('progressFill').style.width = ((beatIndex + 1) / TOTAL_BEATS * 100) + '%';
-      document.getElementById('sigNow').textContent = (measureIndex + 1) + '小節目・' + SEQUENCE[measureIndex].sig + '拍子';
+      document.getElementById('beatLabel').textContent = (beatIndex + 1) + ' / ' + roundTotal;
+      document.getElementById('progressFill').style.width = ((beatIndex + 1) / roundTotal * 100) + '%';
     }, Math.max(0, delayMs));
   }
 
@@ -430,7 +452,7 @@
     var elapsed = tapTime - beatTimes[0];
     var nearest = Math.round(elapsed / INTERVAL);
     if(nearest < 0) nearest = 0;
-    if(nearest > TOTAL_BEATS - 1) nearest = TOTAL_BEATS - 1;
+    if(nearest > beatTimes.length - 1) nearest = beatTimes.length - 1;
 
     var deviation = tapTime - beatTimes[nearest];
     var tag = document.getElementById('feedbackTag');
@@ -441,7 +463,7 @@
       return;
     }
 
-    var slot = beatResults[nearest];
+    var slot = roundResults[nearest];
     if(!slot.tapped || Math.abs(deviation) < Math.abs(slot.deviation)){
       slot.tapped = true;
       slot.deviation = deviation;
@@ -461,17 +483,24 @@
     }
   });
 
-  function endGame(){
+  function endRound(){
     if(!gameActive) return;
     gameActive = false;
     document.getElementById('tapBtn').disabled = true;
-    showResult();
+    allBeatResults = allBeatResults.concat(roundResults);
+
+    roundIndex++;
+    if(roundIndex < SEQUENCE.length){
+      setTimeout(startRound, 600);
+    } else {
+      showResult();
+    }
   }
 
   function showResult(){
     var deviations = [];
     var missCount = 0;
-    beatResults.forEach(function(r){
+    allBeatResults.forEach(function(r){
       if(r.tapped){ deviations.push(r.deviation); }
       else { missCount++; }
     });
@@ -518,7 +547,7 @@
     }
     document.getElementById('scoreSub').textContent = subParts.join('　');
 
-    document.getElementById('beatStrip').innerHTML = beatResults.map(function(r){
+    document.getElementById('beatStrip').innerHTML = allBeatResults.map(function(r){
       if(!r.tapped) return '<span class="beat-dot miss"></span>';
       var absMs = Math.abs(r.deviation * 1000);
       var cls = absMs <= PERFECT_MS ? 'good' : (absMs <= OK_MS ? 'ok' : 'bad');
