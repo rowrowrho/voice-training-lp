@@ -100,12 +100,12 @@
 
   .sig-select{margin-top:22px;}
   .sig-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
-  .sig-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
-  .sig-btn{
-    padding:10px 20px; border-radius:100px; border:2px solid var(--line); background:#fff;
-    font-weight:700; font-size:13.5px; color:var(--text-dim); transition:all .15s ease;
+  .sig-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap;}
+  .sig-chip{
+    padding:8px 14px; border-radius:100px; background:var(--sky); color:var(--navy);
+    font-weight:700; font-size:12.5px;
   }
-  .sig-btn.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .sig-now{font-size:12px; font-weight:700; color:var(--data-2);}
 
   /* --- game screen --- */
   .progress-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
@@ -195,10 +195,10 @@
 
     <!-- 1. hero -->
     <section id="screen-hero" class="card">
-      <div class="eyebrow-pill">全4小節</div>
+      <div class="eyebrow-pill">全4小節・拍子チェンジあり</div>
       <div class="icon-circle">🥁</div>
       <h1>あなたのリズム感、<br>どれくらい？</h1>
-      <p>メトロノームに合わせて画面をタップするだけ。<strong>ズレの少なさ</strong>で、あなたのリズムキープ力を測定します。</p>
+      <p>メトロノームに合わせて画面をタップするだけ。<strong>ズレの少なさ</strong>で、あなたのリズムキープ力を測定します。1小節ごとに拍子が変わるので要注意！</p>
       <button class="btn" id="btnToRules">ルールを見る</button>
     </section>
 
@@ -209,15 +209,18 @@
         <li><span class="rule-num">1</span><span>「3・2・1」の合図のあと、メトロノームが流れます</span></li>
         <li><span class="rule-num">2</span><span>音に合わせて、画面中央のボタンをタップしてください</span></li>
         <li><span class="rule-num">3</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
-        <li><span class="rule-num">4</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
-        <li><span class="rule-num">5</span><span>全4小節タップしたら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+        <li><span class="rule-num">4</span><span>小節ごとに拍子が自動で切り替わります（下記の順番）</span></li>
+        <li><span class="rule-num">5</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
+        <li><span class="rule-num">6</span><span>全4小節タップしたら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
       </ul>
 
       <div class="sig-select">
-        <div class="sig-label">拍子を選ぶ</div>
+        <div class="sig-label">拍子の順番</div>
         <div class="sig-row">
-          <button type="button" class="sig-btn active" data-sig="4/4">4/4拍子</button>
-          <button type="button" class="sig-btn" data-sig="6/8">6/8拍子</button>
+          <span class="sig-chip">① 4/4拍子</span>
+          <span class="sig-chip">② 3/4拍子</span>
+          <span class="sig-chip">③ 6/8拍子</span>
+          <span class="sig-chip">④ 5/4拍子</span>
         </div>
       </div>
 
@@ -227,7 +230,8 @@
     <!-- 3. game -->
     <section id="screen-game" class="card" hidden style="position:relative;">
       <div class="progress-row">
-        <span class="progress-label" id="beatLabel">0 / 16</span>
+        <span class="progress-label" id="beatLabel">0 / 18</span>
+        <span class="sig-now" id="sigNow"></span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
 
@@ -288,13 +292,14 @@
   // ---------- 設定 ----------
   var BPM = 100;
   var INTERVAL = 60 / BPM; // 秒
-  var MEASURES = 4;
-  var TIME_SIGNATURES = {
-    '4/4': { beatsPerMeasure: 4 },
-    '6/8': { beatsPerMeasure: 6 }
-  };
-  var currentSig = '4/4';
-  var TOTAL_BEATS = MEASURES * TIME_SIGNATURES[currentSig].beatsPerMeasure;
+  var SEQUENCE = [
+    { sig: '4/4', beatsPerMeasure: 4 },
+    { sig: '3/4', beatsPerMeasure: 3 },
+    { sig: '6/8', beatsPerMeasure: 6 },
+    { sig: '5/4', beatsPerMeasure: 5 }
+  ];
+  var MEASURES = SEQUENCE.length;
+  var TOTAL_BEATS = SEQUENCE.reduce(function(sum, m){ return sum + m.beatsPerMeasure; }, 0);
   var HIT_WINDOW = INTERVAL / 2; // この半分より近い拍にタップを割り当てる
   var PERFECT_MS = 60; // この範囲内ならパーフェクト判定
   var OK_MS = 120; // この範囲内なら「少し早い／遅い」判定
@@ -321,22 +326,12 @@
     showScreen('rules');
   });
 
-  var sigButtons = document.querySelectorAll('.sig-btn');
-  sigButtons.forEach(function(btn){
-    btn.addEventListener('click', function(){
-      currentSig = btn.getAttribute('data-sig');
-      sigButtons.forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-    });
-  });
-
   document.getElementById('btnStartGame').addEventListener('click', function(){
     if(!audioCtx){
       var AC = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AC();
     }
     if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
-    TOTAL_BEATS = MEASURES * TIME_SIGNATURES[currentSig].beatsPerMeasure;
     showScreen('game');
     resetGameUI();
     runCountdown();
@@ -372,16 +367,16 @@
   function playClick(time, isAccent){
     var osc = audioCtx.createOscillator();
     var gain = audioCtx.createGain();
-    osc.type = 'square';
-    osc.frequency.value = isAccent ? 1800 : 1200;
+    osc.type = 'triangle';
+    osc.frequency.value = isAccent ? 1600 : 1000;
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    var peak = isAccent ? 0.32 : 0.22;
-    gain.gain.setValueAtTime(0.001, time);
-    gain.gain.exponentialRampToValueAtTime(peak, time + 0.005);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+    var peak = isAccent ? 0.8 : 0.6;
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(peak, time + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.07);
     osc.start(time);
-    osc.stop(time + 0.06);
+    osc.stop(time + 0.08);
   }
 
   // ---------- ゲーム進行 ----------
@@ -393,16 +388,20 @@
     beatResults = [];
     for(var i = 0; i < TOTAL_BEATS; i++){ beatResults.push({tapped:false, deviation:null}); }
 
-    var beatsPerMeasure = TIME_SIGNATURES[currentSig].beatsPerMeasure;
     var startTime = audioCtx.currentTime + 0.15;
     beatTimes = [];
-    for(var b = 0; b < TOTAL_BEATS; b++){
-      var t = startTime + b * INTERVAL;
-      var isAccent = (b % beatsPerMeasure === 0);
-      beatTimes.push(t);
-      playClick(t, isAccent);
-      scheduleVisualPulse(t, b, isAccent);
-    }
+    var t = startTime;
+    var beatIndex = 0;
+    SEQUENCE.forEach(function(measure, mi){
+      for(var i = 0; i < measure.beatsPerMeasure; i++){
+        var isAccent = (i === 0);
+        beatTimes.push(t);
+        playClick(t, isAccent);
+        scheduleVisualPulse(t, beatIndex, isAccent, mi);
+        t += INTERVAL;
+        beatIndex++;
+      }
+    });
 
     document.getElementById('tapBtn').disabled = false;
 
@@ -410,7 +409,7 @@
     endTimer = setTimeout(endGame, totalDuration * 1000 + 50);
   }
 
-  function scheduleVisualPulse(time, beatIndex, isAccent){
+  function scheduleVisualPulse(time, beatIndex, isAccent, measureIndex){
     var delayMs = (time - audioCtx.currentTime) * 1000;
     setTimeout(function(){
       var ring = document.getElementById('pulseRing');
@@ -421,6 +420,7 @@
       if(isAccent){ ring.classList.add('accent'); }
       document.getElementById('beatLabel').textContent = (beatIndex + 1) + ' / ' + TOTAL_BEATS;
       document.getElementById('progressFill').style.width = ((beatIndex + 1) / TOTAL_BEATS * 100) + '%';
+      document.getElementById('sigNow').textContent = (measureIndex + 1) + '小節目・' + SEQUENCE[measureIndex].sig + '拍子';
     }, Math.max(0, delayMs));
   }
 
