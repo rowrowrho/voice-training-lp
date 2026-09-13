@@ -98,6 +98,15 @@
     font-size:12px; font-weight:900; display:flex; align-items:center; justify-content:center; margin-top:1px;
   }
 
+  .sig-select{margin-top:22px;}
+  .sig-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
+  .sig-row{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .sig-btn{
+    padding:10px 20px; border-radius:100px; border:2px solid var(--line); background:#fff;
+    font-weight:700; font-size:13.5px; color:var(--text-dim); transition:all .15s ease;
+  }
+  .sig-btn.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+
   /* --- game screen --- */
   .progress-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
   .progress-label{font-size:12.5px; font-weight:700; color:var(--text-dim);}
@@ -110,6 +119,7 @@
     opacity:0; transform:scale(0.8);
   }
   .pulse-ring.beat{ animation: pulseOut .5s ease-out; }
+  .pulse-ring.accent{ border-color:var(--amber); }
   @keyframes pulseOut{
     0%{ opacity:0.7; transform:scale(0.8); }
     100%{ opacity:0; transform:scale(1.35); }
@@ -185,7 +195,7 @@
 
     <!-- 1. hero -->
     <section id="screen-hero" class="card">
-      <div class="eyebrow-pill">全20拍・約30秒</div>
+      <div class="eyebrow-pill">全4小節</div>
       <div class="icon-circle">🥁</div>
       <h1>あなたのリズム感、<br>どれくらい？</h1>
       <p>メトロノームに合わせて画面をタップするだけ。<strong>ズレの少なさ</strong>で、あなたのリズムキープ力を測定します。</p>
@@ -199,15 +209,25 @@
         <li><span class="rule-num">1</span><span>「3・2・1」の合図のあと、メトロノームが流れます</span></li>
         <li><span class="rule-num">2</span><span>音に合わせて、画面中央のボタンをタップしてください</span></li>
         <li><span class="rule-num">3</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
-        <li><span class="rule-num">4</span><span>全20拍。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+        <li><span class="rule-num">4</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
+        <li><span class="rule-num">5</span><span>全4小節タップしたら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
       </ul>
+
+      <div class="sig-select">
+        <div class="sig-label">拍子を選ぶ</div>
+        <div class="sig-row">
+          <button type="button" class="sig-btn active" data-sig="4/4">4/4拍子</button>
+          <button type="button" class="sig-btn" data-sig="6/8">6/8拍子</button>
+        </div>
+      </div>
+
       <button class="btn" id="btnStartGame">チャレンジをはじめる</button>
     </section>
 
     <!-- 3. game -->
     <section id="screen-game" class="card" hidden style="position:relative;">
       <div class="progress-row">
-        <span class="progress-label" id="beatLabel">0 / 20</span>
+        <span class="progress-label" id="beatLabel">0 / 16</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
 
@@ -268,8 +288,16 @@
   // ---------- 設定 ----------
   var BPM = 100;
   var INTERVAL = 60 / BPM; // 秒
-  var TOTAL_BEATS = 20;
+  var MEASURES = 4;
+  var TIME_SIGNATURES = {
+    '4/4': { beatsPerMeasure: 4 },
+    '6/8': { beatsPerMeasure: 6 }
+  };
+  var currentSig = '4/4';
+  var TOTAL_BEATS = MEASURES * TIME_SIGNATURES[currentSig].beatsPerMeasure;
   var HIT_WINDOW = INTERVAL / 2; // この半分より近い拍にタップを割り当てる
+  var PERFECT_MS = 60; // この範囲内ならパーフェクト判定
+  var OK_MS = 120; // この範囲内なら「少し早い／遅い」判定
 
   var audioCtx = null;
   var beatTimes = [];
@@ -293,12 +321,22 @@
     showScreen('rules');
   });
 
+  var sigButtons = document.querySelectorAll('.sig-btn');
+  sigButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      currentSig = btn.getAttribute('data-sig');
+      sigButtons.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+  });
+
   document.getElementById('btnStartGame').addEventListener('click', function(){
     if(!audioCtx){
       var AC = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AC();
     }
     if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
+    TOTAL_BEATS = MEASURES * TIME_SIGNATURES[currentSig].beatsPerMeasure;
     showScreen('game');
     resetGameUI();
     runCountdown();
@@ -331,15 +369,16 @@
   }
 
   // ---------- 音 ----------
-  function playClick(time){
+  function playClick(time, isAccent){
     var osc = audioCtx.createOscillator();
     var gain = audioCtx.createGain();
     osc.type = 'square';
-    osc.frequency.value = 1200;
+    osc.frequency.value = isAccent ? 1800 : 1200;
     osc.connect(gain);
     gain.connect(audioCtx.destination);
+    var peak = isAccent ? 0.32 : 0.22;
     gain.gain.setValueAtTime(0.001, time);
-    gain.gain.exponentialRampToValueAtTime(0.25, time + 0.005);
+    gain.gain.exponentialRampToValueAtTime(peak, time + 0.005);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
     osc.start(time);
     osc.stop(time + 0.06);
@@ -354,13 +393,15 @@
     beatResults = [];
     for(var i = 0; i < TOTAL_BEATS; i++){ beatResults.push({tapped:false, deviation:null}); }
 
+    var beatsPerMeasure = TIME_SIGNATURES[currentSig].beatsPerMeasure;
     var startTime = audioCtx.currentTime + 0.15;
     beatTimes = [];
     for(var b = 0; b < TOTAL_BEATS; b++){
       var t = startTime + b * INTERVAL;
+      var isAccent = (b % beatsPerMeasure === 0);
       beatTimes.push(t);
-      playClick(t);
-      scheduleVisualPulse(t, b);
+      playClick(t, isAccent);
+      scheduleVisualPulse(t, b, isAccent);
     }
 
     document.getElementById('tapBtn').disabled = false;
@@ -369,14 +410,15 @@
     endTimer = setTimeout(endGame, totalDuration * 1000 + 50);
   }
 
-  function scheduleVisualPulse(time, beatIndex){
+  function scheduleVisualPulse(time, beatIndex, isAccent){
     var delayMs = (time - audioCtx.currentTime) * 1000;
     setTimeout(function(){
       var ring = document.getElementById('pulseRing');
-      ring.classList.remove('beat');
+      ring.classList.remove('beat', 'accent');
       // force reflow so the animation can restart
       void ring.offsetWidth;
       ring.classList.add('beat');
+      if(isAccent){ ring.classList.add('accent'); }
       document.getElementById('beatLabel').textContent = (beatIndex + 1) + ' / ' + TOTAL_BEATS;
       document.getElementById('progressFill').style.width = ((beatIndex + 1) / TOTAL_BEATS * 100) + '%';
     }, Math.max(0, delayMs));
@@ -407,10 +449,10 @@
 
     var ms = Math.round(deviation * 1000);
     var absMs = Math.abs(ms);
-    if(absMs <= 40){
+    if(absMs <= PERFECT_MS){
       tag.textContent = 'PERFECT！';
       tag.className = 'feedback-tag perfect';
-    } else if(absMs <= 90){
+    } else if(absMs <= OK_MS){
       tag.textContent = (ms > 0 ? '少し遅い' : '少し早い');
       tag.className = 'feedback-tag ok';
     } else {
@@ -451,13 +493,13 @@
     if(deviations.length === 0){
       comment = 'タップが記録できませんでした';
       detail = 'もう一度チャレンジしてみてください。';
-    } else if(avgAbsMs <= 30){
+    } else if(avgAbsMs <= 45){
       comment = 'リズム感が抜群です！プロレベルの正確さ';
-      detail = '平均ズレ30ms以下は、かなり安定してリズムをキープできている証拠です。';
-    } else if(avgAbsMs <= 60){
+      detail = '平均ズレ45ms以下は、かなり安定してリズムをキープできている証拠です。';
+    } else if(avgAbsMs <= 90){
       comment = 'しっかりリズムに乗れています';
       detail = '大きなズレはなく、安定してタップできています。';
-    } else if(avgAbsMs <= 100){
+    } else if(avgAbsMs <= 150){
       comment = '平均的なリズム感です';
       detail = 'タイミングは大きく外れていませんが、まだ伸びしろがあります。';
     } else {
@@ -479,7 +521,7 @@
     document.getElementById('beatStrip').innerHTML = beatResults.map(function(r){
       if(!r.tapped) return '<span class="beat-dot miss"></span>';
       var absMs = Math.abs(r.deviation * 1000);
-      var cls = absMs <= 40 ? 'good' : (absMs <= 90 ? 'ok' : 'bad');
+      var cls = absMs <= PERFECT_MS ? 'good' : (absMs <= OK_MS ? 'ok' : 'bad');
       return '<span class="beat-dot ' + cls + '"></span>';
     }).join('');
 
