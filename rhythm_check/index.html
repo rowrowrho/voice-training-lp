@@ -51,6 +51,13 @@
   a{color:inherit; text-decoration:none;}
   img,svg{display:block; max-width:100%;}
   button{font-family:var(--sans); cursor:pointer; border:none;}
+  /* ボタンやリンク上のテキストを長押ししても選択・コールアウトメニューが出ないように */
+  button, a, .tap-btn, .tap-btn *{
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    user-select:none;
+  }
   .wrap{max-width:640px; margin:0 auto; padding:0 20px; width:100%;}
 
   header.nav{
@@ -135,6 +142,26 @@
   .tap-btn:disabled{opacity:0.5;}
   .tap-btn .sub{font-size:11px; font-weight:700; color:#B9C7D6; margin-top:4px;}
 
+  /* タップ判定に応じてボタン自体が一瞬光る */
+  .tap-btn.flash-perfect{ animation: flashPerfect .45s ease; }
+  .tap-btn.flash-ok{ animation: flashOk .45s ease; }
+  .tap-btn.flash-miss{ animation: flashMiss .45s ease; }
+  @keyframes flashPerfect{
+    0%{ box-shadow:0 14px 30px rgba(23,58,94,0.28); }
+    28%{ background:linear-gradient(165deg, var(--data-2), var(--data)); box-shadow:0 14px 34px rgba(23,169,141,0.55); transform:scale(1.05); }
+    100%{ background:linear-gradient(165deg, var(--navy-2), var(--navy)); box-shadow:0 14px 30px rgba(23,58,94,0.28); transform:scale(1); }
+  }
+  @keyframes flashOk{
+    0%{ box-shadow:0 14px 30px rgba(23,58,94,0.28); }
+    28%{ background:linear-gradient(165deg, #1f5f92, var(--blue)); box-shadow:0 14px 34px rgba(46,118,182,0.5); transform:scale(1.03); }
+    100%{ background:linear-gradient(165deg, var(--navy-2), var(--navy)); box-shadow:0 14px 30px rgba(23,58,94,0.28); transform:scale(1); }
+  }
+  @keyframes flashMiss{
+    0%{ box-shadow:0 14px 30px rgba(23,58,94,0.28); }
+    28%{ background:linear-gradient(165deg, #b3453b, var(--bad)); box-shadow:0 14px 34px rgba(224,104,92,0.5); }
+    100%{ background:linear-gradient(165deg, var(--navy-2), var(--navy)); box-shadow:0 14px 30px rgba(23,58,94,0.28); }
+  }
+
   .feedback-tag{
     margin-top:16px; font-size:15px; font-weight:900; min-height:24px; color:var(--text-dim);
   }
@@ -149,12 +176,19 @@
   .score-detail{margin-top:8px;}
   .score-sub{margin-top:6px; font-size:13px; color:var(--text-dim);}
 
-  .beat-strip{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:20px;}
-  .beat-dot{width:16px; height:16px; border-radius:50%; background:var(--line);}
-  .beat-dot.good{background:var(--data);}
-  .beat-dot.ok{background:var(--blue);}
-  .beat-dot.bad{background:var(--bad);}
-  .beat-dot.miss{background:var(--bad-bg); border:2px solid var(--bad);}
+  .zure-chart-wrap{margin-top:24px;}
+  .zure-chart-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px; text-align:left;}
+  .zure-chart-wrap svg{width:100%; height:auto; display:block; overflow:visible;}
+  .zure-row-label{font-size:10px; font-weight:700; fill:var(--text-dim);}
+  .zure-axis-label{font-size:10px; font-weight:700; fill:var(--text-dim);}
+  .zure-target-label{font-size:10px; font-weight:900; fill:var(--navy);}
+  .zure-dot{stroke:#fff; stroke-width:1.5;}
+  .zure-legend{display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:12px;}
+  .zure-legend-item{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text-dim); font-weight:700;}
+  .zure-legend-dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  .zure-legend-dot.good{background:var(--data);}
+  .zure-legend-dot.ok{background:var(--blue);}
+  .zure-legend-dot.bad{background:var(--bad);}
 
   .share-box{margin-top:24px;}
   .share-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
@@ -203,11 +237,12 @@
         <li><span class="rule-num">1</span><span>拍子に入るとすぐにメトロノームが鳴りはじめます（テンポは拍子ごとにランダム。6/8・12/8はBPM180以上とかなり速めです）</span></li>
         <li><span class="rule-num">2</span><span>リズムを感じられたら「スタート」ボタンを押してください（聞くのは自由な長さでOK）</span></li>
         <li><span class="rule-num">3</span><span>スタート後、タップするのは<strong>各小節の最後の拍だけ</strong>（4/4なら4拍目、6/8なら6拍目…）</span></li>
-        <li><span class="rule-num">4</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
-        <li><span class="rule-num">5</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
-        <li><span class="rule-num">6</span><span>タイミングを見逃しても大丈夫。判定はされないので、次の小節でまた挑戦できます</span></li>
-        <li><span class="rule-num">7</span><span>各拍子で<strong>4回成功</strong>したら次の拍子へ。テンポも変わるので、またスタートボタンを押し直してください（下記の順番）</span></li>
-        <li><span class="rule-num">8</span><span>全4拍子×4回成功したら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+        <li><span class="rule-num">4</span><span>判定は<strong>指を離した瞬間</strong>で行われます（押した瞬間ではありません）</span></li>
+        <li><span class="rule-num">5</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
+        <li><span class="rule-num">6</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
+        <li><span class="rule-num">7</span><span>タイミングを見逃しても大丈夫。判定はされないので、次の小節でまた挑戦できます</span></li>
+        <li><span class="rule-num">8</span><span>各拍子で<strong>4回成功</strong>したら次の拍子へ。テンポも変わるので、またスタートボタンを押し直してください（下記の順番）</span></li>
+        <li><span class="rule-num">9</span><span>全4拍子×4回成功したら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
       </ul>
 
       <div class="sig-select">
@@ -251,7 +286,15 @@
       <p class="score-detail" id="scoreDetail"></p>
       <p class="score-sub" id="scoreSub"></p>
 
-      <div class="beat-strip" id="beatStrip"></div>
+      <div class="zure-chart-wrap">
+        <div class="zure-chart-label">タップのズレマップ（拍子ごと）</div>
+        <div id="zureChart"></div>
+        <div class="zure-legend">
+          <span class="zure-legend-item"><span class="zure-legend-dot good"></span>PERFECT</span>
+          <span class="zure-legend-item"><span class="zure-legend-dot ok"></span>OK</span>
+          <span class="zure-legend-item"><span class="zure-legend-dot bad"></span>ズレ大</span>
+        </div>
+      </div>
 
       <div class="share-box">
         <div class="share-label">結果をシェアする</div>
@@ -501,16 +544,26 @@
 
     var ms = Math.round(deviation * 1000);
     var absMs = Math.abs(ms);
+    var flashClass;
     if(absMs <= PERFECT_MS){
       tag.textContent = 'PERFECT！';
       tag.className = 'feedback-tag perfect';
+      flashClass = 'flash-perfect';
     } else if(absMs <= OK_MS){
       tag.textContent = (ms > 0 ? '少し遅い' : '少し早い');
       tag.className = 'feedback-tag ok';
+      flashClass = 'flash-ok';
     } else {
       tag.textContent = (ms > 0 ? '遅い' : '早い');
       tag.className = 'feedback-tag miss';
+      flashClass = 'flash-miss';
     }
+
+    // タップした瞬間、判定に応じてボタン自体を光らせる（テキストだけでなく視覚的にも分かりやすく）
+    var tapBtnEl = document.getElementById('tapBtn');
+    tapBtnEl.classList.remove('flash-perfect', 'flash-ok', 'flash-miss');
+    void tapBtnEl.offsetWidth; // reflow でアニメーションを再始動
+    tapBtnEl.classList.add(flashClass);
 
     if(roundResults.length >= HITS_NEEDED){
       endRound();
@@ -586,15 +639,74 @@
     }
     document.getElementById('scoreSub').textContent = subParts.join('　');
 
-    document.getElementById('beatStrip').innerHTML = allBeatResults.map(function(r){
-      if(!r.tapped) return '<span class="beat-dot miss"></span>';
-      var absMs = Math.abs(r.deviation * 1000);
-      var cls = absMs <= PERFECT_MS ? 'good' : (absMs <= OK_MS ? 'ok' : 'bad');
-      return '<span class="beat-dot ' + cls + '"></span>';
-    }).join('');
+    renderZureMap(allBeatResults);
 
     setupShare(deviations.length > 0 ? avgAbsMs : null, comment);
     showScreen('result');
+  }
+
+  // ---------- ズレマップ（拍子ごとに「早い←ジャスト→遅い」の軸上へタップのズレをプロット） ----------
+  function renderZureMap(allResults){
+    var rows = SEQUENCE.length;
+    var perRow = HITS_NEEDED;
+    var container = document.getElementById('zureChart');
+    if(allResults.length === 0){ container.innerHTML = ''; return; }
+
+    var maxAbs = 0;
+    allResults.forEach(function(r){
+      var absMs = Math.abs(r.deviation * 1000);
+      if(absMs > maxAbs) maxAbs = absMs;
+    });
+    var domain = Math.max(150, Math.ceil((maxAbs + 20) / 10) * 10);
+
+    var plotLeft = 46, plotRight = 306, plotWidth = plotRight - plotLeft;
+    var rowH = 34, topPad = 10;
+    var rowsAreaH = rows * rowH;
+    var axisY = topPad + rowsAreaH + 6;
+    var chartH = axisY + 20;
+    var cx = plotLeft + plotWidth / 2;
+
+    function xPos(ms){
+      var clamped = Math.max(-domain, Math.min(domain, ms));
+      return plotLeft + ((clamped + domain) / (domain * 2)) * plotWidth;
+    }
+
+    var okX0 = xPos(-OK_MS), okX1 = xPos(OK_MS);
+    var pfX0 = xPos(-PERFECT_MS), pfX1 = xPos(PERFECT_MS);
+
+    var rowsSvg = '';
+    for(var i = 0; i < rows; i++){
+      var rowY = topPad + i * rowH + rowH / 2;
+      var chunk = allResults.slice(i * perRow, (i + 1) * perRow);
+      var dotsSvg = chunk.map(function(r, j){
+        var ms = r.deviation * 1000;
+        var absMs = Math.abs(ms);
+        var cls = absMs <= PERFECT_MS ? 'good' : (absMs <= OK_MS ? 'ok' : 'bad');
+        var color = cls === 'good' ? 'var(--data)' : (cls === 'ok' ? 'var(--blue)' : 'var(--bad)');
+        var jitter = (j % 2 === 0) ? -6 : 6;
+        var x = xPos(ms);
+        var y = rowY + jitter;
+        var sign = ms > 0 ? '+' : '';
+        return '<circle class="zure-dot" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5.5" fill="' + color + '"><title>' + (j + 1) + '打目: ' + sign + Math.round(ms) + 'ms</title></circle>';
+      }).join('');
+      rowsSvg +=
+        '<line x1="' + plotLeft + '" y1="' + rowY + '" x2="' + plotRight + '" y2="' + rowY + '" stroke="var(--line)" stroke-width="1"/>' +
+        '<text class="zure-row-label" x="' + (plotLeft - 8) + '" y="' + (rowY + 3) + '" text-anchor="end">' + SEQUENCE[i].sig + '</text>' +
+        dotsSvg;
+    }
+
+    var svg =
+      '<svg viewBox="0 0 320 ' + chartH + '" xmlns="http://www.w3.org/2000/svg">' +
+        '<rect x="' + okX0.toFixed(1) + '" y="' + topPad + '" width="' + (okX1 - okX0).toFixed(1) + '" height="' + rowsAreaH + '" fill="var(--sky)"/>' +
+        '<rect x="' + pfX0.toFixed(1) + '" y="' + topPad + '" width="' + (pfX1 - pfX0).toFixed(1) + '" height="' + rowsAreaH + '" fill="var(--data-bg)"/>' +
+        '<line x1="' + cx.toFixed(1) + '" y1="' + topPad + '" x2="' + cx.toFixed(1) + '" y2="' + (topPad + rowsAreaH) + '" stroke="var(--navy)" stroke-width="1.5" stroke-dasharray="3,3"/>' +
+        rowsSvg +
+        '<text class="zure-axis-label" x="' + plotLeft + '" y="' + (axisY + 10) + '" text-anchor="start">早い</text>' +
+        '<text class="zure-target-label" x="' + cx.toFixed(1) + '" y="' + (axisY + 10) + '" text-anchor="middle">ジャスト</text>' +
+        '<text class="zure-axis-label" x="' + plotRight + '" y="' + (axisY + 10) + '" text-anchor="end">遅い</text>' +
+      '</svg>';
+
+    container.innerHTML = svg;
   }
 
   // ---------- シェア ----------
