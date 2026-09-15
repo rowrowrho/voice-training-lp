@@ -191,7 +191,7 @@
       <ul class="rule-list">
         <li><span class="rule-num">1</span><span>まずマイクの使用を許可してください</span></li>
         <li><span class="rule-num">2</span><span>最初に3秒間、<strong>普段しっかり出せる音量</strong>で「アー」と声を出して基準（しきい値）を測定します</span></li>
-        <li><span class="rule-num">3</span><span>準備ができたら「スタート」を押して、同じくらいの音量以上を保ったまま声を伸ばし続けてください</span></li>
+        <li><span class="rule-num">3</span><span>準備ができたら「スタート」を押してください。実際に声を出して基準の音量を超えた瞬間にタイマーが自動でスタートします</span></li>
         <li><span class="rule-num">4</span><span>メーターが基準ラインを下回ると、その時点までの継続時間が記録されます（一瞬の揺れは大丈夫です）</span></li>
         <li><span class="rule-num">5</span><span>最大60秒で自動的に終了します。途中でやめたい時は「終了」ボタンでもOKです</span></li>
         <li><span class="rule-num">6</span><span>静かな場所・イヤホンマイクなしでの測定がおすすめです</span></li>
@@ -221,6 +221,7 @@
       <div class="timer-num"><span id="liveTimer">0.0</span><span>秒</span></div>
       <div class="status-tag" id="liveStatus">「スタート」を押して声を伸ばし始めてください</div>
       <button class="btn data" id="btnMeasureGo">スタート</button>
+      <button class="btn" id="btnMeasureCancel" hidden>キャンセル</button>
       <button class="btn" id="btnMeasureStop" hidden>終了する</button>
     </section>
 
@@ -286,6 +287,7 @@
   var calibrating = false;
   var thresholdRms = 0;
 
+  var armed = false;           // 「スタート」は押したが、まだ基準音量に達していない待機状態
   var measuring = false;
   var measureStartTime = 0;   // 現在の連続キープ開始時刻（performance.now基準）
   var dropStartTime = null;   // 基準を下回り始めた時刻（nullなら下回っていない）
@@ -389,6 +391,9 @@
     if(calibrating){
       handleCalibrationFrame(rms, now);
     }
+    if(armed){
+      handleArmedFrame(rms, now);
+    }
     if(measuring){
       handleMeasureFrame(rms, now);
     }
@@ -470,24 +475,47 @@
       thresholdLine.hidden = false;
       thresholdLine.style.left = '60%'; // THRESHOLD_RATIOに対応する表示位置
       document.getElementById('liveTimer').textContent = '0.0';
+      document.getElementById('liveStatus').className = 'status-tag';
       document.getElementById('liveStatus').textContent = '「スタート」を押して声を伸ばし始めてください';
       document.getElementById('btnMeasureGo').hidden = false;
+      document.getElementById('btnMeasureCancel').hidden = true;
       document.getElementById('btnMeasureStop').hidden = true;
     }, 700);
   }
 
   // ---------- STEP2: 本番測定 ----------
+  // 「スタート」を押した時点ではまだタイマーは動かさず、基準音量を実際に超えた瞬間から計測を始める
   document.getElementById('btnMeasureGo').addEventListener('click', function(){
-    if(measuring) return;
-    measuring = true;
-    measureStartTime = performance.now();
-    dropStartTime = null;
-    finalDurationMs = 0;
+    if(armed || measuring) return;
+    armed = true;
     this.hidden = true;
-    document.getElementById('btnMeasureStop').hidden = false;
-    document.getElementById('liveStatus').className = 'status-tag holding';
-    document.getElementById('liveStatus').textContent = 'キープ中…！';
+    document.getElementById('btnMeasureCancel').hidden = false;
+    document.getElementById('liveStatus').className = 'status-tag';
+    document.getElementById('liveStatus').textContent = '声を出して基準ラインを超えたらスタートします…';
   });
+
+  document.getElementById('btnMeasureCancel').addEventListener('click', function(){
+    if(!armed) return;
+    armed = false;
+    document.getElementById('btnMeasureCancel').hidden = true;
+    document.getElementById('btnMeasureGo').hidden = false;
+    document.getElementById('liveStatus').className = 'status-tag';
+    document.getElementById('liveStatus').textContent = '「スタート」を押して声を伸ばし始めてください';
+  });
+
+  function handleArmedFrame(rms, now){
+    if(rms >= thresholdRms){
+      armed = false;
+      measuring = true;
+      measureStartTime = now;
+      dropStartTime = null;
+      finalDurationMs = 0;
+      document.getElementById('btnMeasureCancel').hidden = true;
+      document.getElementById('btnMeasureStop').hidden = false;
+      document.getElementById('liveStatus').className = 'status-tag holding';
+      document.getElementById('liveStatus').textContent = 'キープ中…！';
+    }
+  }
 
   document.getElementById('btnMeasureStop').addEventListener('click', function(){
     if(!measuring) return;
@@ -613,10 +641,12 @@
   });
 
   document.getElementById('btnReplay').addEventListener('click', function(){
+    armed = false;
     measuring = false;
     calibrating = false;
     dropStartTime = null;
     thresholdRms = 0;
+    document.getElementById('btnMeasureCancel').hidden = true;
     document.getElementById('liveThresholdLine').hidden = true;
     document.getElementById('calProgressFill').style.width = '0%';
     document.getElementById('calStatus').className = 'status-tag';
