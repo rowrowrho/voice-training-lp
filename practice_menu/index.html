@@ -153,6 +153,12 @@
   .link-actions .btn{width:auto; flex:1;}
   .copy-toast{font-size:12px; color:var(--data-2); font-weight:700; margin-top:8px; min-height:16px;}
 
+  .qr-section{margin-top:18px; padding-top:16px; border-top:1px dashed var(--line); text-align:center;}
+  .qr-wrap{display:inline-block; padding:12px; background:#fff; border-radius:12px; border:1px solid var(--line); min-height:20px;}
+  .qr-wrap img, .qr-wrap canvas{display:block;}
+  .qr-error{font-size:12.5px; color:var(--bad); font-weight:700; margin-top:10px;}
+  .qr-section .btn{width:auto; margin-top:12px;}
+
   /* ---- viewer ---- */
   .student-heading{font-size:12.5px; font-weight:700; color:var(--data-2); margin-bottom:6px;}
   .play-card{border:1px solid var(--line); border-radius:16px; padding:20px 18px; margin-top:14px; background:var(--bg);}
@@ -227,6 +233,13 @@
             <a class="btn small ghost" id="btnPreviewLink" target="_blank" rel="noopener">プレビュー</a>
           </div>
           <div class="copy-toast" id="copyToast"></div>
+
+          <div class="qr-section" id="qrSection">
+            <div class="field-label" style="margin-bottom:8px;">QRコード（読み取ってすぐ開けます）</div>
+            <div class="qr-wrap" id="qrCanvasHolder"></div>
+            <div class="qr-error" id="qrError" hidden>QRコードを生成できませんでした。通信環境をご確認のうえ、リンクを直接お使いください。</div>
+            <button class="btn small ghost" id="btnDownloadQr" type="button">📥 QRコードを保存</button>
+          </div>
         </div>
       </div>
     </section>
@@ -259,6 +272,7 @@
 
 <footer>RHOボイトレ｜自主練メニュー作成</footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 (function(){
 
@@ -784,7 +798,51 @@
     document.getElementById('btnLineLink').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(lineText);
     document.getElementById('btnPreviewLink').href = url;
 
+    renderQrCode(url);
+
     linkBox.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  });
+
+  // ---------- QRコード ----------
+  function renderQrCode(url){
+    var holder = document.getElementById('qrCanvasHolder');
+    var errBox = document.getElementById('qrError');
+    var dlBtn = document.getElementById('btnDownloadQr');
+    holder.innerHTML = '';
+    errBox.hidden = true;
+    dlBtn.hidden = false;
+    if (typeof QRCode === 'undefined'){
+      errBox.hidden = false;
+      dlBtn.hidden = true;
+      return;
+    }
+    try{
+      new QRCode(holder, {
+        text: url,
+        width: 176,
+        height: 176,
+        colorDark: '#0F2A46',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }catch(e){
+      errBox.hidden = false;
+      dlBtn.hidden = true;
+    }
+  }
+
+  document.getElementById('btnDownloadQr').addEventListener('click', function(){
+    var holder = document.getElementById('qrCanvasHolder');
+    var img = holder.querySelector('img');
+    var canvas = holder.querySelector('canvas');
+    var dataUrl = (img && img.src) ? img.src : (canvas ? canvas.toDataURL('image/png') : null);
+    if (!dataUrl) return;
+    var a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = 'qrcode.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   });
 
   document.getElementById('btnCopyLink').addEventListener('click', function(){
