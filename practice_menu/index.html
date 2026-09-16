@@ -301,71 +301,113 @@
     return audioCtx;
   }
 
-  function scheduleTone(ctx, midi, startTime, dur){
+  function scheduleToneTracked(ctx, midi, startTime, dur, state, gainScale){
+    gainScale = gainScale || 1;
     var freq = midiToFreq(midi);
     var osc = ctx.createOscillator();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, startTime);
     var gain = ctx.createGain();
+    var peak = 0.22 * gainScale;
     gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(0.22, startTime + 0.02);
-    gain.gain.setValueAtTime(0.22, Math.max(startTime + 0.02, startTime + dur - 0.06));
+    gain.gain.linearRampToValueAtTime(peak, startTime + 0.02);
+    gain.gain.setValueAtTime(peak, Math.max(startTime + 0.02, startTime + dur - 0.06));
     gain.gain.linearRampToValueAtTime(0, startTime + dur);
     osc.connect(gain).connect(ctx.destination);
     osc.start(startTime);
     osc.stop(startTime + dur + 0.02);
+    if (state) state.nodes.push({ osc: osc, gain: gain });
   }
 
   var NOTE_DUR = 0.42; // 1音あたりの長さ（秒）
+  var CHORD_GAIN_SCALE = 0.5; // 和音は複数音同時再生になるので音量を抑える
 
-  // startMidi から endMidi まで半音ずつ移調しながらパターンを繰り返す音列を組み立てる
-  function buildFullSequence(patternKey, startMidi, endMidi){
+  // startMidi から endMidi まで半音ずつ移調しながら再生ステップ列を組み立てる。
+  // 各移調のかたまりの最後の音は2倍の長さに伸ばし、その直後に「次の音」の和音を同じ長さで鳴らして
+  // 次のピッチを見つけやすくする（一番最後の移調のあとには次の和音は付けない）。
+  function buildSteps(patternKey, startMidi, endMidi){
     var degrees = PATTERNS[patternKey].degrees;
     var dir = endMidi >= startMidi ? 1 : -1;
-    var seq = [];
+    var tonics = [];
     for (var tonic = startMidi; dir > 0 ? tonic <= endMidi : tonic >= endMidi; tonic += dir){
-      for (var i = 0; i < degrees.length; i++){
-        seq.push(tonic + degreeToSemitoneOffset(degrees[i]));
-      }
+      tonics.push(tonic);
     }
-    return seq;
+    var steps = [];
+    tonics.forEach(function(tonic, tIdx){
+      var isLastTonic = (tIdx === tonics.length - 1);
+      degrees.forEach(function(d, i){
+        var midi = tonic + degreeToSemitoneOffset(d);
+        var isLastNote = (i === degrees.length - 1);
+        steps.push({ type:'note', midi: midi, dur: isLastNote ? NOTE_DUR * 2 : NOTE_DUR });
+      });
+      if (!isLastTonic){
+        var nextTonic = tonic + dir;
+        steps.push({ type:'chord', midis:[nextTonic, nextTonic + 4, nextTonic + 7], rootMidi: nextTonic, dur: NOTE_DUR * 2 });
+      }
+    });
+    return steps;
   }
 
   // 再生中の状態を項目ごとに管理（同時に複数再生させない）
   var activePlayback = null;
 
+  // 再生中のものを即座に止める。すでに鳴っている音はフェードアウトさせ、まだ鳴っていない
+  // 予約済みの音もすべてキャンセルすることで、いつでも自由に再生・停止できるようにする。
   function stopActivePlayback(){
-    if (activePlayback){
-      activePlayback.stopped = true;
-      if (activePlayback.onStop) activePlayback.onStop();
-      activePlayback = null;
-    }
+    if (!activePlayback) return;
+    var state = activePlayback;
+    state.stopped = true;
+    activePlayback = null;
+
+    state.timeouts.forEach(function(id){ clearTimeout(id); });
+
+    var ctx = audioCtx;
+    var now = ctx ? ctx.currentTime : 0;
+    state.nodes.forEach(function(n){
+      try{
+        var currentVal = n.gain.gain.value;
+        n.gain.gain.cancelScheduledValues(now);
+        n.gain.gain.setValueAtTime(currentVal, now);
+        n.gain.gain.linearRampToValueAtTime(0, now + 0.03);
+      }catch(e){}
+      try{ n.osc.stop(now + 0.03); }catch(e){}
+    });
+
+    if (state.onStop) state.onStop();
   }
 
   function playItem(patternKey, startMidi, endMidi, opts){
     stopActivePlayback();
     var ctx = getAudioCtx();
-    var seq = buildFullSequence(patternKey, startMidi, endMidi);
-    var state = { stopped:false, onStop: opts.onDone };
+    var steps = buildSteps(patternKey, startMidi, endMidi);
+    var state = { stopped:false, nodes:[], timeouts:[], onStop: opts.onDone };
     activePlayback = state;
 
     var t = ctx.currentTime + 0.08;
-    seq.forEach(function(midi, i){
-      scheduleTone(ctx, midi, t, NOTE_DUR * 0.92);
+    steps.forEach(function(step, i){
+      if (step.type === 'chord'){
+        step.midis.forEach(function(m){
+          scheduleToneTracked(ctx, m, t, step.dur * 0.92, state, CHORD_GAIN_SCALE);
+        });
+      } else {
+        scheduleToneTracked(ctx, step.midi, t, step.dur * 0.92, state, 1);
+      }
       var delayMs = Math.max(0, (t - ctx.currentTime) * 1000);
-      setTimeout(function(){
+      var noteTimeoutId = setTimeout(function(){
         if (state.stopped) return;
-        if (opts.onNote) opts.onNote(i, seq.length, midi);
+        if (opts.onNote) opts.onNote(i, steps.length, step);
       }, delayMs);
-      t += NOTE_DUR;
+      state.timeouts.push(noteTimeoutId);
+      t += step.dur;
     });
     var totalMs = (t - ctx.currentTime) * 1000 + 60;
-    setTimeout(function(){
+    var doneTimeoutId = setTimeout(function(){
       if (state.stopped) return;
       state.stopped = true;
       if (activePlayback === state) activePlayback = null;
       if (opts.onDone) opts.onDone();
     }, totalMs);
+    state.timeouts.push(doneTimeoutId);
 
     return state;
   }
@@ -598,8 +640,12 @@
         playBtn.classList.add('playing');
         playBtn.textContent = '■';
         playItem(it.p, it.s, it.e, {
-          onNote: function(i, total, midi){
-            nowEl.textContent = (i + 1) + ' / ' + total + '　' + midiToName(midi);
+          onNote: function(i, total, step){
+            if (step.type === 'chord'){
+              nowEl.textContent = (i + 1) + ' / ' + total + '　次の音の和音：' + midiToName(step.rootMidi);
+            } else {
+              nowEl.textContent = (i + 1) + ' / ' + total + '　' + midiToName(step.midi);
+            }
           },
           onDone: function(){
             playBtn.classList.remove('playing');
