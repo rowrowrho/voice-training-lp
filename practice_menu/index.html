@@ -162,6 +162,14 @@
   }
   .play-btn.playing{background:var(--navy);}
 
+  .play-transport{margin-top:14px;}
+  .seek-bar{
+    width:100%; height:20px; accent-color:var(--data); cursor:pointer;
+  }
+  .transport-row{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px;}
+  .transport-row .btn{width:auto; flex:0 0 auto; padding:8px 14px; font-size:12.5px;}
+  .play-time{font-size:12px; color:var(--text-dim); font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap;}
+
   .footer-links{margin-top:28px; padding-top:20px; border-top:1px solid var(--line); text-align:center;}
   .footer-links a{display:inline-block; margin-top:10px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
 
@@ -412,6 +420,196 @@
     return state;
   }
 
+  // ============================================================
+  // 生徒用ビューアの再生プレイヤー（シークバー・±5秒つき）
+  // カードごとに独立した再生位置を持ち、同時に鳴らすのは1つだけにする。
+  // ============================================================
+  function computeCumulative(steps){
+    var t = 0;
+    return steps.map(function(s){
+      var seg = { start: t, end: t + s.dur };
+      t += s.dur;
+      return seg;
+    });
+  }
+
+  function formatTime(sec){
+    sec = Math.max(0, Math.round(sec));
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function createCardPlayer(patternKey, startMidi, endMidi, els){
+    var steps = buildSteps(patternKey, startMidi, endMidi);
+    var cumulative = computeCumulative(steps);
+    var totalDur = cumulative.length ? cumulative[cumulative.length - 1].end : 0;
+    var cp = {
+      steps: steps, cumulative: cumulative, totalDur: totalDur,
+      segState: null, isPlaying: false, pausedAt: 0, rafId: null,
+      seeking: false, els: els
+    };
+    if (els.seekBar){
+      els.seekBar.min = '0';
+      els.seekBar.max = String(totalDur.toFixed(2));
+      els.seekBar.step = '0.01';
+      els.seekBar.value = '0';
+    }
+    updateCardTransportUI(cp, 0);
+    return cp;
+  }
+
+  function updateCardTransportUI(cp, elapsed){
+    elapsed = Math.max(0, Math.min(cp.totalDur, elapsed));
+    if (cp.els.seekBar && !cp.seeking) cp.els.seekBar.value = String(elapsed);
+    if (cp.els.timeLabel) cp.els.timeLabel.textContent = formatTime(elapsed) + ' / ' + formatTime(cp.totalDur);
+  }
+
+  function findStepIndexAtOffset(cp, offset){
+    if (cp.steps.length === 0) return 0;
+    if (offset <= 0) return 0;
+    if (offset >= cp.totalDur) return cp.steps.length - 1;
+    for (var i = 0; i < cp.cumulative.length; i++){
+      if (offset < cp.cumulative[i].end) return i;
+    }
+    return cp.steps.length - 1;
+  }
+
+  var activeCardPlayer = null; // 同時に1つのカードだけ再生させるためのポインタ
+
+  function stopCardSegment(cp){
+    if (!cp.segState) return;
+    var seg = cp.segState;
+    cp.segState = null;
+    seg.stopped = true;
+    seg.timeouts.forEach(function(id){ clearTimeout(id); });
+    var ctx = audioCtx;
+    var now = ctx ? ctx.currentTime : 0;
+    seg.nodes.forEach(function(n){
+      try{
+        var v = n.gain.gain.value;
+        n.gain.gain.cancelScheduledValues(now);
+        n.gain.gain.setValueAtTime(v, now);
+        n.gain.gain.linearRampToValueAtTime(0, now + 0.03);
+      }catch(e){}
+      try{ n.osc.stop(now + 0.03); }catch(e){}
+    });
+  }
+
+  function cardElapsed(cp){
+    if (!cp.segState) return cp.pausedAt;
+    var ctx = audioCtx;
+    return cp.segState.timelineOffset + (ctx.currentTime - cp.segState.ctxStartTime);
+  }
+
+  function scheduleCardSegment(cp, fromOffset){
+    stopCardSegment(cp);
+    var ctx = getAudioCtx();
+    var startIndex = findStepIndexAtOffset(cp, fromOffset);
+    var timelineOffsetAtStart = cp.steps.length ? cp.cumulative[startIndex].start : 0;
+    var seg = { stopped:false, nodes:[], timeouts:[] };
+    cp.segState = seg;
+
+    var t = ctx.currentTime + 0.08;
+    var segCtxStart = t;
+    for (var i = startIndex; i < cp.steps.length; i++){
+      (function(step, idx, noteCtxTime){
+        if (step.type === 'chord'){
+          step.midis.forEach(function(m){
+            scheduleToneTracked(ctx, m, noteCtxTime, step.dur * 0.92, seg, CHORD_GAIN_SCALE);
+          });
+        } else {
+          scheduleToneTracked(ctx, step.midi, noteCtxTime, step.dur * 0.92, seg, 1);
+        }
+        var delayMs = Math.max(0, (noteCtxTime - ctx.currentTime) * 1000);
+        var toId = setTimeout(function(){
+          if (seg.stopped || !cp.els.nowEl) return;
+          if (step.type === 'chord'){
+            cp.els.nowEl.textContent = (idx + 1) + ' / ' + cp.steps.length + '　次の音の和音：' + midiToName(step.rootMidi);
+          } else {
+            cp.els.nowEl.textContent = (idx + 1) + ' / ' + cp.steps.length + '　' + midiToName(step.midi);
+          }
+        }, delayMs);
+        seg.timeouts.push(toId);
+      })(cp.steps[i], i, t);
+      t += cp.steps[i].dur;
+    }
+    var totalMs = (t - ctx.currentTime) * 1000 + 60;
+    var doneId = setTimeout(function(){
+      if (seg.stopped) return;
+      seg.stopped = true;
+      finishCardPlayer(cp);
+    }, totalMs);
+    seg.timeouts.push(doneId);
+
+    seg.ctxStartTime = segCtxStart;
+    seg.timelineOffset = timelineOffsetAtStart;
+  }
+
+  function tickCardPlayer(cp){
+    if (!cp.isPlaying) return;
+    var elapsed = cardElapsed(cp);
+    if (elapsed >= cp.totalDur - 0.02){
+      updateCardTransportUI(cp, cp.totalDur);
+      finishCardPlayer(cp);
+      return;
+    }
+    updateCardTransportUI(cp, elapsed);
+    cp.rafId = requestAnimationFrame(function(){ tickCardPlayer(cp); });
+  }
+
+  function finishCardPlayer(cp){
+    if (cp.rafId){ cancelAnimationFrame(cp.rafId); cp.rafId = null; }
+    stopCardSegment(cp);
+    cp.isPlaying = false;
+    cp.pausedAt = cp.totalDur;
+    updateCardTransportUI(cp, cp.totalDur);
+    if (cp.els.playBtn){ cp.els.playBtn.classList.remove('playing'); cp.els.playBtn.textContent = '▶'; }
+    if (cp.els.nowEl) cp.els.nowEl.textContent = '完了';
+    if (activeCardPlayer === cp) activeCardPlayer = null;
+  }
+
+  function pauseCardPlayer(cp){
+    if (!cp.isPlaying) return;
+    var elapsed = cardElapsed(cp);
+    if (cp.rafId){ cancelAnimationFrame(cp.rafId); cp.rafId = null; }
+    stopCardSegment(cp);
+    cp.isPlaying = false;
+    cp.pausedAt = Math.max(0, Math.min(cp.totalDur, elapsed));
+    if (cp.els.playBtn){ cp.els.playBtn.classList.remove('playing'); cp.els.playBtn.textContent = '▶'; }
+    updateCardTransportUI(cp, cp.pausedAt);
+    if (activeCardPlayer === cp) activeCardPlayer = null;
+  }
+
+  function resumeCardPlayer(cp){
+    if (activeCardPlayer && activeCardPlayer !== cp){
+      pauseCardPlayer(activeCardPlayer);
+    }
+    var startFrom = cp.pausedAt;
+    if (startFrom >= cp.totalDur - 0.02) startFrom = 0; // 最後まで再生し終えていたら最初から
+    scheduleCardSegment(cp, startFrom);
+    cp.isPlaying = true;
+    activeCardPlayer = cp;
+    if (cp.els.playBtn){ cp.els.playBtn.classList.add('playing'); cp.els.playBtn.textContent = '■'; }
+    cp.rafId = requestAnimationFrame(function(){ tickCardPlayer(cp); });
+  }
+
+  function seekCardPlayer(cp, offset){
+    offset = Math.max(0, Math.min(cp.totalDur, offset));
+    if (cp.isPlaying){
+      scheduleCardSegment(cp, offset);
+      updateCardTransportUI(cp, offset);
+    } else {
+      cp.pausedAt = offset;
+      updateCardTransportUI(cp, offset);
+    }
+  }
+
+  function skipCardPlayer(cp, delta){
+    var current = cp.isPlaying ? cardElapsed(cp) : cp.pausedAt;
+    seekCardPlayer(cp, current + delta);
+  }
+
   // ---------- 状態のエンコード / デコード ----------
   function encodeState(state){
     var json = JSON.stringify(state);
@@ -638,42 +836,45 @@
             '<div class="play-now" data-role="now"></div>' +
           '</div>' +
           '<button type="button" class="play-btn" data-role="playbtn">▶</button>' +
+        '</div>' +
+        '<div class="play-transport">' +
+          '<input type="range" class="seek-bar" data-role="seek" min="0" max="1" step="0.01" value="0">' +
+          '<div class="transport-row">' +
+            '<button type="button" class="btn ghost small" data-role="back5">⏪ 5秒</button>' +
+            '<div class="play-time" data-role="time">0:00 / 0:00</div>' +
+            '<button type="button" class="btn ghost small" data-role="fwd5">5秒 ⏩</button>' +
+          '</div>' +
         '</div>';
 
       var playBtn = card.querySelector('[data-role="playbtn"]');
       var nowEl = card.querySelector('[data-role="now"]');
+      var seekBar = card.querySelector('[data-role="seek"]');
+      var timeLabel = card.querySelector('[data-role="time"]');
+      var backBtn = card.querySelector('[data-role="back5"]');
+      var fwdBtn = card.querySelector('[data-role="fwd5"]');
+
+      var cp = createCardPlayer(it.p, it.s, it.e, {
+        playBtn: playBtn, nowEl: nowEl, seekBar: seekBar, timeLabel: timeLabel
+      });
 
       playBtn.addEventListener('click', function(){
-        if (playBtn.classList.contains('playing')){
-          stopActivePlayback();
-          playBtn.classList.remove('playing');
-          playBtn.textContent = '▶';
-          nowEl.textContent = '';
-          return;
+        if (cp.isPlaying){
+          pauseCardPlayer(cp);
+        } else {
+          resumeCardPlayer(cp);
         }
-        // 他のカードの再生中表示をリセット
-        document.querySelectorAll('.play-btn.playing').forEach(function(b){
-          b.classList.remove('playing');
-          b.textContent = '▶';
-        });
-        document.querySelectorAll('.play-now').forEach(function(n){ n.textContent = ''; });
+      });
 
-        playBtn.classList.add('playing');
-        playBtn.textContent = '■';
-        playItem(it.p, it.s, it.e, {
-          onNote: function(i, total, step){
-            if (step.type === 'chord'){
-              nowEl.textContent = (i + 1) + ' / ' + total + '　次の音の和音：' + midiToName(step.rootMidi);
-            } else {
-              nowEl.textContent = (i + 1) + ' / ' + total + '　' + midiToName(step.midi);
-            }
-          },
-          onDone: function(){
-            playBtn.classList.remove('playing');
-            playBtn.textContent = '▶';
-            nowEl.textContent = '完了';
-          }
-        });
+      backBtn.addEventListener('click', function(){ skipCardPlayer(cp, -5); });
+      fwdBtn.addEventListener('click', function(){ skipCardPlayer(cp, 5); });
+
+      seekBar.addEventListener('input', function(){
+        cp.seeking = true;
+        timeLabel.textContent = formatTime(parseFloat(seekBar.value)) + ' / ' + formatTime(cp.totalDur);
+      });
+      seekBar.addEventListener('change', function(){
+        cp.seeking = false;
+        seekCardPlayer(cp, parseFloat(seekBar.value));
       });
 
       listEl.appendChild(card);
