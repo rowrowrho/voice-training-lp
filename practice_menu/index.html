@@ -125,6 +125,7 @@
 
   .item-actions{display:flex; gap:10px; margin-top:14px;}
   .item-actions .btn{width:auto; flex:1;}
+  .item-actions .btn.playing{background:var(--navy); color:#fff;}
 
   .add-row{margin-top:18px; display:flex; align-items:center; gap:12px;}
   .add-row .btn{width:auto; flex:1;}
@@ -353,6 +354,7 @@
 
   // 再生中のものを即座に止める。すでに鳴っている音はフェードアウトさせ、まだ鳴っていない
   // 予約済みの音もすべてキャンセルすることで、いつでも自由に再生・停止できるようにする。
+  // UIのリセットは呼び出し側（ボタンのクリックハンドラや自然終了時のonDone）が担当する。
   function stopActivePlayback(){
     if (!activePlayback) return;
     var state = activePlayback;
@@ -372,15 +374,13 @@
       }catch(e){}
       try{ n.osc.stop(now + 0.03); }catch(e){}
     });
-
-    if (state.onStop) state.onStop();
   }
 
   function playItem(patternKey, startMidi, endMidi, opts){
     stopActivePlayback();
     var ctx = getAudioCtx();
     var steps = buildSteps(patternKey, startMidi, endMidi);
-    var state = { stopped:false, nodes:[], timeouts:[], onStop: opts.onDone };
+    var state = { stopped:false, nodes:[], timeouts:[] };
     activePlayback = state;
 
     var t = ctx.currentTime + 0.08;
@@ -460,6 +460,7 @@
   }
 
   function renderItems(){
+    stopActivePlayback(); // 項目の追加・削除でボタンが作り直されるので、再生中なら止めておく
     var list = document.getElementById('itemList');
     list.innerHTML = items.map(function(it, idx){
       return '' +
@@ -526,7 +527,27 @@
     } else if (action === 'preview'){
       var it = items.filter(function(x){ return x.id === id; })[0];
       if (!it) return;
-      playItem(it.pattern, it.start, it.end, {});
+
+      if (btn.classList.contains('playing')){
+        stopActivePlayback();
+        btn.classList.remove('playing');
+        btn.textContent = '▶ 試聴';
+        return;
+      }
+      // 他の試聴ボタンの再生中表示をリセット
+      document.querySelectorAll('.item-actions [data-action="preview"].playing').forEach(function(b){
+        b.classList.remove('playing');
+        b.textContent = '▶ 試聴';
+      });
+
+      btn.classList.add('playing');
+      btn.textContent = '■ 停止';
+      playItem(it.pattern, it.start, it.end, {
+        onDone: function(){
+          btn.classList.remove('playing');
+          btn.textContent = '▶ 試聴';
+        }
+      });
     }
   });
 
