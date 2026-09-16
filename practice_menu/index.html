@@ -127,6 +127,12 @@
   .item-actions .btn{width:auto; flex:1;}
   .item-actions .btn.playing{background:var(--navy); color:#fff;}
 
+  .item-preview-row{
+    display:flex; align-items:center; justify-content:space-between; margin-top:16px;
+    padding-top:14px; border-top:1px dashed var(--line);
+  }
+  .item-preview-label{font-size:12.5px; font-weight:700; color:var(--text-dim);}
+
   .add-row{margin-top:18px; display:flex; align-items:center; gap:12px;}
   .add-row .btn{width:auto; flex:1;}
   .item-count{font-size:12.5px; color:var(--text-dim); font-weight:700; white-space:nowrap;}
@@ -357,72 +363,10 @@
     return steps;
   }
 
-  // 再生中の状態を項目ごとに管理（同時に複数再生させない）
-  var activePlayback = null;
-
-  // 再生中のものを即座に止める。すでに鳴っている音はフェードアウトさせ、まだ鳴っていない
-  // 予約済みの音もすべてキャンセルすることで、いつでも自由に再生・停止できるようにする。
-  // UIのリセットは呼び出し側（ボタンのクリックハンドラや自然終了時のonDone）が担当する。
-  function stopActivePlayback(){
-    if (!activePlayback) return;
-    var state = activePlayback;
-    state.stopped = true;
-    activePlayback = null;
-
-    state.timeouts.forEach(function(id){ clearTimeout(id); });
-
-    var ctx = audioCtx;
-    var now = ctx ? ctx.currentTime : 0;
-    state.nodes.forEach(function(n){
-      try{
-        var currentVal = n.gain.gain.value;
-        n.gain.gain.cancelScheduledValues(now);
-        n.gain.gain.setValueAtTime(currentVal, now);
-        n.gain.gain.linearRampToValueAtTime(0, now + 0.03);
-      }catch(e){}
-      try{ n.osc.stop(now + 0.03); }catch(e){}
-    });
-  }
-
-  function playItem(patternKey, startMidi, endMidi, opts){
-    stopActivePlayback();
-    var ctx = getAudioCtx();
-    var steps = buildSteps(patternKey, startMidi, endMidi);
-    var state = { stopped:false, nodes:[], timeouts:[] };
-    activePlayback = state;
-
-    var t = ctx.currentTime + 0.08;
-    steps.forEach(function(step, i){
-      if (step.type === 'chord'){
-        step.midis.forEach(function(m){
-          scheduleToneTracked(ctx, m, t, step.dur * 0.92, state, CHORD_GAIN_SCALE);
-        });
-      } else {
-        scheduleToneTracked(ctx, step.midi, t, step.dur * 0.92, state, 1);
-      }
-      var delayMs = Math.max(0, (t - ctx.currentTime) * 1000);
-      var noteTimeoutId = setTimeout(function(){
-        if (state.stopped) return;
-        if (opts.onNote) opts.onNote(i, steps.length, step);
-      }, delayMs);
-      state.timeouts.push(noteTimeoutId);
-      t += step.dur;
-    });
-    var totalMs = (t - ctx.currentTime) * 1000 + 60;
-    var doneTimeoutId = setTimeout(function(){
-      if (state.stopped) return;
-      state.stopped = true;
-      if (activePlayback === state) activePlayback = null;
-      if (opts.onDone) opts.onDone();
-    }, totalMs);
-    state.timeouts.push(doneTimeoutId);
-
-    return state;
-  }
-
   // ============================================================
-  // 生徒用ビューアの再生プレイヤー（シークバー・±5秒つき）
-  // カードごとに独立した再生位置を持ち、同時に鳴らすのは1つだけにする。
+  // 再生プレイヤー（シークバー・±5秒つき）。講師用ビルダーの試聴・
+  // 生徒用ビューアの両方で共通して使う。カードごとに独立した再生位置を持ち、
+  // 同時に鳴らすのは1つだけにする。
   // ============================================================
   function computeCumulative(steps){
     var t = 0;
@@ -658,40 +602,103 @@
   }
 
   function renderItems(){
-    stopActivePlayback(); // 項目の追加・削除でボタンが作り直されるので、再生中なら止めておく
+    if (activeCardPlayer) pauseCardPlayer(activeCardPlayer); // カードが作り直されるので、再生中なら止めておく
+
     var list = document.getElementById('itemList');
-    list.innerHTML = items.map(function(it, idx){
-      return '' +
-        '<div class="item-card" data-id="' + it.id + '">' +
-          '<div class="item-head">' +
-            '<span class="item-num">' + (idx + 1) + '</span>' +
-            '<button type="button" class="item-remove" data-action="remove" data-id="' + it.id + '">✕ 削除</button>' +
+    list.innerHTML = '';
+
+    items.forEach(function(it, idx){
+      var card = document.createElement('div');
+      card.className = 'item-card';
+      card.setAttribute('data-id', it.id);
+      card.innerHTML =
+        '<div class="item-head">' +
+          '<span class="item-num">' + (idx + 1) + '</span>' +
+          '<button type="button" class="item-remove" data-action="remove">✕ 削除</button>' +
+        '</div>' +
+        '<div class="item-fields">' +
+          '<div>' +
+            '<label class="field-label">音運びパターン</label>' +
+            '<select data-action="pattern">' + patternOptionsHtml(it.pattern) + '</select>' +
           '</div>' +
-          '<div class="item-fields">' +
+          '<div class="field-row">' +
             '<div>' +
-              '<label class="field-label">音運びパターン</label>' +
-              '<select data-action="pattern" data-id="' + it.id + '">' + patternOptionsHtml(it.pattern) + '</select>' +
-            '</div>' +
-            '<div class="field-row">' +
-              '<div>' +
-                '<label class="field-label">開始音</label>' +
-                '<select data-action="start" data-id="' + it.id + '">' + buildNoteOptionsHtml(it.start) + '</select>' +
-              '</div>' +
-              '<div>' +
-                '<label class="field-label">終了音</label>' +
-                '<select data-action="end" data-id="' + it.id + '">' + buildNoteOptionsHtml(it.end) + '</select>' +
-              '</div>' +
+              '<label class="field-label">開始音</label>' +
+              '<select data-action="start">' + buildNoteOptionsHtml(it.start) + '</select>' +
             '</div>' +
             '<div>' +
-              '<label class="field-label">発声の仕方（自由記述・任意）</label>' +
-              '<input type="text" data-action="technique" data-id="' + it.id + '" value="' + escapeAttr(it.technique) + '" placeholder="例：リップロールで／鼻濁音を意識して">' +
+              '<label class="field-label">終了音</label>' +
+              '<select data-action="end">' + buildNoteOptionsHtml(it.end) + '</select>' +
             '</div>' +
           '</div>' +
-          '<div class="item-actions">' +
-            '<button type="button" class="btn ghost small" data-action="preview" data-id="' + it.id + '">▶ 試聴</button>' +
+          '<div>' +
+            '<label class="field-label">発声の仕方（自由記述・任意）</label>' +
+            '<input type="text" data-action="technique" value="' + escapeAttr(it.technique) + '" placeholder="例：リップロールで／鼻濁音を意識して">' +
+          '</div>' +
+        '</div>' +
+        '<div class="item-preview-row">' +
+          '<div class="item-preview-label">試聴</div>' +
+          '<button type="button" class="play-btn" data-role="playbtn">▶</button>' +
+        '</div>' +
+        '<div class="play-transport">' +
+          '<input type="range" class="seek-bar" data-role="seek" min="0" max="1" step="0.01" value="0">' +
+          '<div class="transport-row">' +
+            '<button type="button" class="btn ghost small" data-role="back5">⏪ 5秒</button>' +
+            '<div class="play-time" data-role="time">0:00 / 0:00</div>' +
+            '<button type="button" class="btn ghost small" data-role="fwd5">5秒 ⏩</button>' +
           '</div>' +
         '</div>';
-    }).join('');
+
+      var patternSel = card.querySelector('[data-action="pattern"]');
+      var startSel = card.querySelector('[data-action="start"]');
+      var endSel = card.querySelector('[data-action="end"]');
+      var techInput = card.querySelector('[data-action="technique"]');
+      var removeBtn = card.querySelector('[data-action="remove"]');
+      var playBtn = card.querySelector('[data-role="playbtn"]');
+      var seekBar = card.querySelector('[data-role="seek"]');
+      var timeLabel = card.querySelector('[data-role="time"]');
+      var backBtn = card.querySelector('[data-role="back5"]');
+      var fwdBtn = card.querySelector('[data-role="fwd5"]');
+
+      var cp = createCardPlayer(it.pattern, it.start, it.end, {
+        playBtn: playBtn, nowEl: null, seekBar: seekBar, timeLabel: timeLabel
+      });
+
+      // パターン・開始音・終了音を変更したら、鳴らす内容が変わるのでプレイヤーを作り直す
+      function rebuildPlayer(){
+        if (cp.isPlaying) pauseCardPlayer(cp);
+        cp = createCardPlayer(it.pattern, it.start, it.end, {
+          playBtn: playBtn, nowEl: null, seekBar: seekBar, timeLabel: timeLabel
+        });
+      }
+
+      patternSel.addEventListener('input', function(){ it.pattern = patternSel.value; rebuildPlayer(); });
+      startSel.addEventListener('input', function(){ it.start = parseInt(startSel.value, 10); rebuildPlayer(); });
+      endSel.addEventListener('input', function(){ it.end = parseInt(endSel.value, 10); rebuildPlayer(); });
+      techInput.addEventListener('input', function(){ it.technique = techInput.value; });
+
+      removeBtn.addEventListener('click', function(){ removeItem(it.id); });
+
+      playBtn.addEventListener('click', function(){
+        if (cp.isPlaying){
+          pauseCardPlayer(cp);
+        } else {
+          resumeCardPlayer(cp);
+        }
+      });
+      backBtn.addEventListener('click', function(){ skipCardPlayer(cp, -5); });
+      fwdBtn.addEventListener('click', function(){ skipCardPlayer(cp, 5); });
+      seekBar.addEventListener('input', function(){
+        cp.seeking = true;
+        timeLabel.textContent = formatTime(parseFloat(seekBar.value)) + ' / ' + formatTime(cp.totalDur);
+      });
+      seekBar.addEventListener('change', function(){
+        cp.seeking = false;
+        seekCardPlayer(cp, parseFloat(seekBar.value));
+      });
+
+      list.appendChild(card);
+    });
 
     document.getElementById('itemCount').textContent = items.length + '/' + MAX_ITEMS;
     document.getElementById('btnAddItem').disabled = items.length >= MAX_ITEMS;
@@ -702,52 +709,6 @@
   function escapeAttr(s){
     return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
-
-  document.getElementById('itemList').addEventListener('input', function(e){
-    var action = e.target.getAttribute('data-action');
-    var id = parseInt(e.target.getAttribute('data-id'), 10);
-    if (!action) return;
-    var it = items.filter(function(x){ return x.id === id; })[0];
-    if (!it) return;
-    if (action === 'pattern') it.pattern = e.target.value;
-    if (action === 'start') it.start = parseInt(e.target.value, 10);
-    if (action === 'end') it.end = parseInt(e.target.value, 10);
-    if (action === 'technique') it.technique = e.target.value;
-  });
-
-  document.getElementById('itemList').addEventListener('click', function(e){
-    var btn = e.target.closest('[data-action]');
-    if (!btn) return;
-    var action = btn.getAttribute('data-action');
-    var id = parseInt(btn.getAttribute('data-id'), 10);
-    if (action === 'remove'){
-      removeItem(id);
-    } else if (action === 'preview'){
-      var it = items.filter(function(x){ return x.id === id; })[0];
-      if (!it) return;
-
-      if (btn.classList.contains('playing')){
-        stopActivePlayback();
-        btn.classList.remove('playing');
-        btn.textContent = '▶ 試聴';
-        return;
-      }
-      // 他の試聴ボタンの再生中表示をリセット
-      document.querySelectorAll('.item-actions [data-action="preview"].playing').forEach(function(b){
-        b.classList.remove('playing');
-        b.textContent = '▶ 試聴';
-      });
-
-      btn.classList.add('playing');
-      btn.textContent = '■ 停止';
-      playItem(it.pattern, it.start, it.end, {
-        onDone: function(){
-          btn.classList.remove('playing');
-          btn.textContent = '▶ 試聴';
-        }
-      });
-    }
-  });
 
   document.getElementById('btnAddItem').addEventListener('click', addItem);
 
