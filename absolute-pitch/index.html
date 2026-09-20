@@ -161,6 +161,8 @@
   .score-num{font-size:52px; font-weight:900; color:var(--navy); line-height:1;}
   .score-num span{font-size:20px; color:var(--text-dim); font-weight:700;}
   .score-comment{margin-top:14px; font-size:15px; color:var(--navy); font-weight:700;}
+  .hint-stat{margin-top:8px; font-size:13px; color:var(--text-dim); font-weight:700;}
+  .result-hint{margin-left:6px; font-size:12px;}
   .cta-box{margin-top:28px; padding-top:24px; border-top:1px solid var(--line);}
   .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
   .secondary-link{display:block; margin-top:10px; font-size:12.5px; color:var(--blue); text-decoration:underline;}
@@ -261,6 +263,7 @@
       <div class="eyebrow-pill">結果発表</div>
       <div class="score-num"><span id="scoreNum">0</span><span> / 10問 正解</span></div>
       <div class="score-comment" id="scoreComment"></div>
+      <div class="hint-stat" id="hintStat"></div>
 
       <div class="share-box">
         <div class="share-label">結果をシェアする</div>
@@ -339,6 +342,8 @@
   var answered = false;
   var hasPlayed = false;
   var hintOpen = false;
+  var hintUsedThisQuestion = false;
+  var hintOpenCount = 0;
   var audioCtx = null;
 
   // ---------- 画面切り替え ----------
@@ -410,6 +415,10 @@
     hintOpen = !hintOpen;
     document.getElementById('hintPanel').hidden = !hintOpen;
     this.textContent = hintOpen ? '💡 ヒントを閉じる' : '💡 ヒントを見る';
+    if(hintOpen){
+      hintOpenCount++;
+      hintUsedThisQuestion = true;
+    }
   });
 
   // ---------- 音再生 ----------
@@ -457,6 +466,7 @@
     answered = false;
     hasPlayed = false;
     hintOpen = false;
+    hintUsedThisQuestion = false;
     var q = quiz[current];
     document.getElementById('qLabel').textContent = 'Q' + (current + 1) + ' / 10';
     document.getElementById('progressFill').style.width = (current / 10 * 100) + '%';
@@ -495,7 +505,7 @@
     var q = quiz[current];
     var correct = (note === q.label);
     if(correct) score++;
-    answerLog.push({ correct: correct, correctNote: q.label, chosenNote: note });
+    answerLog.push({ correct: correct, correctNote: q.label, chosenNote: note, hintUsed: hintUsedThisQuestion });
 
     answerKbWrap.classList.add('kb-disabled');
     document.getElementById('btnPlay').disabled = true;
@@ -534,9 +544,10 @@
       comment = '絶対音感は訓練でも伸びる力です';
     }
     document.getElementById('scoreComment').textContent = comment;
+    document.getElementById('hintStat').textContent = '💡 ヒントを見た回数：' + hintOpenCount + '回';
     document.getElementById('resultGrid').innerHTML = answerLog.map(function(r, i){
       return '<div class="result-row">' +
-        '<div class="result-row-head"><span class="result-q">Q' + (i + 1) + '</span>' +
+        '<div class="result-row-head"><span class="result-q">Q' + (i + 1) + (r.hintUsed ? '<span class="result-hint" title="ヒント使用">💡</span>' : '') + '</span>' +
         '<span class="result-mark ' + (r.correct ? 'correct' : 'wrong') + '">' + (r.correct ? '○' : '×') + '</span></div>' +
         '<div class="result-row-detail">' +
           '正しい音: <b>' + r.correctNote + '</b><br>' +
@@ -555,7 +566,7 @@
 
   function setupShare(){
     var comment = document.getElementById('scoreComment').textContent;
-    shareText = '絶対音感チェックで10問中' + score + '問正解しました🎹\n\n' + comment + '\n\n#RHOボイトレ';
+    shareText = '絶対音感チェックで10問中' + score + '問正解しました🎹\nヒント使用回数：' + hintOpenCount + '回\n\n' + comment + '\n\n#RHOボイトレ';
     document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
     document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
   }
@@ -594,6 +605,7 @@
     current = 0;
     score = 0;
     answerLog = [];
+    hintOpenCount = 0;
     showScreen('rules');
   });
 
