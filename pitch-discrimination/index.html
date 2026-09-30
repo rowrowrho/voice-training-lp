@@ -136,9 +136,17 @@
   .answer-btn.correct{background:var(--data-bg); color:var(--data-2); border-color:var(--data);}
   .answer-btn.wrong{background:var(--bad-bg); color:var(--bad); border-color:var(--bad);}
 
+  .answer-btn.unknown{
+    width:100%; margin-top:12px; flex-direction:row; gap:8px; background:var(--bg); color:var(--text-dim);
+    border:2px dashed var(--line); font-size:14px; padding:14px 10px;
+  }
+  .answer-btn.unknown.selected{background:#FDF3E2; color:var(--navy); border-color:var(--amber); border-style:solid;}
+  .answer-btn.unknown.correct{background:var(--data-bg); color:var(--data-2); border-color:var(--data); border-style:solid;}
+
   .feedback-tag{margin-top:16px; font-size:13.5px; font-weight:700; min-height:20px;}
   .feedback-tag.correct{color:var(--data-2);}
   .feedback-tag.wrong{color:var(--bad);}
+  .feedback-tag.neutral{color:var(--navy);}
 
   /* --- result screen --- */
   .score-num{font-size:52px; font-weight:900; color:var(--navy); line-height:1;}
@@ -163,6 +171,9 @@
   }
   .result-mark.correct{background:var(--data-bg); color:var(--data-2);}
   .result-mark.wrong{background:var(--bad-bg); color:var(--bad);}
+  .result-mark.unknown{background:#FDF3E2; color:#8A5A12;}
+
+  .unknown-stat{margin-top:8px; font-size:13px; color:var(--text-dim); font-weight:700;}
 
   .share-box{margin-top:22px;}
   .share-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
@@ -235,6 +246,7 @@
         <button class="answer-btn" id="btnLow" disabled><span class="arrow">↓</span>低い<span class="freq-val" id="freqLow"></span></button>
         <button class="answer-btn" id="btnHigh" disabled><span class="arrow">↑</span>高い<span class="freq-val" id="freqHigh"></span></button>
       </div>
+      <button class="answer-btn unknown" id="btnUnknown" disabled>🤔 わからない</button>
       <div class="feedback-tag" id="feedbackTag"></div>
     </section>
 
@@ -244,6 +256,7 @@
       <div class="score-num"><span id="scoreNum">0</span><span> / 10問 正解</span></div>
       <div class="score-comment" id="scoreComment"></div>
       <p class="score-detail" id="scoreDetail"></p>
+      <div class="unknown-stat" id="unknownStat"></div>
 
       <div class="share-box">
         <div class="share-label">結果をシェアする</div>
@@ -383,8 +396,10 @@
     document.getElementById('feedbackTag').className = 'feedback-tag';
     document.getElementById('btnLow').disabled = true;
     document.getElementById('btnHigh').disabled = true;
+    document.getElementById('btnUnknown').disabled = true;
     document.getElementById('btnLow').className = 'answer-btn';
     document.getElementById('btnHigh').className = 'answer-btn';
+    document.getElementById('btnUnknown').className = 'answer-btn unknown';
     document.getElementById('freqLow').textContent = '';
     document.getElementById('freqHigh').textContent = '';
     document.getElementById('btnPlay').disabled = false;
@@ -395,6 +410,7 @@
     document.getElementById('btnPlay').disabled = true;
     document.getElementById('btnLow').disabled = true;
     document.getElementById('btnHigh').disabled = true;
+    document.getElementById('btnUnknown').disabled = true;
 
     var toneDur = 0.9;
     var gap = 0.5;
@@ -422,6 +438,7 @@
       document.getElementById('btnPlay').disabled = false;
       document.getElementById('btnLow').disabled = false;
       document.getElementById('btnHigh').disabled = false;
+      document.getElementById('btnUnknown').disabled = false;
     }, (toneDur * 2 + gap) * 1000 + 150);
   });
 
@@ -429,7 +446,8 @@
     if(answered) return;
     answered = true;
     var q = quiz[current];
-    var correct = (choice === q.answer);
+    var isUnknown = (choice === 'unknown');
+    var correct = !isUnknown && (choice === q.answer);
     if(correct) score++;
     answerLog.push({
       correct: correct,
@@ -441,20 +459,29 @@
 
     document.getElementById('btnLow').disabled = true;
     document.getElementById('btnHigh').disabled = true;
+    document.getElementById('btnUnknown').disabled = true;
     document.getElementById('btnPlay').disabled = true;
 
-    var chosenBtn = document.getElementById(choice === 'high' ? 'btnHigh' : 'btnLow');
-    var otherBtn = document.getElementById(choice === 'high' ? 'btnLow' : 'btnHigh');
-    if(correct){
-      chosenBtn.classList.add('correct');
-    } else {
-      chosenBtn.classList.add('wrong');
-      otherBtn.classList.add('correct');
-    }
-
     var tag = document.getElementById('feedbackTag');
-    tag.textContent = correct ? '正解！' : '不正解';
-    tag.classList.add(correct ? 'correct' : 'wrong');
+
+    if(isUnknown){
+      var correctBtn = document.getElementById(q.answer === 'high' ? 'btnHigh' : 'btnLow');
+      correctBtn.classList.add('correct');
+      document.getElementById('btnUnknown').classList.add('selected');
+      tag.textContent = 'わからない を選択（正解は' + (q.answer === 'high' ? '高い' : '低い') + '）';
+      tag.classList.add('neutral');
+    } else {
+      var chosenBtn = document.getElementById(choice === 'high' ? 'btnHigh' : 'btnLow');
+      var otherBtn = document.getElementById(choice === 'high' ? 'btnLow' : 'btnHigh');
+      if(correct){
+        chosenBtn.classList.add('correct');
+      } else {
+        chosenBtn.classList.add('wrong');
+        otherBtn.classList.add('correct');
+      }
+      tag.textContent = correct ? '正解！' : '不正解';
+      tag.classList.add(correct ? 'correct' : 'wrong');
+    }
 
     setTimeout(function(){
       current++;
@@ -468,6 +495,7 @@
 
   document.getElementById('btnLow').addEventListener('click', function(){ handleAnswer('low'); });
   document.getElementById('btnHigh').addEventListener('click', function(){ handleAnswer('high'); });
+  document.getElementById('btnUnknown').addEventListener('click', function(){ handleAnswer('unknown'); });
 
   function showResult(){
     document.getElementById('progressFill').style.width = '100%';
@@ -488,16 +516,28 @@
     }
     document.getElementById('scoreComment').textContent = comment;
     document.getElementById('scoreDetail').textContent = detail;
+    var unknownCount = answerLog.filter(function(r){ return r.chosen === 'unknown'; }).length;
+    document.getElementById('unknownStat').textContent = unknownCount > 0 ? '🤔 わからない と回答：' + unknownCount + '問' : '';
     document.getElementById('resultGrid').innerHTML = answerLog.map(function(r, i){
-      var chosenLabel = (r.chosen === 'low') ? '低い' : '高い';
-      var chosenFreq = (r.chosen === 'low') ? r.low : r.high;
+      var markClass, markChar, chosenLabel, chosenFreqText;
+      if(r.chosen === 'unknown'){
+        markClass = 'unknown';
+        markChar = '？';
+        chosenLabel = 'わからない';
+        chosenFreqText = '';
+      } else {
+        markClass = r.correct ? 'correct' : 'wrong';
+        markChar = r.correct ? '○' : '×';
+        chosenLabel = (r.chosen === 'low') ? '低い' : '高い';
+        chosenFreqText = '（' + (r.chosen === 'low' ? r.low : r.high).toFixed(1) + 'Hz）';
+      }
       return '<div class="result-row">' +
         '<div class="result-row-head"><span class="result-q">Q' + (i + 1) + '</span>' +
-        '<span class="result-mark ' + (r.correct ? 'correct' : 'wrong') + '">' + (r.correct ? '○' : '×') + '</span></div>' +
+        '<span class="result-mark ' + markClass + '">' + markChar + '</span></div>' +
         '<div class="result-row-detail">' +
           '基準音: <b>' + r.base.toFixed(1) + 'Hz</b><br>' +
           '選択肢: 低い ' + r.low.toFixed(1) + 'Hz ／ 高い ' + r.high.toFixed(1) + 'Hz<br>' +
-          'あなたの回答: <b>' + chosenLabel + '（' + chosenFreq.toFixed(1) + 'Hz）</b>' +
+          'あなたの回答: <b>' + chosenLabel + chosenFreqText + '</b>' +
         '</div>' +
       '</div>';
     }).join('');
