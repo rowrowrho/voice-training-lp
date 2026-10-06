@@ -64,11 +64,11 @@ h2{font-size:16px;margin-bottom:8px}
 <main>
   <section class="card">
     <div class="drop" id="drop" tabindex="0" role="button" aria-label="音声ファイルを選択">
-      <b>ここに録音ファイルをドラッグ&amp;ドロップ</b>
-      <p>またはクリックして選択(WAV推奨。MP3・M4Aなども読み込めます)</p>
+      <b>タップして録音ファイルを選択</b>
+      <p>パソコンでは、ここにドラッグ&amp;ドロップもできます。WAV推奨。M4A・MP3なども読み込めます。</p>
       <p>音声はアップロードされません。すべてこのブラウザの中で処理します。</p>
     </div>
-    <input type="file" id="file" accept="audio/*,.wav" class="hidden">
+    <input type="file" id="file" class="hidden">
     <div class="meta" id="loading"></div>
   </section>
 
@@ -184,7 +184,7 @@ async function handleFile(file){
     render();
     $('loading').textContent = '';
   }catch(err){
-    $('loading').textContent = '読み込めませんでした: ' + (err && err.message ? err.message : err) + '(WAV・MP3・M4Aなどを試してください)';
+    $('loading').textContent = '読み込めませんでした。音声ファイルではないか、この端末では開けない形式のようです。WAVかMP3に変換して、もう一度お試しください。';
   }
 }
 
