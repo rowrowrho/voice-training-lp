@@ -11,10 +11,10 @@
   gtag('config', 'G-ME8HE69PX8');
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>リズムキープチャレンジ｜あなたのリズム感をチェック - RHOボイトレ</title>
-<meta name="description" content="メトロノームに合わせてタップするだけ。全20拍、あなたのリズムキープ力を測定します。">
-<meta property="og:title" content="リズムキープチャレンジ｜あなたのリズム感をチェック - RHOボイトレ">
-<meta property="og:description" content="メトロノームに合わせてタップするだけ。あなたのリズム感を診断します。">
+<title>リズムキープチャレンジ｜表拍・裏拍のリズム感をチェック - RHOボイトレ</title>
+<meta name="description" content="メトロノームに合わせて指定の拍をタップするだけ。表拍も裏拍も、あなたのリズムキープ力を「何拍分ズレたか」で測定します。">
+<meta property="og:title" content="リズムキープチャレンジ｜表拍・裏拍のリズム感をチェック - RHOボイトレ">
+<meta property="og:description" content="メトロノームに合わせてタップするだけ。ズレを「何拍分」かで診断します。裏拍にも挑戦！">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://rowrowrho.github.io/voice-training-lp/images/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -74,6 +74,7 @@
     background:var(--paper); border-radius:22px; box-shadow:var(--shadow); border:1px solid var(--line);
     padding:36px 26px; text-align:center;
   }
+  .card[hidden]{display:none;}
 
   .eyebrow-pill{
     display:inline-block; background:var(--navy); color:#fff; font-size:12px; font-weight:700;
@@ -113,18 +114,44 @@
     padding:8px 14px; border-radius:100px; background:var(--sky); color:var(--navy);
     font-weight:700; font-size:12.5px;
   }
+  .sig-chip.ura{background:var(--amber); color:var(--navy-2);}
   .sig-now{font-size:12px; font-weight:700; color:var(--data-2);}
 
   /* --- game screen --- */
-  .progress-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
-  .progress-label{font-size:12.5px; font-weight:700; color:var(--text-dim);}
+  .progress-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:8px;}
+  .progress-label{font-size:12.5px; font-weight:700; color:var(--text-dim); white-space:nowrap;}
   .progress-track{height:6px; background:var(--line); border-radius:100px; overflow:hidden; margin-bottom:10px;}
   .progress-fill{height:100%; background:var(--data); border-radius:100px; transition:width .2s ease; width:0%;}
 
-  .game-zone{position:relative; margin:26px 0 10px; display:flex; align-items:center; justify-content:center;}
+  /* 今回叩く拍の表示 */
+  .target-box{margin-top:14px; padding:12px 10px 14px; border-radius:16px; background:var(--data-bg);}
+  .target-small{font-size:12px; font-weight:700; color:var(--data-2); display:block;}
+  .target-big{font-size:34px; font-weight:900; color:var(--navy); line-height:1.25; display:block;}
+  .target-hint{font-size:12px; font-weight:700; color:var(--text-dim); display:block; margin-top:2px;}
+  .target-box.ura{background:#FDF1DA;}
+  .target-box.ura .target-small{color:#9A6A12;}
+
+  /* 拍の並び（いまどの拍か・どこを叩くか） */
+  .beat-row{display:flex; justify-content:center; align-items:center; gap:4px; flex-wrap:wrap; margin:16px 0 22px;}
+  .beat-cell{
+    position:relative; min-width:30px; height:30px; padding:0 6px; border-radius:9px;
+    background:var(--sky); color:var(--navy); font-weight:900; font-size:13px;
+    display:flex; align-items:center; justify-content:center; transition:background .08s ease, color .08s ease;
+  }
+  .beat-cell.lit{background:var(--blue); color:#fff;}
+  .beat-cell.accent.lit{background:var(--amber); color:var(--navy-2);}
+  .beat-cell.ura{min-width:22px; padding:0 3px; background:transparent; color:var(--text-dim); font-size:11px;}
+  .beat-cell.ura.lit{background:#FDF1DA; color:#9A6A12;}
+  .beat-cell.target{outline:3px solid var(--data); outline-offset:1px;}
+  .beat-cell.target::after{
+    content:'TAP'; position:absolute; left:50%; transform:translateX(-50%); bottom:-17px;
+    font-size:9.5px; font-weight:900; color:var(--data-2); letter-spacing:0.02em;
+  }
+
+  .game-zone{position:relative; margin:18px 0 10px; display:flex; align-items:center; justify-content:center;}
   .pulse-ring{
     position:absolute; width:170px; height:170px; border-radius:50%; border:3px solid var(--data);
-    opacity:0; transform:scale(0.8);
+    opacity:0; transform:scale(0.8); pointer-events:none;
   }
   .pulse-ring.beat{ animation: pulseOut .5s ease-out; }
   .pulse-ring.accent{ border-color:var(--amber); }
@@ -140,7 +167,7 @@
   }
   .tap-btn:active{transform:scale(0.94);}
   .tap-btn:disabled{opacity:0.5;}
-  .tap-btn .sub{font-size:11px; font-weight:700; color:#B9C7D6; margin-top:4px;}
+  .tap-btn .sub{font-size:12px; font-weight:700; color:#B9C7D6; margin-top:4px;}
 
   /* タップ判定に応じてボタン自体が一瞬光る */
   .tap-btn.flash-perfect{ animation: flashPerfect .45s ease; }
@@ -170,16 +197,27 @@
   .feedback-tag.miss{color:var(--bad);}
 
   /* --- result screen --- */
-  .score-num{font-size:46px; font-weight:900; color:var(--navy); line-height:1;}
-  .score-num span{font-size:16px; color:var(--text-dim); font-weight:700; margin-left:6px;}
+  .score-num{display:flex; align-items:baseline; justify-content:center; gap:6px; line-height:1.1;}
+  .score-num b{font-size:46px; font-weight:900; color:var(--navy);}
+  .score-num b small{font-size:20px; font-weight:900; margin-right:2px;}
+  .score-num .unit{font-size:16px; color:var(--text-dim); font-weight:700;}
+  .score-ms{margin-top:6px; font-size:12.5px; color:var(--text-dim); font-weight:700;}
   .score-comment{margin-top:14px; font-size:15px; color:var(--navy); font-weight:700;}
   .score-detail{margin-top:8px;}
   .score-sub{margin-top:6px; font-size:13px; color:var(--text-dim);}
 
+  .compare{display:flex; gap:10px; margin-top:20px;}
+  .compare-item{flex:1; border-radius:14px; background:var(--sky); padding:10px 8px;}
+  .compare-item.ura{background:#FDF1DA;}
+  .compare-name{font-size:11.5px; font-weight:700; color:var(--text-dim); display:block;}
+  .compare-val{font-size:20px; font-weight:900; color:var(--navy); display:block; line-height:1.4;}
+  .compare-val small{font-size:12px; font-weight:900;}
+
   .zure-chart-wrap{margin-top:24px;}
   .zure-chart-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px; text-align:left;}
   .zure-chart-wrap svg{width:100%; height:auto; display:block; overflow:visible;}
-  .zure-row-label{font-size:10px; font-weight:700; fill:var(--text-dim);}
+  .zure-row-label{font-size:11.5px; font-weight:900; fill:var(--navy);}
+  .zure-row-sub{font-size:10px; font-weight:700; fill:var(--text-dim);}
   .zure-axis-label{font-size:10px; font-weight:700; fill:var(--text-dim);}
   .zure-target-label{font-size:10px; font-weight:900; fill:var(--navy);}
   .zure-dot{stroke:#fff; stroke-width:1.5;}
@@ -205,7 +243,7 @@
 
   .cta-box{margin-top:28px; padding-top:24px; border-top:1px solid var(--line);}
   .secondary-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
-  .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline;}
+  .replay-link{display:inline-block; margin-top:14px; font-size:13px; color:var(--text-dim); text-decoration:underline; cursor:pointer;}
 
   footer{padding:20px; text-align:center; font-size:11.5px; color:var(--text-dim);}
 </style>
@@ -223,10 +261,10 @@
 
     <!-- 1. hero -->
     <section id="screen-hero" class="card">
-      <div class="eyebrow-pill">全4拍子×各4回成功</div>
+      <div class="eyebrow-pill">全4ラウンド×各4回成功</div>
       <div class="icon-circle">🥁</div>
       <h1>あなたのリズム感、<br>どれくらい？</h1>
-      <p>メトロノームに合わせて、<strong>各小節の最後の拍だけ</strong>タップするだけ。ズレの少なさで、あなたのリズムキープ力を測定します。拍子ごとに4回成功するまで挑戦します！</p>
+      <p>メトロノームに合わせて、<strong>指定された拍だけ</strong>タップするだけ。叩く拍はラウンドごとにランダム、最後は<strong>裏拍</strong>にも挑戦！ズレは「何拍分か」で測定します。</p>
       <button class="btn" id="btnToRules">ルールを見る</button>
     </section>
 
@@ -234,24 +272,24 @@
     <section id="screen-rules" class="card" hidden>
       <h2>やり方はかんたん</h2>
       <ul class="rule-list">
-        <li><span class="rule-num">1</span><span>拍子に入るとすぐにメトロノームが鳴りはじめます（テンポは拍子ごとにランダム。6/8・12/8はBPM180以上とかなり速めです）</span></li>
-        <li><span class="rule-num">2</span><span>リズムを感じられたら「スタート」ボタンを押してください（聞くのは自由な長さでOK）</span></li>
-        <li><span class="rule-num">3</span><span>スタート後、タップするのは<strong>各小節の最後の拍だけ</strong>（4/4なら4拍目、6/8なら6拍目…）</span></li>
-        <li><span class="rule-num">4</span><span>判定は<strong>指を離した瞬間</strong>で行われます（押した瞬間ではありません）</span></li>
-        <li><span class="rule-num">5</span><span>早すぎても遅すぎても、ズレとして記録されます</span></li>
+        <li><span class="rule-num">1</span><span>ラウンドに入るとすぐにメトロノームが鳴りはじめます（テンポはランダム。6/8はBPM180以上とかなり速めです）</span></li>
+        <li><span class="rule-num">2</span><span>画面に<strong>「今回叩く拍」</strong>が出ます（例：3拍目）。何拍目かは毎ラウンドランダムです</span></li>
+        <li><span class="rule-num">3</span><span>リズムを感じられたら「スタート」ボタンを押してください（聞くのは自由な長さでOK）</span></li>
+        <li><span class="rule-num">4</span><span>スタート後は、<strong>毎小節その拍だけ</strong>タップ。判定は<strong>指を離した瞬間</strong>です</span></li>
+        <li><span class="rule-num">5</span><span>最後は<strong>裏拍</strong>ラウンド。「2と」＝2拍目と3拍目の<strong>ちょうどまんなか</strong>です。スタート前だけ、小さなガイド音で「と」の位置が鳴ります（スタートすると消えます）</span></li>
         <li><span class="rule-num">6</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
-        <li><span class="rule-num">7</span><span>タイミングを見逃しても大丈夫。判定はされないので、次の小節でまた挑戦できます</span></li>
-        <li><span class="rule-num">8</span><span>各拍子で<strong>4回成功</strong>したら次の拍子へ。テンポも変わるので、またスタートボタンを押し直してください（下記の順番）</span></li>
-        <li><span class="rule-num">9</span><span>全4拍子×4回成功したら結果画面へ。イヤホン・ヘッドホンの利用がおすすめです</span></li>
+        <li><span class="rule-num">7</span><span>早すぎても遅すぎても、ズレとして記録。結果は<strong>「1/4拍」「1/8拍」など何拍分ズレたか</strong>で表示されます</span></li>
+        <li><span class="rule-num">8</span><span>タイミングを見逃しても大丈夫。判定はされないので、次の小節でまた挑戦できます</span></li>
+        <li><span class="rule-num">9</span><span>各ラウンドで<strong>4回成功</strong>したら次へ。テンポも叩く拍も変わるので、スタートを押し直してください。全4ラウンドで結果画面へ。イヤホン・ヘッドホンがおすすめです</span></li>
       </ul>
 
       <div class="sig-select">
-        <div class="sig-label">拍子の順番（各4回成功・テンポはランダム）</div>
+        <div class="sig-label">ラウンドの順番（各4回成功・テンポと叩く拍はランダム）</div>
         <div class="sig-row">
           <span class="sig-chip">① 4/4拍子</span>
           <span class="sig-chip">② 3/4拍子</span>
           <span class="sig-chip">③ 6/8拍子</span>
-          <span class="sig-chip">④ 12/8拍子</span>
+          <span class="sig-chip ura">④ 4/4拍子・裏拍</span>
         </div>
       </div>
 
@@ -266,11 +304,19 @@
       </div>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
 
+      <div class="target-box" id="targetBox">
+        <span class="target-small">今回叩くのは</span>
+        <span class="target-big" id="targetBig">-</span>
+        <span class="target-hint" id="targetHint"></span>
+      </div>
+
+      <div class="beat-row" id="beatRow"></div>
+
       <div class="game-zone">
         <div class="pulse-ring" id="pulseRing"></div>
         <button class="tap-btn" id="tapBtn" disabled>
           <span>TAP</span>
-          <span class="sub">音に合わせて</span>
+          <span class="sub" id="tapSub">音に合わせて</span>
         </button>
       </div>
       <div class="feedback-tag" id="feedbackTag"></div>
@@ -281,13 +327,16 @@
     <!-- 4. result -->
     <section id="screen-result" class="card" hidden>
       <div class="eyebrow-pill">結果発表</div>
-      <div class="score-num"><span id="avgMs">0</span><span>ms 平均ズレ</span></div>
+      <div class="score-num"><b id="avgFrac">-</b><span class="unit" id="avgUnit">拍ズレ</span></div>
+      <div class="score-ms">（平均 <span id="avgMs">0</span>ms）</div>
       <div class="score-comment" id="scoreComment"></div>
       <p class="score-detail" id="scoreDetail"></p>
       <p class="score-sub" id="scoreSub"></p>
 
+      <div class="compare" id="compareBox"></div>
+
       <div class="zure-chart-wrap">
-        <div class="zure-chart-label">タップのズレマップ（拍子ごと）</div>
+        <div class="zure-chart-label">タップのズレマップ（ラウンドごと）</div>
         <div id="zureChart"></div>
         <div class="zure-legend">
           <span class="zure-legend-item"><span class="zure-legend-dot good"></span>PERFECT</span>
@@ -331,36 +380,42 @@
   // ---------- 設定 ----------
   var BPM_MIN = 90;
   var BPM_MAX = 120;
-  var FAST_BPM_MIN = 180; // 6/8・12/8はここから
+  var FAST_BPM_MIN = 180; // 6/8はここから
   var FAST_BPM_MAX = 210; // ここまででランダム（かなり速め）
+  // mode: 'on' = 表拍（拍の頭を叩く） / 'off' = 裏拍（拍と拍のまんなか「と」を叩く）
   var SEQUENCE = [
-    { sig: '4/4', beatsPerMeasure: 4 },
-    { sig: '3/4', beatsPerMeasure: 3 },
-    { sig: '6/8', beatsPerMeasure: 6 },
-    { sig: '12/8', beatsPerMeasure: 12 }
+    { sig: '4/4', beatsPerMeasure: 4, mode: 'on' },
+    { sig: '3/4', beatsPerMeasure: 3, mode: 'on' },
+    { sig: '6/8', beatsPerMeasure: 6, mode: 'on' },
+    { sig: '4/4', beatsPerMeasure: 4, mode: 'off' }
   ];
-  var HITS_NEEDED = 4; // 1つの拍子につき何回成功したら次に進むか
-  var TOTAL_TAPS = SEQUENCE.length * HITS_NEEDED; // タップ対象の総数（拍子4種×4回成功）
-  var INTERVAL = 60 / 100; // 秒（拍子ラウンドごとにランダムなBPMで上書きされる）
-  var HIT_WINDOW = INTERVAL / 2; // この半分より近い拍にタップを割り当てる（拍子ラウンドごとに更新）
+  var HITS_NEEDED = 4; // 1ラウンドにつき何回成功したら次に進むか
+  var INTERVAL = 60 / 100; // 秒（ラウンドごとにランダムなBPMで上書きされる）
+  var HIT_WINDOW = INTERVAL / 2; // 目標からこの範囲内のタップだけ採点対象（ラウンドごとに更新）
   var PERFECT_MS = 60; // この範囲内ならパーフェクト判定
   var OK_MS = 120; // この範囲内なら「少し早い／遅い」判定
+  var GUIDE_BEFORE_START = 0.5; // スタート直後、次の目標までに最低これだけ余裕を持たせる（秒）
 
-  // 拍子ごとにランダムなBPMを決める（6/8・12/8はBPM180以上のランダムでかなり速く）
+  // ラウンドごとにランダムなBPMを決める（6/8はBPM180以上のランダムでかなり速く）
   function pickBpmForSignature(sig){
-    if(sig === '6/8' || sig === '12/8'){
+    if(sig === '6/8'){
       return Math.round(FAST_BPM_MIN + Math.random() * (FAST_BPM_MAX - FAST_BPM_MIN));
     }
     return Math.round(BPM_MIN + Math.random() * (BPM_MAX - BPM_MIN));
   }
 
   var audioCtx = null;
-  var currentTargetTime = 0; // 現在ねらっている「小節の最後の拍」の時刻（見逃したら次の小節へ自動的に進む）
-  var missAdvanceTimer = null; // 見逃したときに次の小節の最後の拍へ進めるタイマー
-  var roundResults = [];    // 現在の拍子ラウンドで成功したタップの結果（成功した分だけ積み上がる）
-  var allBeatResults = [];  // 全拍子ラウンド分のタップ結果（結果画面で使用）
+  var currentTargetTime = 0; // 現在ねらっている拍の時刻（見逃したら次の小節へ自動的に進む）
+  var missAdvanceTimer = null; // 見逃したときに次の小節の同じ拍へ進めるタイマー
+  var roundResults = [];    // 現在のラウンドで成功したタップの結果
+  var allBeatResults = [];  // 全ラウンド分のタップ結果（結果画面で使用）
+  var roundMeta = [];       // ラウンドごとの情報（拍子・叩く拍・BPMなど）
   var roundIndex = 0;
   var scoring = false;      // スタート後、採点中かどうか
+  var targetBeatNum = 1;    // 今回叩く拍の番号（1〜）
+  var targetOffsetBeats = 0;// 小節頭から目標までの距離（拍）。裏拍は x.5
+  var guideOn = false;      // 裏拍ラウンドで「と」のガイド音を鳴らすか（スタート前のみ）
+  var roundStartTime = 0;   // スタート直後の最初の小節頭の時刻
 
   // 常時ループするメトロノーム用（スタート前から鳴り続ける）
   var schedulerTimer = null;
@@ -369,6 +424,31 @@
   var nextClickTime = 0;
   var loopBeatIndex = 0;
   var beatsPerMeasureCurrent = 4;
+
+  // ---------- ズレを「何拍分」で表す ----------
+  var FRACS = [
+    { v: 1,      t: '1' },
+    { v: 1/2,    t: '1/2' },
+    { v: 1/4,    t: '1/4' },
+    { v: 1/8,    t: '1/8' },
+    { v: 1/16,   t: '1/16' },
+    { v: 1/32,   t: '1/32' }
+  ];
+  // absBeats（拍）に一番近い分数を返す（対数スケールで比較）。ほぼゼロなら null
+  function fracOf(absBeats){
+    if(absBeats < 1/48){ return null; }
+    var best = FRACS[0], bestD = Infinity;
+    FRACS.forEach(function(f){
+      var d = Math.abs(Math.log(absBeats) - Math.log(f.v));
+      if(d < bestD){ bestD = d; best = f; }
+    });
+    return best.t;
+  }
+  // 「約1/8拍」「ほぼぴったり」
+  function fracPhrase(absBeats){
+    var f = fracOf(absBeats);
+    return f === null ? 'ほぼぴったり' : '約' + f + '拍';
+  }
 
   // ---------- 画面切り替え ----------
   var screens = {
@@ -414,15 +494,59 @@
     }
   });
 
-  // ---------- 挑戦全体の進行（拍子が変わるたびに小節ごとリスタート） ----------
+  // ---------- 挑戦全体の進行 ----------
   function startChallenge(){
     roundIndex = 0;
     allBeatResults = [];
+    roundMeta = [];
     showScreen('game');
     startRound();
   }
 
-  // 各小節の開始：メトロノームをすぐに鳴らし始め、「スタート」を押すまでは採点しない
+  // 拍の並び（1 2 3 4 ／ 裏拍ラウンドは 1 と 2 と 3 と 4 と）を作る
+  var beatCells = [];  // 表拍セル
+  var uraCells = [];   // 「と」セル
+  function buildBeatRow(round, k){
+    var row = document.getElementById('beatRow');
+    row.innerHTML = '';
+    beatCells = []; uraCells = [];
+    for(var i = 0; i < round.beatsPerMeasure; i++){
+      var c = document.createElement('div');
+      c.className = 'beat-cell' + (i === 0 ? ' accent' : '');
+      c.textContent = String(i + 1);
+      if(round.mode === 'on' && (i + 1) === k){ c.classList.add('target'); }
+      row.appendChild(c);
+      beatCells.push(c);
+      if(round.mode === 'off'){
+        var u = document.createElement('div');
+        u.className = 'beat-cell ura';
+        u.textContent = 'と';
+        if((i + 1) === k){ u.classList.add('target'); }
+        row.appendChild(u);
+        uraCells.push(u);
+      }
+    }
+  }
+
+  function renderTargetUI(round, k){
+    var box = document.getElementById('targetBox');
+    var big = document.getElementById('targetBig');
+    var hint = document.getElementById('targetHint');
+    var sub = document.getElementById('tapSub');
+    box.className = 'target-box' + (round.mode === 'off' ? ' ura' : '');
+    if(round.mode === 'off'){
+      big.textContent = '【' + k + 'と】';
+      var nextBeat = (k % round.beatsPerMeasure) + 1;
+      hint.textContent = k + '拍目と' + nextBeat + '拍目の「ちょうどまんなか」（裏拍）';
+      sub.textContent = k + 'と';
+    } else {
+      big.textContent = '【' + k + '拍目】';
+      hint.textContent = (k === 1) ? '小節の頭（高い音）に合わせて' : '毎小節、' + k + '拍目だけ';
+      sub.textContent = k + '拍目';
+    }
+  }
+
+  // 各ラウンドの開始：メトロノームをすぐに鳴らし始め、「スタート」を押すまでは採点しない
   function startRound(){
     document.getElementById('feedbackTag').textContent = '';
     document.getElementById('feedbackTag').className = 'feedback-tag';
@@ -439,8 +563,26 @@
     INTERVAL = 60 / bpm;
     HIT_WINDOW = INTERVAL / 2;
 
+    // 今回叩く拍をランダムに決める（1拍目も候補に含む）
+    var k = 1 + Math.floor(Math.random() * round.beatsPerMeasure);
+    targetBeatNum = k;
+    targetOffsetBeats = (round.mode === 'off') ? (k - 1) + 0.5 : (k - 1);
+    roundMeta[roundIndex] = {
+      sig: round.sig,
+      mode: round.mode,
+      k: k,
+      bpm: bpm,
+      interval: INTERVAL,
+      label: (round.mode === 'off') ? (k + 'と') : (k + '拍'),
+      full: round.sig + (round.mode === 'off' ? '・裏拍' : '') + ' ' + (round.mode === 'off' ? (k + 'と') : (k + '拍目'))
+    };
+    guideOn = (round.mode === 'off');
+
+    renderTargetUI(round, k);
+    buildBeatRow(round, k);
+
     document.getElementById('beatLabel').textContent = '0 / ' + HITS_NEEDED + ' 成功';
-    document.getElementById('sigNow').textContent = (roundIndex + 1) + '/' + SEQUENCE.length + '拍子目・' + round.sig + '拍子・BPM' + bpm;
+    document.getElementById('sigNow').textContent = (roundIndex + 1) + '/' + SEQUENCE.length + 'ラウンド・' + round.sig + (round.mode === 'off' ? '（裏拍）' : '') + '・BPM' + bpm;
 
     scoring = false;
     loopBeatIndex = 0;
@@ -464,12 +606,32 @@
     osc.stop(time + 0.08);
   }
 
+  // 裏拍ラウンドのガイド音（「と」の位置。小さく・低めの音）
+  function playGuide(time){
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 660;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.exponentialRampToValueAtTime(0.28, time + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.06);
+    osc.start(time);
+    osc.stop(time + 0.07);
+  }
+
   // ---------- 常時ループするメトロノーム（スタート前から鳴り続ける） ----------
   function scheduler(){
     while(nextClickTime < audioCtx.currentTime + SCHEDULE_AHEAD){
       var isAccent = (loopBeatIndex === 0);
       playClick(nextClickTime, isAccent);
-      schedulePulse(nextClickTime, isAccent);
+      schedulePulse(nextClickTime, isAccent, loopBeatIndex, false);
+      if(guideOn){
+        var gt = nextClickTime + INTERVAL / 2;
+        playGuide(gt);
+        schedulePulse(gt, false, loopBeatIndex, true);
+      }
       loopBeatIndex = (loopBeatIndex + 1) % beatsPerMeasureCurrent;
       nextClickTime += INTERVAL;
     }
@@ -485,27 +647,38 @@
     if(schedulerTimer){ clearInterval(schedulerTimer); schedulerTimer = null; }
   }
 
+  function lightCell(cell){
+    if(!cell) return;
+    cell.classList.add('lit');
+    setTimeout(function(){ cell.classList.remove('lit'); }, 130);
+  }
+
   // 拍が鳴るたびのビジュアル（採点中かどうかに関わらず常に動く）
-  function schedulePulse(time, isAccent){
+  function schedulePulse(time, isAccent, beatIdx, isGuide){
     var delayMs = (time - audioCtx.currentTime) * 1000;
     setTimeout(function(){
+      if(isGuide){
+        lightCell(uraCells[beatIdx]);
+        return;
+      }
       var ring = document.getElementById('pulseRing');
       ring.classList.remove('beat', 'accent');
       // force reflow so the animation can restart
       void ring.offsetWidth;
       ring.classList.add('beat');
       if(isAccent){ ring.classList.add('accent'); }
+      lightCell(beatCells[beatIdx]);
     }, Math.max(0, delayMs));
   }
 
-  // 次に狙う「小節の最後の拍」をセットし、見逃したら自動で次の小節へ送る
+  // 次に狙う拍をセットし、見逃したら自動で次の小節へ送る
   function armTarget(targetTime){
     currentTargetTime = targetTime;
     if(missAdvanceTimer){ clearTimeout(missAdvanceTimer); missAdvanceTimer = null; }
     var delayMs = (targetTime - audioCtx.currentTime + HIT_WINDOW) * 1000;
     missAdvanceTimer = setTimeout(function(){
       if(!scoring) return;
-      // 見逃した拍は判定せず（記録せず）、次の小節の最後の拍へそのまま進む
+      // 見逃した拍は判定せず（記録せず）、次の小節の同じ拍へそのまま進む
       var measureLen = beatsPerMeasureCurrent * INTERVAL;
       armTarget(currentTargetTime + measureLen);
     }, Math.max(0, delayMs));
@@ -518,13 +691,18 @@
     while(idx !== 0){ t += INTERVAL; idx = (idx + 1) % beatsPerMeasureCurrent; }
 
     var n = beatsPerMeasureCurrent;
+    var measureLen = n * INTERVAL;
+    roundStartTime = t;
     roundResults = [];
     scoring = true;
+    guideOn = false; // 裏拍のガイド音はスタートと同時に消える
     this.hidden = true;
     document.getElementById('tapBtn').disabled = false;
 
-    // 最初に狙う「最後の拍」＝開始小節頭からn拍目
-    armTarget(t + (n - 1) * INTERVAL);
+    // 最初に狙う拍＝開始小節頭から目標の位置。近すぎる場合は次の小節へ送る
+    var first = t + targetOffsetBeats * INTERVAL;
+    while(first < audioCtx.currentTime + GUIDE_BEFORE_START){ first += measureLen; }
+    armTarget(first);
   });
 
   document.getElementById('tapBtn').addEventListener('click', function(){
@@ -538,28 +716,31 @@
       return;
     }
 
-    roundResults.push({tapped:true, deviation:deviation});
+    var beatDev = deviation / INTERVAL;
+    roundResults.push({tapped:true, deviation:deviation, interval:INTERVAL, beatDev:beatDev, roundIdx:roundIndex});
     document.getElementById('beatLabel').textContent = roundResults.length + ' / ' + HITS_NEEDED + ' 成功';
     document.getElementById('progressFill').style.width = (roundResults.length / HITS_NEEDED * 100) + '%';
 
     var ms = Math.round(deviation * 1000);
     var absMs = Math.abs(ms);
     var flashClass;
+    var phrase = fracPhrase(Math.abs(beatDev));
+    var dirText = (fracOf(Math.abs(beatDev)) === null) ? '' : (beatDev > 0 ? '（遅れ）' : '（早め）');
     if(absMs <= PERFECT_MS){
-      tag.textContent = 'PERFECT！';
+      tag.textContent = 'PERFECT！　' + phrase + dirText;
       tag.className = 'feedback-tag perfect';
       flashClass = 'flash-perfect';
     } else if(absMs <= OK_MS){
-      tag.textContent = (ms > 0 ? '少し遅い' : '少し早い');
+      tag.textContent = (ms > 0 ? '少し遅い' : '少し早い') + '　' + phrase + dirText;
       tag.className = 'feedback-tag ok';
       flashClass = 'flash-ok';
     } else {
-      tag.textContent = (ms > 0 ? '遅い' : '早い');
+      tag.textContent = (ms > 0 ? '遅い' : '早い') + '　' + phrase + dirText;
       tag.className = 'feedback-tag miss';
       flashClass = 'flash-miss';
     }
 
-    // タップした瞬間、判定に応じてボタン自体を光らせる（テキストだけでなく視覚的にも分かりやすく）
+    // タップした瞬間、判定に応じてボタン自体を光らせる
     var tapBtnEl = document.getElementById('tapBtn');
     tapBtnEl.classList.remove('flash-perfect', 'flash-ok', 'flash-miss');
     void tapBtnEl.offsetWidth; // reflow でアニメーションを再始動
@@ -589,29 +770,48 @@
     }
   }
 
-  function showResult(){
-    var deviations = [];
-    var missCount = 0;
-    allBeatResults.forEach(function(r){
-      if(r.tapped){ deviations.push(r.deviation); }
-      else { missCount++; }
-    });
+  function avgOf(list, fn){
+    if(!list.length) return null;
+    var s = 0;
+    list.forEach(function(r){ s += fn(r); });
+    return s / list.length;
+  }
 
-    var avgAbsMs = 0;
-    var avgSignedMs = 0;
-    if(deviations.length > 0){
-      var sumAbs = 0, sumSigned = 0;
-      deviations.forEach(function(d){ sumAbs += Math.abs(d); sumSigned += d; });
-      avgAbsMs = Math.round(sumAbs / deviations.length * 1000);
-      avgSignedMs = Math.round(sumSigned / deviations.length * 1000);
-    } else {
-      avgAbsMs = 999;
+  function fracHtml(absBeats){
+    var f = fracOf(absBeats);
+    return f === null ? 'ほぼ<small>ぴったり</small>' : '<small>約</small>' + f + '<small>拍</small>';
+  }
+
+  function showResult(){
+    var results = allBeatResults;
+
+    var avgAbsMs = 0, avgSignedMs = 0, avgAbsBeat = 0, avgSignedBeat = 0;
+    if(results.length > 0){
+      avgAbsMs = Math.round(avgOf(results, function(r){ return Math.abs(r.deviation); }) * 1000);
+      avgSignedMs = Math.round(avgOf(results, function(r){ return r.deviation; }) * 1000);
+      avgAbsBeat = avgOf(results, function(r){ return Math.abs(r.beatDev); });
+      avgSignedBeat = avgOf(results, function(r){ return r.beatDev; });
     }
 
-    document.getElementById('avgMs').textContent = deviations.length > 0 ? avgAbsMs : '--';
+    var fracEl = document.getElementById('avgFrac');
+    var unitEl = document.getElementById('avgUnit');
+    if(results.length > 0){
+      var f = fracOf(avgAbsBeat);
+      if(f === null){
+        fracEl.innerHTML = 'ほぼぴったり';
+        unitEl.textContent = '';
+      } else {
+        fracEl.innerHTML = '<small>約</small>' + f;
+        unitEl.textContent = '拍ズレ';
+      }
+    } else {
+      fracEl.textContent = '--';
+      unitEl.textContent = '';
+    }
+    document.getElementById('avgMs').textContent = results.length > 0 ? avgAbsMs : '--';
 
     var comment, detail;
-    if(deviations.length === 0){
+    if(results.length === 0){
       comment = 'タップが記録できませんでした';
       detail = 'もう一度チャレンジしてみてください。';
     } else if(avgAbsMs <= 45){
@@ -630,25 +830,48 @@
     document.getElementById('scoreComment').textContent = comment;
     document.getElementById('scoreDetail').textContent = detail;
 
+    // 傾向（早め／遅れ）と、いちばんズレたラウンド
     var subParts = [];
-    if(deviations.length > 0){
-      subParts.push((avgSignedMs > 5 ? 'やや遅れがち' : (avgSignedMs < -5 ? 'やや早めがち' : 'タイミングの偏りは少なめ')));
+    if(results.length > 0){
+      subParts.push(avgSignedBeat > 1/64 ? 'やや遅れがち' : (avgSignedBeat < -1/64 ? 'やや早めがち' : 'タイミングの偏りは少なめ'));
+      var worst = null;
+      SEQUENCE.forEach(function(_, i){
+        var l = results.filter(function(r){ return r.roundIdx === i; });
+        if(!l.length) return;
+        var a = avgOf(l, function(r){ return Math.abs(r.beatDev); });
+        if(!worst || a > worst.a){ worst = {a:a, i:i}; }
+      });
+      if(worst && roundMeta[worst.i] && fracOf(worst.a) !== null){
+        subParts.push('いちばんズレたのは「' + roundMeta[worst.i].full + '」（' + fracPhrase(worst.a) + '）');
+      }
     }
-    if(missCount > 0){
-      subParts.push('タップできなかった小節：' + missCount + ' / ' + TOTAL_TAPS);
+    document.getElementById('scoreSub').textContent = subParts.join('　／　');
+
+    // 表拍 vs 裏拍
+    var onList = results.filter(function(r){ return roundMeta[r.roundIdx] && roundMeta[r.roundIdx].mode === 'on'; });
+    var offList = results.filter(function(r){ return roundMeta[r.roundIdx] && roundMeta[r.roundIdx].mode === 'off'; });
+    var cmp = document.getElementById('compareBox');
+    cmp.innerHTML = '';
+    if(onList.length && offList.length){
+      var onA = avgOf(onList, function(r){ return Math.abs(r.beatDev); });
+      var offA = avgOf(offList, function(r){ return Math.abs(r.beatDev); });
+      cmp.innerHTML =
+        '<div class="compare-item"><span class="compare-name">表拍の平均ズレ</span><span class="compare-val">' + fracHtml(onA) + '</span></div>' +
+        '<div class="compare-item ura"><span class="compare-name">裏拍の平均ズレ</span><span class="compare-val">' + fracHtml(offA) + '</span></div>';
+      if(offA > onA * 1.5 && offA > 1/32){
+        document.getElementById('scoreSub').textContent += (subParts.length ? '　／　' : '') + '裏拍は表拍よりズレやすい傾向。「1と2と…」と口に出して練習すると安定します';
+      }
     }
-    document.getElementById('scoreSub').textContent = subParts.join('　');
 
-    renderZureMap(allBeatResults);
+    renderZureMap(results);
 
-    setupShare(deviations.length > 0 ? avgAbsMs : null, comment);
+    setupShare(results.length > 0 ? fracOf(avgAbsBeat) : undefined, results.length > 0 ? avgAbsMs : null, comment);
     showScreen('result');
   }
 
-  // ---------- ズレマップ（拍子ごとに「早い←ジャスト→遅い」の軸上へタップのズレをプロット） ----------
+  // ---------- ズレマップ（ラウンドごとに「早い←ジャスト→遅い」の軸上へタップのズレをプロット） ----------
   function renderZureMap(allResults){
     var rows = SEQUENCE.length;
-    var perRow = HITS_NEEDED;
     var container = document.getElementById('zureChart');
     if(allResults.length === 0){ container.innerHTML = ''; return; }
 
@@ -659,8 +882,8 @@
     });
     var domain = Math.max(150, Math.ceil((maxAbs + 20) / 10) * 10);
 
-    var plotLeft = 46, plotRight = 306, plotWidth = plotRight - plotLeft;
-    var rowH = 34, topPad = 10;
+    var plotLeft = 78, plotRight = 308, plotWidth = plotRight - plotLeft;
+    var rowH = 38, topPad = 10;
     var rowsAreaH = rows * rowH;
     var axisY = topPad + rowsAreaH + 6;
     var chartH = axisY + 20;
@@ -677,7 +900,8 @@
     var rowsSvg = '';
     for(var i = 0; i < rows; i++){
       var rowY = topPad + i * rowH + rowH / 2;
-      var chunk = allResults.slice(i * perRow, (i + 1) * perRow);
+      var chunk = allResults.filter(function(r){ return r.roundIdx === i; });
+      var meta = roundMeta[i] || {sig: SEQUENCE[i].sig, label: ''};
       var dotsSvg = chunk.map(function(r, j){
         var ms = r.deviation * 1000;
         var absMs = Math.abs(ms);
@@ -687,11 +911,13 @@
         var x = xPos(ms);
         var y = rowY + jitter;
         var sign = ms > 0 ? '+' : '';
-        return '<circle class="zure-dot" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5.5" fill="' + color + '"><title>' + (j + 1) + '打目: ' + sign + Math.round(ms) + 'ms</title></circle>';
+        return '<circle class="zure-dot" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5.5" fill="' + color + '"><title>' + (j + 1) + '打目: ' + sign + Math.round(ms) + 'ms（' + fracPhrase(Math.abs(r.beatDev)) + '）</title></circle>';
       }).join('');
+      var rowAvg = chunk.length ? fracPhrase(avgOf(chunk, function(r){ return Math.abs(r.beatDev); })) : '';
       rowsSvg +=
         '<line x1="' + plotLeft + '" y1="' + rowY + '" x2="' + plotRight + '" y2="' + rowY + '" stroke="var(--line)" stroke-width="1"/>' +
-        '<text class="zure-row-label" x="' + (plotLeft - 8) + '" y="' + (rowY + 3) + '" text-anchor="end">' + SEQUENCE[i].sig + '</text>' +
+        '<text class="zure-row-label" x="' + (plotLeft - 8) + '" y="' + (rowY - 1) + '" text-anchor="end">' + meta.sig + ' ' + meta.label + '</text>' +
+        '<text class="zure-row-sub" x="' + (plotLeft - 8) + '" y="' + (rowY + 11) + '" text-anchor="end">平均' + rowAvg + '</text>' +
         dotsSvg;
     }
 
@@ -713,8 +939,15 @@
   var PAGE_URL = 'https://rowrowrho.github.io/voice-training-lp/rhythm_check/';
   var shareText = '';
 
-  function setupShare(avgAbsMs, comment){
-    var scoreLine = (avgAbsMs === null) ? 'リズムキープチャレンジに挑戦しました🥁' : ('リズムキープチャレンジで平均ズレ' + avgAbsMs + 'msでした🥁');
+  function setupShare(fracText, avgAbsMs, comment){
+    var scoreLine;
+    if(avgAbsMs === null){
+      scoreLine = 'リズムキープチャレンジに挑戦しました🥁';
+    } else if(fracText === null){
+      scoreLine = 'リズムキープチャレンジで平均ズレ ほぼぴったり（' + avgAbsMs + 'ms）でした🥁';
+    } else {
+      scoreLine = 'リズムキープチャレンジで平均ズレ約' + fracText + '拍（' + avgAbsMs + 'ms）でした🥁';
+    }
     shareText = scoreLine + '\n\n' + comment + '\n\n#RHOボイトレ';
     document.getElementById('shareX').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
     document.getElementById('shareLine').href = 'https://line.me/R/msg/text/?' + encodeURIComponent(shareText + '\n\n' + PAGE_URL);
@@ -755,6 +988,27 @@
     stopScheduler();
     showScreen('rules');
   });
+
+  // 動作確認用（自動テスト）フック
+  window.__rk = {
+    state: function(){
+      return {
+        now: audioCtx ? audioCtx.currentTime : 0,
+        target: currentTargetTime,
+        scoring: scoring,
+        roundIndex: roundIndex,
+        interval: INTERVAL,
+        n: beatsPerMeasureCurrent,
+        offset: targetOffsetBeats,
+        k: targetBeatNum,
+        roundStart: roundStartTime,
+        meta: roundMeta,
+        results: allBeatResults.length,
+        window: HIT_WINDOW
+      };
+    },
+    fracOf: fracOf
+  };
 
 })();
 </script>
