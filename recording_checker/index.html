@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>録音チェッカー</title>
+<style>
+:root{
+  --bg:#0f1720; --panel:#17212d; --line:#2a3848; --ink:#e8eef5; --sub:#93a4b8;
+  --accent:#4cc2ff; --ok:#5fd38d; --warn:#ffb84d; --ng:#ff7a7a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Noto Sans CJK JP","Meiryo",sans-serif;line-height:1.65}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line)}
+header h1{font-size:20px;font-weight:700;margin-right:auto}
+header h1 small{display:block;font-size:12px;font-weight:400;color:var(--sub)}
+header a{color:var(--accent);font-size:13px;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px}
+main{padding:18px 22px 40px;display:grid;gap:16px;max-width:1100px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:34px 18px;text-align:center;cursor:pointer;background:#0f1923}
+.drop.over{border-color:var(--accent);background:#10202e}
+.drop b{font-size:18px}
+.drop p{color:var(--sub);font-size:13px;margin-top:6px}
+.btn{background:var(--accent);color:#04202e;border:0;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:400}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.hidden{display:none!important}
+.banner{display:flex;gap:16px;align-items:center;border-left:8px solid var(--line)}
+.banner.ok{border-left-color:var(--ok)} .banner.warn{border-left-color:var(--warn)} .banner.ng{border-left-color:var(--ng)}
+.banner .big{font-size:26px;font-weight:800;white-space:nowrap}
+.banner.ok .big{color:var(--ok)} .banner.warn .big{color:var(--warn)} .banner.ng .big{color:var(--ng)}
+.banner p{font-size:15px}
+.meta{font-size:13px;color:var(--sub);margin-top:6px}
+canvas{width:100%;height:150px;display:block;background:#0b121a;border-radius:10px;cursor:pointer}
+audio{width:100%;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:13px;align-items:center}
+.chip{background:#2b1a1a;color:#ffb3b3;border:1px solid #5c2b2b;border-radius:999px;padding:2px 12px;cursor:pointer;font-family:inherit;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.item{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--line);border-radius:14px;padding:14px 16px}
+.item.ok{border-top-color:var(--ok)} .item.warn{border-top-color:var(--warn)} .item.ng{border-top-color:var(--ng)}
+.item h3{font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.badge{font-size:13px;font-weight:800;border-radius:8px;padding:2px 10px;border:2px solid currentColor;white-space:nowrap}
+.badge.ok{color:var(--ok)} .badge.warn{color:var(--warn)} .badge.ng{color:var(--ng)}
+.item .val{font-size:22px;font-weight:700;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+.item p{font-size:14px}
+.item .tip{font-size:13px;color:var(--sub);margin-top:6px}
+.row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-size:14px}
+.row label{display:flex;gap:8px;align-items:center;color:var(--sub)}
+select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-family:inherit;font-size:14px}
+.note{font-size:12px;color:var(--sub)}
+h2{font-size:16px;margin-bottom:8px}
+.warnbox{margin-top:8px;font-size:13px;color:var(--warn)}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.banner{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <h1>録音チェッカー<small>MIXに出す前に、録音の状態を30秒で確認できます</small></h1>
+  <a href="../voice_analyzer/">声のアナライザーへ</a>
+</header>
+
+<main>
+  <section class="card">
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="音声ファイルを選択">
+      <b>ここに録音ファイルをドラッグ&amp;ドロップ</b>
+      <p>またはクリックして選択(WAV推奨。MP3・M4Aなども読み込めます)</p>
+      <p>音声はアップロードされません。すべてこのブラウザの中で処理します。</p>
+    </div>
+    <input type="file" id="file" accept="audio/*,.wav" class="hidden">
+    <div class="meta" id="loading"></div>
+  </section>
+
+  <div id="result" class="hidden" style="display:grid;gap:16px">
+    <section class="card banner" id="banner">
+      <div class="big" id="bannerBig">--</div>
+      <div>
+        <p id="bannerMsg"></p>
+        <div class="meta" id="fileMeta"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>波形(クリックでその位置から再生)</h2>
+      <canvas id="wave"></canvas>
+      <audio id="player" controls></audio>
+      <div class="chips" id="clipChips"></div>
+    </section>
+
+    <section class="grid" id="items"></section>
+
+    <section class="card">
+      <h2>MIX用に形式をそろえてWAVを書き出す</h2>
+      <div class="row">
+        <label>サンプルレート
+          <select id="optSr"><option value="48000" selected>48kHz</option><option value="44100">44.1kHz</option><option value="0">元のまま</option></select>
+        </label>
+        <label>チャンネル
+          <select id="optCh">
+            <option value="keep" selected>元のまま</option>
+            <option value="avg">モノラル(左右を平均)</option>
+            <option value="L">モノラル(左だけ)</option>
+            <option value="R">モノラル(右だけ)</option>
+          </select>
+        </label>
+        <label>ビット深度 <b style="color:var(--ink)">24bit</b></label>
+        <button class="btn" id="btnExport">WAVを書き出す</button>
+      </div>
+      <p class="note" style="margin-top:8px">音量の調整(ノーマライズ)や加工はしません。形式をそろえるだけです。音割れは書き出しでは直りません。</p>
+      <div class="warnbox" id="exportWarn"></div>
+    </section>
+
+    <section class="card">
+      <h2>MIXを相談する</h2>
+      <p style="font-size:14px">判定結果をコピーして、無料相談フォームに貼り付けると、状態がそのまま伝わります。</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn ghost" id="btnCopy">結果をコピー</button>
+        <a class="btn" id="consult" href="#" target="_blank" rel="noopener" style="text-decoration:none">無料相談フォームへ</a>
+        <span class="note" id="copyMsg"></span>
+      </div>
+    </section>
+
+    <p class="note">判定基準は目安です。音割れ: 連続して最大レベルに張り付いた波形を数えます。背景ノイズ: 録音内でいちばん静かな部分の音量で判断します。チャンネル: 左右の音量差と位相の関係を見ています。</p>
+  </div>
+</main>
+
+<script>
+(() => {
+'use strict';
+
+/* 相談フォームのURL(ここを差し替えれば全体に反映されます) */
+const CONSULT_URL = 'https://rowrowrho.github.io/voice-training-lp/';
+
+/* 判定のしきい値 */
+const TH = {
+  clipLevel: 0.999,     // この値以上に張り付いたら「最大レベル」
+  clipMinRun: 3,        // 連続サンプル数
+  clipMergeSec: 0.1,    // この秒数以内の音割れは1か所にまとめる
+  clipWarnPlaces: 1,    // 1か所以上で「注意」
+  clipNgPlaces: 5,      // 5か所以上で「要対応」
+  clipNgRatio: 0.0002,  // 全体の0.02%以上が張り付いたら「要対応」
+  noiseOk: -60,         // dBFS 以下でOK
+  noiseWarn: -50,       // dBFS 以下で注意、超えたら要対応
+  noiseMinSnr: 15,      // 歌っている部分との差がこれ未満なら参考値
+  levelDiffWarn: 6,     // 左右の音量差(dB)
+  levelDiffNg: 30,
+  corrOk: 0.5,
+  corrNg: -0.3
+};
+
+const $ = id => document.getElementById(id);
+let S = null; // 現在のファイルの状態
+
+/* ---------- 入力 ---------- */
+const drop = $('drop'), fileInput = $('file');
+drop.onclick = () => fileInput.click();
+drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); };
+fileInput.onchange = e => e.target.files[0] && handleFile(e.target.files[0]);
+['dragenter','dragover'].forEach(ev => window.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => window.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+window.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) handleFile(f); });
+
+async function handleFile(file){
+  $('loading').textContent = '読み込み中です…';
+  $('result').classList.add('hidden');
+  await new Promise(r => setTimeout(r, 30));
+  try{
+    const buf = await file.arrayBuffer();
+    let dec = null;
+    try{ dec = parseWav(buf); }catch(e){ dec = null; }
+    if (!dec) dec = await decodeCompressed(buf, file.name);
+    if (!dec.ch.length || !dec.ch[0].length) throw new Error('音声データが空です');
+    const result = analyze(dec);
+    if (S && S.url) URL.revokeObjectURL(S.url);
+    S = { name: file.name, dec, result, url: URL.createObjectURL(file) };
+    render();
+    $('loading').textContent = '';
+  }catch(err){
+    $('loading').textContent = '読み込めませんでした: ' + (err && err.message ? err.message : err) + '(WAV・MP3・M4Aなどを試してください)';
+  }
+}
+
+/* ---------- WAV解析(サンプルをそのまま読む) ---------- */
+function parseWav(buf){
+  const v = new DataView(buf);
+  const tag = (o) => String.fromCharCode(v.getUint8(o),v.getUint8(o+1),v.getUint8(o+2),v.getUint8(o+3));
+  if (buf.byteLength < 44 || tag(0) !== 'RIFF' || tag(8) !== 'WAVE') throw new Error('not wav');
+  let off = 12, fmt = null, dataOff = -1, dataLen = 0;
+  while (off + 8 <= buf.byteLength){
+    const id = tag(off); let size = v.getUint32(off+4, true);
+    const body = off + 8;
+    if (id === 'fmt '){
+      let format = v.getUint16(body, true);
+      const ch = v.getUint16(body+2, true), sr = v.getUint32(body+4, true), bits = v.getUint16(body+14, true);
+      if (format === 0xFFFE && size >= 26) format = v.getUint16(body+24, true);
+      fmt = {format, ch, sr, bits};
+    } else if (id === 'data'){
+      dataOff = body;
+      if (size === 0 || size === 0xFFFFFFFF || body + size > buf.byteLength) size = buf.byteLength - body;
+      dataLen = size; break;
+    }
+    off = body + size + (size & 1);
+  }
+  if (!fmt || dataOff < 0) throw new Error('not wav');
+  const {format, ch, sr, bits} = fmt;
+  const isFloat = format === 3;
+  if (!(format === 1 || format === 3)) throw new Error('unsupported wav');
+  const bytes = bits / 8;
+  if (![1,2,3,4,8].includes(bytes) || (isFloat && bytes !== 4 && bytes !== 8)) throw new Error('unsupported wav');
+  const frames = Math.floor(dataLen / (bytes * ch));
+  const chans = Array.from({length: ch}, () => new Float32Array(frames));
+  let p = dataOff;
+  for (let i = 0; i < frames; i++){
+    for (let c = 0; c < ch; c++){
+      let x;
+      if (isFloat) x = bytes === 4 ? v.getFloat32(p, true) : v.getFloat64(p, true);
+      else if (bytes === 1) x = (v.getUint8(p) - 128) / 128;
+      else if (bytes === 2) x = v.getInt16(p, true) / 32768;
+      else if (bytes === 3){ let n = v.getUint8(p) | (v.getUint8(p+1) << 8) | (v.getUint8(p+2) << 16); if (n & 0x800000) n -= 0x1000000; x = n / 8388608; }
+      else x = v.getInt32(p, true) / 2147483648;
+      chans[c][i] = x; p += bytes;
+    }
+  }
+  return {ch: chans, sr, fmtName: 'WAV ' + (isFloat ? bits + 'bit float' : bits + 'bit'), exact: true};
+}
+
+async function decodeCompressed(buf, name){
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new Ctx();
+  const ab = await ctx.decodeAudioData(buf.slice(0));
+  const chans = [];
+  for (let c = 0; c < ab.numberOfChannels; c++) chans.push(ab.getChannelData(c).slice());
+  const ext = (name.split('.').pop() || '').toUpperCase();
+  const sr = ab.sampleRate;
+  ctx.close && ctx.close();
+  return {ch: chans, sr, fmtName: ext + '(圧縮形式を展開して判定)', exact: false};
+}
+
+/* ---------- 解析 ---------- */
+const dB = x => 20 * Math.log10(Math.max(x, 1e-9));
+
+function analyze(dec){
+  const {ch, sr} = dec, n = ch[0].length, dur = n / sr;
+  const out = {dur, nCh: ch.length, sr};
+
+  // ピーク
+  let peak = 0;
+  for (const x of ch) for (let i = 0; i < x.length; i++){ const a = x[i] < 0 ? -x[i] : x[i]; if (a > peak) peak = a; }
+  out.peak = peak;
+
+  // 音割れ
+  const level = dec.exact ? TH.clipLevel : 0.99;
+  const events = []; let clippedSamples = 0;
+  for (let c = 0; c < ch.length; c++){
+    const x = ch[c]; let run = 0, start = 0;
+    for (let i = 0; i < x.length; i++){
+      const a = x[i] < 0 ? -x[i] : x[i];
+      if (a >= level){ if (run === 0) start = i; run++; }
+      else { if (run >= TH.clipMinRun){ events.push({i: start, len: run}); clippedSamples += run; } run = 0; }
+    }
+    if (run >= TH.clipMinRun){ events.push({i: start, len: run}); clippedSamples += run; }
+  }
+  events.sort((a,b) => a.i - b.i);
+  const places = [], gap = TH.clipMergeSec * sr;
+  for (const e of events){
+    const last = places[places.length - 1];
+    if (last && e.i - (last.i + last.span) < gap){ last.span = Math.max(last.span, e.i + e.len - last.i); }
+    else places.push({i: e.i, span: e.len});
+  }
+  out.clipPlaces = places;
+  out.clipRatio = clippedSamples / (n * ch.length);
+  let clipRes;
+  if (places.length === 0) clipRes = 'ok';
+  else if (places.length >= TH.clipNgPlaces || out.clipRatio >= TH.clipNgRatio) clipRes = 'ng';
+  else clipRes = 'warn';
+  out.clipRes = clipRes;
+
+  // 背景ノイズ(50msごとの音量の下位10%)
+  const frame = Math.max(1, Math.round(sr * 0.05)), nf = Math.floor(n / frame);
+  const fr = new Float32Array(nf);
+  for (let f = 0; f < nf; f++){
+    let s = 0;
+    for (const x of ch){ let t = 0; for (let i = f * frame, e = i + frame; i < e; i++) t += x[i] * x[i]; s += t / frame; }
+    fr[f] = 10 * Math.log10(s / ch.length + 1e-12);
+  }
+  const sorted = Array.from(fr).sort((a,b) => a - b);
+  out.noiseFrames = nf;
+  if (nf >= 20){
+    out.floor = sorted[Math.floor(nf * 0.10)];
+    out.loud = sorted[Math.min(nf - 1, Math.floor(nf * 0.90))];
+    out.snr = out.loud - out.floor;
+    out.noiseRel = out.snr >= TH.noiseMinSnr;
+    let r = out.floor <= TH.noiseOk ? 'ok' : (out.floor <= TH.noiseWarn ? 'warn' : 'ng');
+    if (!out.noiseRel && r === 'ng') r = 'warn';
+    out.noiseRes = r;
+  } else {
+    out.floor = null; out.noiseRes = 'warn'; out.noiseRel = false;
+  }
+
+  // チャンネル
+  if (ch.length === 1){ out.chRes = 'ok'; out.chKind = 'mono'; }
+  else {
+    const L = ch[0], R = ch[1];
+    let sl = 0, sr2 = 0, slr = 0;
+    for (let i = 0; i < n; i++){ sl += L[i]*L[i]; sr2 += R[i]*R[i]; slr += L[i]*R[i]; }
+    const rmsL = 10*Math.log10(sl/n + 1e-12), rmsR = 10*Math.log10(sr2/n + 1e-12);
+    const corr = slr / Math.sqrt(sl * sr2 + 1e-24);
+    out.rmsL = rmsL; out.rmsR = rmsR; out.corr = corr; out.diff = Math.abs(rmsL - rmsR);
+    if (rmsL < -80 && rmsR < -80){ out.chRes = 'warn'; out.chKind = 'silent'; }
+    else if (out.diff >= TH.levelDiffNg || Math.min(rmsL, rmsR) < -80){ out.chRes = 'ng'; out.chKind = 'oneside'; out.weak = rmsL < rmsR ? 'L' : 'R'; }
+    else if (corr <= TH.corrNg){ out.chRes = 'ng'; out.chKind = 'phase'; }
+    else if (out.diff >= TH.levelDiffWarn){ out.chRes = 'warn'; out.chKind = 'diff'; }
+    else if (corr < TH.corrOk){ out.chRes = 'warn'; out.chKind = 'wide'; }
+    else if (corr > 0.9995 && out.diff < 0.2){ out.chRes = 'ok'; out.chKind = 'dual'; }
+    else { out.chRes = 'ok'; out.chKind = 'stereo'; }
+  }
+
+  const rank = {ok:0, warn:1, ng:2};
+  out.overall = [clipRes, out.noiseRes, out.chRes].reduce((a,b) => rank[b] > rank[a] ? b : a, 'ok');
+  return out;
+}
+
+/* ---------- 文章 ---------- */
+const LABEL = {ok:'○ OK', warn:'△ 注意', ng:'× 要対応'};
+const LABEL_PLAIN = {ok:'OK', warn:'注意', ng:'要対応'};
+const fmtTime = s => { const m = Math.floor(s / 60); return m + ':' + (s % 60).toFixed(1).padStart(4, '0'); };
+const chName = n => n === 1 ? 'モノラル' : (n === 2 ? 'ステレオ' : n + 'ch');
+
+function textClip(r){
+  const k = r.clipPlaces.length;
+  const ms = Math.round(r.clipRatio * r.dur * 1000);
+  if (r.clipRes === 'ok') return {val: '見つかりません', body: '最大レベルに張り付いた波形はありませんでした。', tip: r.peak >= 0.99 ? 'ピークが0dBFSに近いです。録音時は少し余裕を持たせると安心です。' : ''};
+  if (r.clipRes === 'warn') return {val: k + 'か所', body: '音割れが少しあります。短ければMIXで目立たないこともありますが、気になる場合は録り直しがおすすめです。', tip: '下の波形に赤い印が出ています。クリックすると、その位置を聞けます。'};
+  return {val: k + 'か所(合計約' + ms + 'ミリ秒)', body: '音割れが多いです。音割れはあとから直せないため、録り直しをおすすめします。', tip: '録音時の入力ゲインを下げ、いちばん大きい声でもメーターが振り切れないようにしてください。'};
+}
+function textNoise(r){
+  if (r.floor === null) return {val: '--', body: '録音が短すぎて、ノイズを判定できません。', tip: '曲の前後に、何も歌わない数秒を入れて録音すると判定できます。'};
+  const v = r.floor <= -100 ? '-100dB以下' : r.floor.toFixed(0) + ' dB';
+  let body, tip = '';
+  if (r.noiseRes === 'ok') body = '背景ノイズは小さく、問題ありません。';
+  else if (r.noiseRes === 'warn') { body = 'うっすらノイズがあります。'; tip = 'エアコン・PCのファン・冷蔵庫の音を止めて録ると、改善しやすいです。'; }
+  else { body = '背景ノイズがやや大きいです。'; tip = 'マイクと口の距離、部屋の環境、入力ゲインを見直して録り直すと、きれいに仕上がります。'; }
+  if (!r.noiseRel) tip = '歌っていない無音の部分が少ないため、参考値です。曲の前後に数秒の無音を入れると、正確に判定できます。' + (tip ? ' ' + tip : '');
+  return {val: v, body, tip};
+}
+function textCh(r){
+  const f = x => x.toFixed(0);
+  switch (r.chKind){
+    case 'mono': return {val: 'モノラル', body: '1チャンネルの録音です。問題ありません。', tip: ''};
+    case 'dual': return {val: '左右が同じ', body: '左右が同じ音のステレオです。問題ありません。', tip: 'モノラルにすると、ファイルサイズを半分にできます(下の書き出しで選べます)。'};
+    case 'stereo': return {val: 'ステレオ', body: '左右の音量と位相に問題は見つかりませんでした。', tip: ''};
+    case 'wide': return {val: '左右がばらばら', body: '左右の音が大きく違います。ボーカルをマイク1本で録った場合は、通常は左右がそろいます。', tip: 'ミックス済みの音源やステレオ録音ではありませんか? 設定を確認してください。'};
+    case 'diff': return {val: '左右差 ' + f(r.diff) + ' dB', body: '左右の音量に差があります。', tip: 'マイク入力が片側だけ強くなっていないか、確認してください。'};
+    case 'oneside': return {val: (r.weak === 'L' ? '左' : '右') + 'がほぼ無音', body: '片側のチャンネルにほとんど音が入っていません。', tip: '書き出しで「' + (r.weak === 'L' ? '右' : '左') + 'だけ」のモノラルを選ぶと、そろえられます。'};
+    case 'phase': return {val: '逆位相の疑い', body: '左右の波形が逆向きになっています。モノラルにすると、音が消えたり細くなったりします。', tip: '録音機材の配線・設定を確認して、録り直すのが確実です。'};
+    default: return {val: '無音', body: 'どちらのチャンネルにも音が入っていません。', tip: 'ファイルが正しいか、確認してください。'};
+  }
+}
+function overallMsg(r){
+  const parts = [];
+  if (r.clipRes === 'ng') parts.push('音割れが多いため、録り直しをおすすめします。');
+  if (r.noiseRes === 'ng') parts.push('背景ノイズが大きめです。');
+  if (r.chRes === 'ng') parts.push('チャンネルに問題があります。');
+  if (r.overall === 'ng') return parts.join('');
+  if (r.overall === 'warn') return 'このままMIXに出せますが、気になる点があります。下の項目を確認してください。';
+  return 'MIXに出せる状態です。問題は見つかりませんでした。';
+}
+
+/* ---------- 表示 ---------- */
+function render(){
+  const r = S.result, d = S.dec;
+  $('result').classList.remove('hidden');
+  const b = $('banner'); b.className = 'card banner ' + r.overall;
+  $('bannerBig').textContent = LABEL[r.overall];
+  $('bannerMsg').textContent = overallMsg(r);
+  $('fileMeta').textContent = S.name + ' / ' + d.fmtName + ' / ' + r.sr + 'Hz / ' + chName(r.nCh) + ' / ' + fmtTime(r.dur);
+  $('player').src = S.url;
+
+  const items = [
+    {t:'音割れ(クリッピング)', res: r.clipRes, x: textClip(r)},
+    {t:'背景ノイズ', res: r.noiseRes, x: textNoise(r)},
+    {t:'チャンネル(左右)', res: r.chRes, x: textCh(r)}
+  ];
+  $('items').innerHTML = items.map(it =>
+    `<div class="item ${it.res}"><h3>${it.t}<span class="badge ${it.res}">${LABEL[it.res]}</span></h3>
+     <div class="val">${esc(it.x.val)}</div><p>${esc(it.x.body)}</p>${it.x.tip ? `<p class="tip">${esc(it.x.tip)}</p>` : ''}</div>`).join('');
+
+  // 音割れ位置のチップ
+  const chips = $('clipChips'); chips.innerHTML = '';
+  if (r.clipPlaces.length){
+    const lab = document.createElement('span'); lab.textContent = '音割れの位置:'; chips.appendChild(lab);
+    r.clipPlaces.slice(0, 10).forEach(p => {
+      const c = document.createElement('button'); c.className = 'chip'; c.textContent = fmtTime(p.i / r.sr);
+      c.onclick = () => seek(Math.max(0, p.i / r.sr - 0.5), true); chips.appendChild(c);
+    });
+    if (r.clipPlaces.length > 10){ const m = document.createElement('span'); m.textContent = '… ほか' + (r.clipPlaces.length - 10) + 'か所'; chips.appendChild(m); }
+  }
+
+  setupExportOptions();
+  $('consult').href = CONSULT_URL;
+  $('copyMsg').textContent = '';
+  requestAnimationFrame(drawWave);
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* 波形 */
+const wave = $('wave'), wg = wave.getContext('2d');
+function drawWave(){
+  if (!S) return;
+  const r = S.result, ch = S.dec.ch, n = ch[0].length;
+  const dpr = window.devicePixelRatio || 1, rect = wave.getBoundingClientRect();
+  const W = Math.max(1, Math.round(rect.width)), H = Math.round(rect.height);
+  wave.width = W * dpr; wave.height = H * dpr; wg.setTransform(dpr,0,0,dpr,0,0);
+  wg.clearRect(0,0,W,H);
+  // 音割れ位置(背景の赤い帯)
+  wg.fillStyle = 'rgba(255,90,90,.35)';
+  r.clipPlaces.forEach(p => { const x = (p.i / n) * W; wg.fillRect(x - 2, 0, Math.max(4, (p.span / n) * W), H); });
+  // 波形
+  const per = n / W;
+  wg.fillStyle = '#4cc2ff';
+  for (let x = 0; x < W; x++){
+    let mn = 1, mx = -1; const i0 = Math.floor(x * per), i1 = Math.min(n, Math.floor((x + 1) * per) + 1);
+    const step = Math.max(1, Math.floor((i1 - i0) / 64));
+    for (const c of ch) for (let i = i0; i < i1; i += step){ const v = c[i]; if (v < mn) mn = v; if (v > mx) mx = v; }
+    if (mn > mx) continue;
+    const y1 = (1 - Math.max(-1, Math.min(1, mx))) / 2 * H, y2 = (1 - Math.max(-1, Math.min(1, mn))) / 2 * H;
+    wg.fillRect(x, y1, 1, Math.max(1, y2 - y1));
+  }
+  wg.strokeStyle = 'rgba(255,255,255,.18)'; wg.beginPath(); wg.moveTo(0, H/2); wg.lineTo(W, H/2); wg.stroke();
+  // 再生位置
+  const t = $('player').currentTime || 0;
+  if (t > 0){ const x = (t / r.dur) * W; wg.strokeStyle = '#ffb84d'; wg.lineWidth = 2; wg.beginPath(); wg.moveTo(x, 0); wg.lineTo(x, H); wg.stroke(); wg.lineWidth = 1; }
+}
+function seek(t, play){ const p = $('player'); p.currentTime = t; if (play) p.play().catch(() => {}); drawWave(); }
+wave.onclick = e => { if (!S) return; const rect = wave.getBoundingClientRect(); seek(((e.clientX - rect.left) / rect.width) * S.result.dur, true); };
+$('player').addEventListener('timeupdate', drawWave);
+window.addEventListener('resize', drawWave);
+
+/* ---------- 書き出し ---------- */
+function setupExportOptions(){
+  const r = S.result, sel = $('optCh'), warn = [];
+  const opt = v => [...sel.options].find(o => o.value === v);
+  [...sel.options].forEach(o => o.disabled = false);
+  if (r.nCh === 1){
+    sel.value = 'keep'; ['avg','L','R'].forEach(v => opt(v).disabled = true);
+  } else {
+    if (r.chKind === 'oneside'){ sel.value = r.weak === 'L' ? 'R' : 'L'; warn.push('片側がほぼ無音のため、音が入っている側のモノラルを自動で選びました。'); }
+    else if (r.chKind === 'phase'){ sel.value = 'keep'; opt('avg').disabled = true; warn.push('逆位相の疑いがあるため、平均のモノラルは選べません(音が消えるため)。'); }
+    else if (r.chKind === 'dual'){ sel.value = 'L'; warn.push('左右が同じなので、モノラルにしても音は変わりません(左だけを選択済み)。'); }
+    else sel.value = 'keep';
+  }
+  if (r.peak > 1.0) warn.push('0dBFSを超える部分があります。書き出し時に最大レベルで切られます(24bit WAVの上限)。');
+  if (r.clipRes === 'ng') warn.push('音割れが多い録音です。書き出しても音割れは直りません。録り直しをおすすめします。');
+  $('exportWarn').textContent = warn.join(' ');
+}
+
+async function resample(chs, src, dst){
+  if (src === dst) return chs;
+  const len = chs[0].length;
+  const ab = new AudioBuffer({numberOfChannels: chs.length, length: len, sampleRate: src});
+  chs.forEach((c, i) => ab.copyToChannel(c, i));
+  const off = new OfflineAudioContext(chs.length, Math.ceil(len * dst / src), dst);
+  const s = off.createBufferSource(); s.buffer = ab; s.connect(off.destination); s.start();
+  const out = await off.startRendering();
+  return chs.map((_, i) => out.getChannelData(i).slice());
+}
+function encodeWav24(chs, sr){
+  const nCh = chs.length, len = chs[0].length, data = len * nCh * 3;
+  const buf = new ArrayBuffer(44 + data), v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4, 36 + data, true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true);
+  v.setUint16(20,1,true); v.setUint16(22,nCh,true); v.setUint32(24,sr,true); v.setUint32(28,sr*nCh*3,true);
+  v.setUint16(32,nCh*3,true); v.setUint16(34,24,true); w(36,'data'); v.setUint32(40,data,true);
+  let p = 44;
+  for (let i = 0; i < len; i++) for (let c = 0; c < nCh; c++){
+    let n = Math.round(chs[c][i] * 8388608);
+    if (n > 8388607) n = 8388607; else if (n < -8388608) n = -8388608;
+    if (n < 0) n += 16777216;
+    v.setUint8(p, n & 255); v.setUint8(p+1, (n >> 8) & 255); v.setUint8(p+2, (n >> 16) & 255); p += 3;
+  }
+  return new Blob([buf], {type: 'audio/wav'});
+}
+$('btnExport').onclick = async () => {
+  if (!S) return;
+  const btn = $('btnExport'); btn.disabled = true; const old = btn.textContent; btn.textContent = '書き出し中…';
+  try{
+    await new Promise(r => setTimeout(r, 30));
+    let chs = S.dec.ch;
+    const mode = $('optCh').value;
+    if (mode === 'L') chs = [chs[0]];
+    else if (mode === 'R') chs = [chs[1] || chs[0]];
+    else if (mode === 'avg' && chs.length >= 2){
+      const m = new Float32Array(chs[0].length); for (let i = 0; i < m.length; i++) m[i] = (chs[0][i] + chs[1][i]) / 2; chs = [m];
+    }
+    const target = parseInt($('optSr').value, 10) || S.dec.sr;
+    chs = await resample(chs, S.dec.sr, target);
+    const blob = encodeWav24(chs, target);
+    const base = S.name.replace(/\.[^.]+$/, '');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = base + '_mix.wav';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    window.__lastExport = {sr: target, ch: chs.length, len: chs[0].length, bytes: blob.size};
+  }catch(err){
+    $('exportWarn').textContent = '書き出しに失敗しました: ' + (err && err.message ? err.message : err);
+  }
+  btn.disabled = false; btn.textContent = old;
+};
+
+/* ---------- 結果コピー ---------- */
+function summaryText(){
+  const r = S.result, c = textClip(r), nz = textNoise(r), ch = textCh(r);
+  return [
+    '【録音チェック結果】総合: ' + LABEL_PLAIN[r.overall],
+    '・音割れ: ' + LABEL_PLAIN[r.clipRes] + '(' + c.val + ')',
+    '・背景ノイズ: ' + LABEL_PLAIN[r.noiseRes] + '(' + nz.val + (r.noiseRel ? '' : '・参考値') + ')',
+    '・チャンネル: ' + LABEL_PLAIN[r.chRes] + '(' + ch.val + ')',
+    '・形式: ' + S.dec.fmtName + ' / ' + r.sr + 'Hz / ' + chName(r.nCh) + ' / ' + fmtTime(r.dur)
+  ].join('\n');
+}
+$('btnCopy').onclick = async () => {
+  if (!S) return;
+  const t = summaryText();
+  try{ await navigator.clipboard.writeText(t); $('copyMsg').textContent = 'コピーしました。相談フォームに貼り付けてください。'; }
+  catch(e){
+    const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); $('copyMsg').textContent = 'コピーしました。相談フォームに貼り付けてください。'; }
+    catch(e2){ $('copyMsg').textContent = 'コピーできませんでした。手動で選択してください。'; }
+    ta.remove();
+  }
+};
+
+window.__checker = { handleFile, get state(){ return S; }, summaryText };
+})();
+</script>
+</body>
+</html>
