@@ -142,6 +142,9 @@
   .beat-cell.accent.lit{background:var(--amber); color:var(--navy-2);}
   .beat-cell.ura{min-width:22px; padding:0 3px; background:transparent; color:var(--text-dim); font-size:11px;}
   .beat-cell.ura.lit{background:#FDF1DA; color:#9A6A12;}
+  .beat-row.compact{gap:3px;}
+  .beat-row.compact .beat-cell{min-width:20px; height:28px; padding:0 3px; font-size:12px;}
+  .beat-row.compact .beat-cell.ura{min-width:14px; padding:0 1px; font-size:10px;}
   .beat-cell.target{outline:3px solid var(--data); outline-offset:1px;}
   .beat-cell.target::after{
     content:'TAP'; position:absolute; left:50%; transform:translateX(-50%); bottom:-17px;
@@ -261,10 +264,10 @@
 
     <!-- 1. hero -->
     <section id="screen-hero" class="card">
-      <div class="eyebrow-pill">全4ラウンド×各4回成功</div>
+      <div class="eyebrow-pill">全6ラウンド×各4回成功</div>
       <div class="icon-circle">🥁</div>
       <h1>あなたのリズム感、<br>どれくらい？</h1>
-      <p>メトロノームに合わせて、<strong>指定された拍だけ</strong>タップするだけ。叩く拍はラウンドごとにランダム、最後は<strong>裏拍</strong>にも挑戦！ズレは「何拍分か」で測定します。</p>
+      <p>メトロノームに合わせて、<strong>指定された拍だけ</strong>タップするだけ。叩く拍はラウンドごとにランダム、後半は<strong>裏拍</strong>にも挑戦！ズレは「何拍分か」で測定します。</p>
       <button class="btn" id="btnToRules">ルールを見る</button>
     </section>
 
@@ -272,15 +275,15 @@
     <section id="screen-rules" class="card" hidden>
       <h2>やり方はかんたん</h2>
       <ul class="rule-list">
-        <li><span class="rule-num">1</span><span>ラウンドに入るとすぐにメトロノームが鳴りはじめます（テンポはランダム。6/8はBPM180以上とかなり速めです）</span></li>
+        <li><span class="rule-num">1</span><span>ラウンドに入るとすぐにメトロノームが鳴りはじめます（テンポはランダム。表拍の6/8はBPM180以上とかなり速めです）</span></li>
         <li><span class="rule-num">2</span><span>画面に<strong>「今回叩く拍」</strong>が出ます（例：3拍目）。何拍目かは毎ラウンドランダムです</span></li>
         <li><span class="rule-num">3</span><span>リズムを感じられたら「スタート」ボタンを押してください（聞くのは自由な長さでOK）</span></li>
         <li><span class="rule-num">4</span><span>スタート後は、<strong>毎小節その拍だけ</strong>タップ。判定は<strong>指を離した瞬間</strong>です</span></li>
-        <li><span class="rule-num">5</span><span>最後は<strong>裏拍</strong>ラウンド。「2と」＝2拍目と3拍目の<strong>ちょうどまんなか</strong>です。スタート前だけ、小さなガイド音で「と」の位置が鳴ります（スタートすると消えます）</span></li>
+        <li><span class="rule-num">5</span><span>後半3ラウンドは<strong>裏拍</strong>。「2と」＝2拍目と3拍目の<strong>ちょうどまんなか</strong>です。スタート前だけ、小さなガイド音で「と」の位置が鳴ります（スタートすると消えます）</span></li>
         <li><span class="rule-num">6</span><span>小節の頭（1拍目）だけ音が高くなります</span></li>
-        <li><span class="rule-num">7</span><span>早すぎても遅すぎても、ズレとして記録。結果は<strong>「1/4拍」「1/8拍」など何拍分ズレたか</strong>で表示されます</span></li>
+        <li><span class="rule-num">7</span><span>ズレは<strong>「1/4拍」「1/8拍」など何拍分か</strong>で表示。<strong>1/16拍以上</strong>ズレると「少し早い／遅い」、1/32拍くらいのほぼ誤差ならPERFECTです。結果画面では1/32拍刻みで細かく表示します</span></li>
         <li><span class="rule-num">8</span><span>タイミングを見逃しても大丈夫。判定はされないので、次の小節でまた挑戦できます</span></li>
-        <li><span class="rule-num">9</span><span>各ラウンドで<strong>4回成功</strong>したら次へ。テンポも叩く拍も変わるので、スタートを押し直してください。全4ラウンドで結果画面へ。イヤホン・ヘッドホンがおすすめです</span></li>
+        <li><span class="rule-num">9</span><span>各ラウンドで<strong>4回成功</strong>したら次へ。テンポも叩く拍も変わるので、スタートを押し直してください。全6ラウンドで結果画面へ。イヤホン・ヘッドホンがおすすめです</span></li>
       </ul>
 
       <div class="sig-select">
@@ -290,6 +293,8 @@
           <span class="sig-chip">② 3/4拍子</span>
           <span class="sig-chip">③ 6/8拍子</span>
           <span class="sig-chip ura">④ 4/4拍子・裏拍</span>
+          <span class="sig-chip ura">⑤ 3/4拍子・裏拍</span>
+          <span class="sig-chip ura">⑥ 6/8拍子・裏拍</span>
         </div>
       </div>
 
@@ -387,18 +392,21 @@
     { sig: '4/4', beatsPerMeasure: 4, mode: 'on' },
     { sig: '3/4', beatsPerMeasure: 3, mode: 'on' },
     { sig: '6/8', beatsPerMeasure: 6, mode: 'on' },
-    { sig: '4/4', beatsPerMeasure: 4, mode: 'off' }
+    { sig: '4/4', beatsPerMeasure: 4, mode: 'off' },
+    { sig: '3/4', beatsPerMeasure: 3, mode: 'off' },
+    { sig: '6/8', beatsPerMeasure: 6, mode: 'off' }
   ];
   var HITS_NEEDED = 4; // 1ラウンドにつき何回成功したら次に進むか
   var INTERVAL = 60 / 100; // 秒（ラウンドごとにランダムなBPMで上書きされる）
   var HIT_WINDOW = INTERVAL / 2; // 目標からこの範囲内のタップだけ採点対象（ラウンドごとに更新）
-  var PERFECT_MS = 60; // この範囲内ならパーフェクト判定
-  var OK_MS = 120; // この範囲内なら「少し早い／遅い」判定
+  var PERFECT_BEAT = 1/16; // ズレがこれ未満（1/32程度まで）ならパーフェクト判定
+  var OK_BEAT = 1/4;       // 1/16拍以上〜この範囲内なら「少し早い／遅い」、それ以上は「早い／遅い」
   var GUIDE_BEFORE_START = 0.5; // スタート直後、次の目標までに最低これだけ余裕を持たせる（秒）
 
   // ラウンドごとにランダムなBPMを決める（6/8はBPM180以上のランダムでかなり速く）
-  function pickBpmForSignature(sig){
-    if(sig === '6/8'){
+  // （6/8の裏拍は16分音符の細かさになるので、速くしすぎず通常のテンポ帯にする）
+  function pickBpmForSignature(sig, mode){
+    if(sig === '6/8' && mode === 'on'){
       return Math.round(FAST_BPM_MIN + Math.random() * (FAST_BPM_MAX - FAST_BPM_MIN));
     }
     return Math.round(BPM_MIN + Math.random() * (BPM_MAX - BPM_MIN));
@@ -509,6 +517,7 @@
   function buildBeatRow(round, k){
     var row = document.getElementById('beatRow');
     row.innerHTML = '';
+    row.className = 'beat-row' + (round.beatsPerMeasure >= 6 && round.mode === 'off' ? ' compact' : '');
     beatCells = []; uraCells = [];
     for(var i = 0; i < round.beatsPerMeasure; i++){
       var c = document.createElement('div');
@@ -559,7 +568,7 @@
     var round = SEQUENCE[roundIndex];
     beatsPerMeasureCurrent = round.beatsPerMeasure;
 
-    var bpm = pickBpmForSignature(round.sig);
+    var bpm = pickBpmForSignature(round.sig, round.mode);
     INTERVAL = 60 / bpm;
     HIT_WINDOW = INTERVAL / 2;
 
@@ -721,21 +730,19 @@
     document.getElementById('beatLabel').textContent = roundResults.length + ' / ' + HITS_NEEDED + ' 成功';
     document.getElementById('progressFill').style.width = (roundResults.length / HITS_NEEDED * 100) + '%';
 
-    var ms = Math.round(deviation * 1000);
-    var absMs = Math.abs(ms);
+    var absBeat = Math.abs(beatDev);
     var flashClass;
-    var phrase = fracPhrase(Math.abs(beatDev));
-    var dirText = (fracOf(Math.abs(beatDev)) === null) ? '' : (beatDev > 0 ? '（遅れ）' : '（早め）');
-    if(absMs <= PERFECT_MS){
-      tag.textContent = 'PERFECT！　' + phrase + dirText;
+    var phrase = fracPhrase(absBeat);
+    if(absBeat < PERFECT_BEAT){
+      tag.textContent = 'PERFECT！';
       tag.className = 'feedback-tag perfect';
       flashClass = 'flash-perfect';
-    } else if(absMs <= OK_MS){
-      tag.textContent = (ms > 0 ? '少し遅い' : '少し早い') + '　' + phrase + dirText;
+    } else if(absBeat < OK_BEAT){
+      tag.textContent = (beatDev > 0 ? '少し遅い' : '少し早い') + '　' + phrase;
       tag.className = 'feedback-tag ok';
       flashClass = 'flash-ok';
     } else {
-      tag.textContent = (ms > 0 ? '遅い' : '早い') + '　' + phrase + dirText;
+      tag.textContent = (beatDev > 0 ? '遅い' : '早い') + '　' + phrase;
       tag.className = 'feedback-tag miss';
       flashClass = 'flash-miss';
     }
@@ -875,12 +882,7 @@
     var container = document.getElementById('zureChart');
     if(allResults.length === 0){ container.innerHTML = ''; return; }
 
-    var maxAbs = 0;
-    allResults.forEach(function(r){
-      var absMs = Math.abs(r.deviation * 1000);
-      if(absMs > maxAbs) maxAbs = absMs;
-    });
-    var domain = Math.max(150, Math.ceil((maxAbs + 20) / 10) * 10);
+    var domain = 0.5; // 横軸は拍単位（±1/2拍）
 
     var plotLeft = 78, plotRight = 308, plotWidth = plotRight - plotLeft;
     var rowH = 38, topPad = 10;
@@ -889,13 +891,13 @@
     var chartH = axisY + 20;
     var cx = plotLeft + plotWidth / 2;
 
-    function xPos(ms){
-      var clamped = Math.max(-domain, Math.min(domain, ms));
+    function xPos(b){
+      var clamped = Math.max(-domain, Math.min(domain, b));
       return plotLeft + ((clamped + domain) / (domain * 2)) * plotWidth;
     }
 
-    var okX0 = xPos(-OK_MS), okX1 = xPos(OK_MS);
-    var pfX0 = xPos(-PERFECT_MS), pfX1 = xPos(PERFECT_MS);
+    var okX0 = xPos(-OK_BEAT), okX1 = xPos(OK_BEAT);
+    var pfX0 = xPos(-PERFECT_BEAT), pfX1 = xPos(PERFECT_BEAT);
 
     var rowsSvg = '';
     for(var i = 0; i < rows; i++){
@@ -904,11 +906,11 @@
       var meta = roundMeta[i] || {sig: SEQUENCE[i].sig, label: ''};
       var dotsSvg = chunk.map(function(r, j){
         var ms = r.deviation * 1000;
-        var absMs = Math.abs(ms);
-        var cls = absMs <= PERFECT_MS ? 'good' : (absMs <= OK_MS ? 'ok' : 'bad');
+        var absB = Math.abs(r.beatDev);
+        var cls = absB < PERFECT_BEAT ? 'good' : (absB < OK_BEAT ? 'ok' : 'bad');
         var color = cls === 'good' ? 'var(--data)' : (cls === 'ok' ? 'var(--blue)' : 'var(--bad)');
         var jitter = (j % 2 === 0) ? -6 : 6;
-        var x = xPos(ms);
+        var x = xPos(r.beatDev);
         var y = rowY + jitter;
         var sign = ms > 0 ? '+' : '';
         return '<circle class="zure-dot" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5.5" fill="' + color + '"><title>' + (j + 1) + '打目: ' + sign + Math.round(ms) + 'ms（' + fracPhrase(Math.abs(r.beatDev)) + '）</title></circle>';
