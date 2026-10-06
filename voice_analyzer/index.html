@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>声のアナライザー</title>
+<style>
+:root{
+  --bg:#0f1720; --panel:#17212d; --line:#2a3848; --ink:#e8eef5; --sub:#93a4b8;
+  --accent:#4cc2ff; --warn:#ffb84d; --good:#5fd38d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Noto Sans CJK JP","Meiryo",sans-serif;line-height:1.6}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line)}
+header h1{font-size:20px;font-weight:700;margin-right:auto}
+header h1 small{display:block;font-size:12px;font-weight:400;color:var(--sub)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:var(--panel);color:var(--sub);border:0;padding:9px 16px;font-size:14px;cursor:pointer;font-family:inherit}
+.seg button.on{background:var(--accent);color:#04202e;font-weight:700}
+main{padding:18px 22px;display:grid;gap:16px;max-width:1280px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.src{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{background:var(--accent);color:#04202e;border:0;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:400}
+.btn.stop{background:#ff6b6b;color:#2a0a0a}
+.status{font-size:13px;color:var(--sub)}
+.status b{color:var(--ink)}
+#fileRow{display:none;width:100%}
+#fileRow.show{display:block}
+audio{width:100%;margin-top:8px}
+.canvaswrap{position:relative}
+canvas{width:100%;display:block;border-radius:10px;background:#0b121a}
+#spec{height:380px}
+.readout{display:flex;flex-wrap:wrap;gap:22px;margin-top:10px;font-size:14px}
+.readout div span{color:var(--sub);font-size:12px;display:block}
+.readout div b{font-size:20px;font-variant-numeric:tabular-nums}
+.focus{display:flex;gap:16px;align-items:flex-start}
+.focus .tag{flex:none;background:var(--accent);color:#04202e;font-weight:700;border-radius:8px;padding:2px 10px;font-size:13px}
+.focus h2{font-size:22px;margin:4px 0}
+.focus p{color:var(--ink);font-size:15px}
+.focus .hint{color:var(--sub);font-size:13px;margin-top:4px}
+.bands{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
+.band{background:#0f1923;border:2px solid var(--line);border-radius:12px;padding:10px 8px 12px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.band.top{border-color:var(--accent)}
+.band.pin{border-color:var(--warn)}
+.band .n{font-weight:700;font-size:14px;line-height:1.3;min-height:2.6em;display:flex;align-items:center}
+.band .hz{font-size:11px;color:var(--sub)}
+.band .meter{width:34px;height:130px;background:#0b121a;border-radius:8px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.band .fill{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,#2d8fcc,#4cc2ff);height:0}
+.band.top .fill{background:linear-gradient(0deg,#d98a1f,#ffb84d)}
+.band .db{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.band .flag{font-size:11px;font-weight:700;min-height:1.4em;color:var(--accent)}
+.ctrl{display:flex;flex-wrap:wrap;gap:18px 26px;align-items:center;font-size:13px;color:var(--sub)}
+.ctrl label{display:flex;align-items:center;gap:8px}
+.ctrl input[type=range]{width:130px}
+.ctrl select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-family:inherit}
+.note{font-size:12px;color:var(--sub)}
+.easyonly{display:block}
+body.detail .easyonly{display:none}
+.detailonly{display:none}
+body.detail .detailonly{display:block}
+body.detail .readout.detailonly{display:flex}
+@media(max-width:900px){.bands{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>声のアナライザー<small>音を「見える化」して、帯域ごとの意味を文字で確認できます</small></h1>
+  <div class="seg" id="modeSeg" role="tablist" aria-label="表示モード">
+    <button data-mode="easy" class="on">かんたん</button>
+    <button data-mode="detail">くわしく</button>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="src">
+      <button class="btn" id="btnMic">マイクで測る</button>
+      <button class="btn ghost" id="btnFile">音声ファイルで測る</button>
+      <button class="btn stop" id="btnStop" style="display:none">停止</button>
+      <span class="status" id="status">入力: <b>なし</b></span>
+    </div>
+    <div id="fileRow">
+      <input type="file" id="fileInput" accept="audio/*" style="display:none">
+      <audio id="player" controls></audio>
+      <p class="note" style="margin-top:6px">ファイルをこの画面にドラッグ&amp;ドロップしても読み込めます。</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="canvaswrap"><canvas id="spec"></canvas></div>
+    <div class="readout detailonly" id="readout">
+      <div><span>いちばん強い周波数</span><b id="roPeak">--</b></div>
+      <div><span>その音名(目安)</span><b id="roNote">--</b></div>
+      <div><span>強さ(補正なしの値)</span><b id="roDb">--</b></div>
+      <div><span>カーソル位置</span><b id="roCur">--</b></div>
+    </div>
+    <p class="note" style="margin-top:8px">横軸: 周波数(Hz)。左が低い音、右が高い音。縦軸: 音の強さ。背景の帯の文字は、その帯域の「聞こえ方の目安」です。</p>
+  </section>
+
+  <section class="card easyonly" id="focusCard">
+    <div class="focus">
+      <span class="tag" id="focusTag">いま目立っている帯域</span>
+      <div>
+        <h2 id="focusName">音を入れてください</h2>
+        <p id="focusDesc">マイクで話す・歌う、または音声ファイルを再生すると、ここに説明が出ます。</p>
+        <p class="hint" id="focusHint">下の帯域をクリックすると、その帯域の説明を固定できます。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card easyonly">
+    <div class="bands" id="bands"></div>
+    <p class="note" style="margin-top:10px">各帯域の棒は、その帯域の平均的な強さです(「見やすさ補正」あり)。数値は絶対的な正解ではなく、目安として使ってください。</p>
+  </section>
+
+  <section class="card">
+    <div class="ctrl">
+      <label>なめらかさ <input type="range" id="smooth" min="0" max="95" value="80"><span id="smoothV">0.80</span></label>
+      <label>ピーク保持 <input type="checkbox" id="hold" checked></label>
+      <label>見やすさ補正 <input type="checkbox" id="tilt" checked></label>
+      <label class="detailonly">FFTサイズ
+        <select id="fft"><option>2048</option><option selected>4096</option><option>8192</option><option>16384</option></select>
+      </label>
+      <label class="detailonly">表示範囲(下限dB)
+        <select id="floor"><option value="-70">-70</option><option value="-90" selected>-90</option><option value="-110">-110</option></select>
+      </label>
+    </div>
+    <p class="note" style="margin-top:8px">見やすさ補正: 音は高い周波数ほど自然に弱くなるため、高域を持ち上げて表示します(1kHzを基準に1オクターブごと+4.5dB)。切ると素の値になります。</p>
+  </section>
+</main>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- 帯域の定義(目安) ---------- */
+const BANDS = [
+  {n:'超低域',    lo:20,   hi:60,    desc:'体で感じる低い響きの帯域。ほとんど聞こえないので、歌声にはほぼ不要です。エアコンや机の振動などのノイズが出やすい帯域でもあります。', hint:'多い: ゴロゴロしたノイズが入っている可能性'},
+  {n:'低域',      lo:60,   hi:120,   desc:'キックやベースの土台になる帯域。声ではマイクに近づくと(近接効果)増えやすく、増えすぎると重たく聞こえます。', hint:'多い: 重い・ボンつく / 少ない: 軽い'},
+  {n:'声の太さ',  lo:120,  hi:250,   desc:'声のふくよかさ・太さを決める帯域。足りないと細く、増えすぎるとボワッとします。', hint:'多い: ボワつく / 少ない: 細い'},
+  {n:'こもり',    lo:250,  hi:500,   desc:'「こもる」「箱の中で鳴っている」ように感じやすい帯域。多いとモヤっとし、少ないと薄く感じます。', hint:'多い: こもる / 少ない: 薄い'},
+  {n:'声の芯',    lo:500,  hi:2000,  desc:'言葉の中身・存在感の中心。母音の特徴が集まる帯域です。多いと鼻にかかった・電話のような音になりやすいです。', hint:'多い: 鼻にかかる・電話っぽい / 少ない: 遠い'},
+  {n:'抜け・明瞭さ',lo:2000, hi:5000,  desc:'子音がはっきり聞こえ、声が前に出てくる帯域。耳が敏感なので、多いとキツく、少ないと奥に引っ込みます。', hint:'多い: キツい / 少ない: 奥に引っ込む'},
+  {n:'サ行・刺さり',lo:5000, hi:8000,  desc:'サ行(シャ・スー)の成分が多い帯域。ここが強いと耳に刺さって痛く感じます。', hint:'多い: サ行が刺さる'},
+  {n:'空気感',    lo:8000, hi:20000, desc:'息づかいやきらめきの帯域。少ないとこもって聞こえ、多いとシャカシャカします。', hint:'多い: シャカつく / 少ない: こもる'}
+];
+const F_MIN = 20, F_MAX = 20000;
+
+/* ---------- 状態 ---------- */
+let ctx = null, analyser = null, srcNode = null, micStream = null, mediaSrc = null;
+let freqData = null;
+let mode = 'easy';
+let running = false;
+let pinned = -1;
+let peakHold = null;     // dB(表示用・補正後)
+let cursor = null;       // {x,y}
+let bandSmooth = new Float32Array(BANDS.length).fill(-120);
+let focusIdx = -1, focusSince = 0;
+
+const $ = id => document.getElementById(id);
+const canvas = $('spec'), g = canvas.getContext('2d');
+
+/* ---------- 帯域カード生成 ---------- */
+const bandsEl = $('bands');
+BANDS.forEach((b, i) => {
+  const d = document.createElement('div');
+  d.className = 'band';
+  d.dataset.i = i;
+  d.innerHTML = `<div class="n">${b.n}</div><div class="hz">${fmtHz(b.lo)}〜${fmtHz(b.hi)}</div>
+    <div class="meter"><div class="fill"></div></div><div class="db">--</div><div class="flag"></div>`;
+  d.addEventListener('click', () => { pinned = (pinned === i) ? -1 : i; });
+  bandsEl.appendChild(d);
+});
+const bandEls = [...bandsEl.children];
+
+function fmtHz(f){ return f >= 1000 ? (f/1000).toString().replace(/\.0$/,'') + 'k' : String(f); }
+
+/* ---------- 入力 ---------- */
+function ensureCtx(){
+  if (!ctx){
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = ctx.createAnalyser();
+    applyAnalyserSettings();
+  }
+  if (ctx.state === 'suspended') ctx.resume();
+}
+function applyAnalyserSettings(){
+  if (!analyser) return;
+  analyser.fftSize = parseInt($('fft').value, 10);
+  analyser.smoothingTimeConstant = parseInt($('smooth').value, 10) / 100;
+  analyser.minDecibels = -120;
+  analyser.maxDecibels = 0;
+  freqData = new Float32Array(analyser.frequencyBinCount);
+}
+function disconnectSource(){
+  if (srcNode){ try{ srcNode.disconnect(); }catch(e){} srcNode = null; }
+  if (micStream){ micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  try{ analyser && analyser.disconnect(); }catch(e){}
+}
+function setStatus(html){ $('status').innerHTML = html; }
+
+async function startMic(){
+  try{
+    ensureCtx();
+    disconnectSource();
+    $('player').pause();
+    micStream = await navigator.mediaDevices.getUserMedia({audio:{
+      echoCancellation:false, noiseSuppression:false, autoGainControl:false
+    }});
+    srcNode = ctx.createMediaStreamSource(micStream);
+    srcNode.connect(analyser);           // スピーカーには出さない(ハウリング防止)
+    running = true; peakHold = null;
+    $('fileRow').classList.remove('show');
+    $('btnStop').style.display = '';
+    setStatus('入力: <b>マイク</b>(スピーカーには出力しません)');
+  }catch(err){
+    setStatus('マイクを使えませんでした: <b>' + (err && err.name ? err.name : 'error') + '</b> — ブラウザのマイク許可を確認してください');
+  }
+}
+function startFileMode(){
+  ensureCtx();
+  disconnectSource();
+  if (!mediaSrc) mediaSrc = ctx.createMediaElementSource($('player'));
+  srcNode = mediaSrc;
+  srcNode.connect(analyser);
+  analyser.connect(ctx.destination);     // ファイルは聞こえるように出力
+  running = true; peakHold = null;
+  $('fileRow').classList.add('show');
+  $('btnStop').style.display = '';
+  setStatus('入力: <b>音声ファイル</b>(下のプレーヤーで再生してください)');
+}
+function loadFile(file){
+  if (!file) return;
+  startFileMode();
+  const p = $('player');
+  p.src = URL.createObjectURL(file);
+  p.play().catch(() => {});
+  setStatus('入力: <b>音声ファイル</b> — ' + escapeHtml(file.name));
+}
+function stopAll(){
+  disconnectSource();
+  $('player').pause();
+  running = false;
+  $('btnStop').style.display = 'none';
+  setStatus('入力: <b>なし</b>');
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+$('btnMic').onclick = startMic;
+$('btnFile').onclick = () => { startFileMode(); $('fileInput').click(); };
+$('fileInput').onchange = e => loadFile(e.target.files[0]);
+$('btnStop').onclick = stopAll;
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) loadFile(f); });
+
+$('smooth').oninput = () => { $('smoothV').textContent = (parseInt($('smooth').value,10)/100).toFixed(2); applyAnalyserSettings(); };
+$('fft').onchange = () => { applyAnalyserSettings(); peakHold = null; };
+$('floor').onchange = () => { peakHold = null; };
+
+document.querySelectorAll('#modeSeg button').forEach(btn => {
+  btn.onclick = () => {
+    mode = btn.dataset.mode;
+    document.querySelectorAll('#modeSeg button').forEach(x => x.classList.toggle('on', x === btn));
+    document.body.classList.toggle('detail', mode === 'detail');
+    resize();
+  };
+});
+
+/* ---------- 描画ユーティリティ ---------- */
+let W = 0, H = 0, DPR = 1;
+const PAD = {l:46, r:12, t:14, b:30};
+function resize(){
+  DPR = window.devicePixelRatio || 1;
+  const r = canvas.getBoundingClientRect();
+  W = r.width; H = r.height;
+  canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+  g.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+
+const lx = f => PAD.l + (Math.log(f/F_MIN) / Math.log(F_MAX/F_MIN)) * (W - PAD.l - PAD.r);
+const fx = x => F_MIN * Math.pow(F_MAX/F_MIN, (x - PAD.l) / (W - PAD.l - PAD.r));
+const dbTop = -10;
+const dbFloor = () => parseInt($('floor').value, 10);
+const dy = db => { const fl = dbFloor(); const t = (db - fl) / (dbTop - fl); return PAD.t + (1 - Math.max(0, Math.min(1, t))) * (H - PAD.t - PAD.b); };
+
+function tiltDb(f){ return $('tilt').checked ? 4.5 * Math.log2(f/1000) : 0; }
+
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function noteName(f){
+  const m = 69 + 12 * Math.log2(f/440);
+  const r = Math.round(m);
+  const cents = Math.round((m - r) * 100);
+  const name = NOTE_NAMES[((r % 12) + 12) % 12] + (Math.floor(r/12) - 1);
+  return name + (cents >= 0 ? ' +' : ' ') + cents + '¢';
+}
+
+/* ---------- 解析 ---------- */
+function binFreq(i){ return i * ctx.sampleRate / analyser.fftSize; }
+
+function bandLevel(lo, hi){
+  const N = analyser.fftSize, sr = ctx.sampleRate;
+  let i0 = Math.max(1, Math.floor(lo * N / sr)), i1 = Math.min(freqData.length - 1, Math.ceil(hi * N / sr));
+  if (i1 < i0) i1 = i0;
+  let sum = 0, n = 0;
+  for (let i = i0; i <= i1; i++){
+    const f = binFreq(i);
+    const db = freqData[i] + tiltDb(f);
+    sum += Math.pow(10, db/10); n++;
+  }
+  return 10 * Math.log10(sum / n + 1e-14);
+}
+
+/* ---------- 描画 ---------- */
+const BAND_FILL = ['#1d2a38','#16222e'];
+function drawGrid(){
+  const fl = dbFloor();
+  g.clearRect(0,0,W,H);
+  // 帯域の背景と文字ラベル(色だけに頼らない)
+  BANDS.forEach((b,i) => {
+    const x0 = lx(b.lo), x1 = lx(b.hi);
+    g.fillStyle = BAND_FILL[i % 2];
+    g.fillRect(x0, PAD.t, x1 - x0, H - PAD.t - PAD.b);
+    g.fillStyle = (i === focusIdx && running) ? '#ffb84d' : '#8fa3b8';
+    g.font = '12px sans-serif';
+    g.textAlign = 'center';
+    const label = b.n;
+    const w = x1 - x0;
+    if (w > 34){
+      g.save(); g.beginPath(); g.rect(x0, PAD.t, w, 22); g.clip();
+      g.fillText(label, (x0 + x1)/2, PAD.t + 15);
+      g.restore();
+    }
+  });
+  // dB線
+  g.strokeStyle = '#243344'; g.lineWidth = 1; g.fillStyle = '#7e90a5'; g.font = '11px sans-serif'; g.textAlign = 'right';
+  for (let db = dbTop; db >= fl; db -= 20){
+    const y = dy(db);
+    g.beginPath(); g.moveTo(PAD.l, y); g.lineTo(W - PAD.r, y); g.stroke();
+    g.fillText(db + ' dB', PAD.l - 6, y + 4);
+  }
+  // Hz線
+  g.textAlign = 'center';
+  [20,50,100,200,500,1000,2000,5000,10000,20000].forEach(f => {
+    const x = lx(f);
+    g.strokeStyle = '#2e4054';
+    g.beginPath(); g.moveTo(x, PAD.t); g.lineTo(x, H - PAD.b); g.stroke();
+    g.fillText(f >= 1000 ? (f/1000) + 'k' : String(f), x, H - PAD.b + 16);
+  });
+  g.fillStyle = '#7e90a5'; g.textAlign = 'right';
+  g.fillText('Hz', W - PAD.r, H - 4);
+}
+
+function drawSpectrum(){
+  if (!running || !freqData) return;
+  const N = freqData.length;
+  const pts = [];
+  // 画面のx位置ごとに、対応する周波数範囲の最大値を取る
+  const x0 = Math.ceil(lx(F_MIN)), x1 = Math.floor(lx(F_MAX));
+  const sr = ctx.sampleRate, fftN = analyser.fftSize;
+  for (let x = x0; x <= x1; x++){
+    const fa = fx(x - 0.5), fb = fx(x + 0.5);
+    let i0 = Math.floor(fa * fftN / sr), i1 = Math.ceil(fb * fftN / sr);
+    i0 = Math.max(1, Math.min(N-1, i0)); i1 = Math.max(i0, Math.min(N-1, i1));
+    let m = -200;
+    if (i1 === i0){
+      // 低域はビンが粗いので隣接ビン間を補間
+      const pos = fa * fftN / sr; const j = Math.max(1, Math.min(N-2, Math.floor(pos))); const t = pos - j;
+      m = freqData[j] * (1-t) + freqData[j+1] * t;
+    } else {
+      for (let i = i0; i <= i1; i++) if (freqData[i] > m) m = freqData[i];
+    }
+    const f = fx(x);
+    pts.push([x, m + tiltDb(f)]);
+  }
+  // ピーク保持
+  if (!peakHold || peakHold.length !== pts.length) peakHold = pts.map(p => p[1]);
+  for (let i = 0; i < pts.length; i++){
+    peakHold[i] = Math.max(pts[i][1], peakHold[i] - 0.25);
+  }
+  // 塗り
+  const yb = H - PAD.b;
+  g.beginPath(); g.moveTo(pts[0][0], yb);
+  pts.forEach(p => g.lineTo(p[0], dy(p[1])));
+  g.lineTo(pts[pts.length-1][0], yb); g.closePath();
+  const grad = g.createLinearGradient(0, PAD.t, 0, yb);
+  grad.addColorStop(0, 'rgba(76,194,255,.55)'); grad.addColorStop(1, 'rgba(76,194,255,.05)');
+  g.fillStyle = grad; g.fill();
+  g.beginPath(); pts.forEach((p,i) => i ? g.lineTo(p[0], dy(p[1])) : g.moveTo(p[0], dy(p[1])));
+  g.strokeStyle = '#4cc2ff'; g.lineWidth = 1.6; g.stroke();
+  if ($('hold').checked){
+    g.beginPath(); pts.forEach((p,i) => i ? g.lineTo(p[0], dy(peakHold[i])) : g.moveTo(p[0], dy(peakHold[i])));
+    g.strokeStyle = 'rgba(255,184,77,.8)'; g.lineWidth = 1; g.stroke();
+  }
+  return pts;
+}
+
+function drawCursor(pts){
+  if (!cursor || mode !== 'detail') { $('roCur').textContent = '--'; return; }
+  const {x} = cursor;
+  if (x < PAD.l || x > W - PAD.r){ $('roCur').textContent = '--'; return; }
+  const f = fx(x);
+  g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(x, PAD.t); g.lineTo(x, H - PAD.b); g.stroke();
+  let txt = f >= 1000 ? (f/1000).toFixed(2) + ' kHz' : f.toFixed(0) + ' Hz';
+  txt += ' (' + noteName(f).replace(/ [+-]\d+¢/,'') + ')';
+  if (pts && running){
+    const idx = Math.max(0, Math.min(pts.length-1, Math.round(x) - pts[0][0]));
+    txt += ' / ' + pts[idx][1].toFixed(0) + ' dB';
+  }
+  $('roCur').textContent = txt;
+}
+
+function updateReadouts(){
+  if (mode !== 'detail' || !running) return;
+  // 50Hz〜12kHzの範囲でピーク探索(放物線補間)
+  const sr = ctx.sampleRate, N = analyser.fftSize;
+  const i0 = Math.max(2, Math.floor(50 * N / sr)), i1 = Math.min(freqData.length - 2, Math.ceil(12000 * N / sr));
+  let mi = i0, mv = -200;
+  for (let i = i0; i <= i1; i++){ if (freqData[i] > mv){ mv = freqData[i]; mi = i; } }
+  if (mv < -75){ $('roPeak').textContent = '--'; $('roNote').textContent = '--'; $('roDb').textContent = '--'; return; }
+  const a = freqData[mi-1], b = freqData[mi], c = freqData[mi+1];
+  const denom = (a - 2*b + c);
+  const p = denom !== 0 ? 0.5 * (a - c) / denom : 0;
+  const f = (mi + p) * sr / N;
+  $('roPeak').textContent = f >= 1000 ? (f/1000).toFixed(2) + ' kHz' : f.toFixed(1) + ' Hz';
+  $('roNote').textContent = noteName(f);
+  $('roDb').textContent = mv.toFixed(1) + ' dB';
+}
+
+function updateBands(){
+  if (!running){
+    bandEls.forEach(el => { el.querySelector('.fill').style.height = '0%'; el.querySelector('.db').textContent = '--'; el.querySelector('.flag').textContent=''; el.classList.remove('top'); });
+    focusIdx = -1; setFocus(-1);
+    return;
+  }
+  const fl = -90, ceil = -20;
+  let best = -1, bv = -999;
+  BANDS.forEach((b,i) => {
+    const v = bandLevel(b.lo, b.hi);
+    bandSmooth[i] = bandSmooth[i] < -110 ? v : bandSmooth[i] * 0.8 + v * 0.2;
+    if (bandSmooth[i] > bv){ bv = bandSmooth[i]; best = i; }
+  });
+  const loud = bv > -75;
+  BANDS.forEach((b,i) => {
+    const el = bandEls[i];
+    const pct = Math.max(0, Math.min(1, (bandSmooth[i] - fl) / (ceil - fl))) * 100;
+    el.querySelector('.fill').style.height = pct + '%';
+    el.querySelector('.db').textContent = bandSmooth[i] < -110 ? '--' : bandSmooth[i].toFixed(0) + ' dB';
+    const isTop = loud && i === best;
+    el.classList.toggle('top', isTop);
+    el.classList.toggle('pin', i === pinned);
+    el.querySelector('.flag').textContent = i === pinned ? '固定中' : (isTop ? 'いちばん強い' : '');
+  });
+  // 一番強い帯域が頻繁に切り替わらないよう、0.6秒以上続いたら更新
+  const now = performance.now();
+  const target = loud ? best : -1;
+  if (target !== focusIdx && now - focusSince > 600){ focusIdx = target; focusSince = now; }
+  else if (target === focusIdx){ focusSince = now; }
+  setFocus(pinned >= 0 ? pinned : focusIdx);
+}
+
+let lastFocusShown = -2;
+function setFocus(i){
+  if (i === lastFocusShown) return;
+  lastFocusShown = i;
+  if (i < 0){
+    $('focusTag').textContent = running ? '音が小さいです' : 'いま目立っている帯域';
+    $('focusName').textContent = running ? '音を大きくしてみてください' : '音を入れてください';
+    $('focusDesc').textContent = running ? 'マイクに近づくか、声を出してみてください。' : 'マイクで話す・歌う、または音声ファイルを再生すると、ここに説明が出ます。';
+    $('focusHint').textContent = '下の帯域をクリックすると、その帯域の説明を固定できます。';
+    return;
+  }
+  const b = BANDS[i];
+  $('focusTag').textContent = (pinned === i) ? '固定中の帯域' : 'いま目立っている帯域';
+  $('focusName').textContent = b.n + '(' + fmtHz(b.lo) + '〜' + fmtHz(b.hi) + ' Hz)';
+  $('focusDesc').textContent = b.desc;
+  $('focusHint').textContent = '目安: ' + b.hint;
+}
+
+canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); cursor = {x: e.clientX - r.left, y: e.clientY - r.top}; });
+canvas.addEventListener('mouseleave', () => { cursor = null; });
+
+/* ---------- ループ ---------- */
+function frame(){
+  requestAnimationFrame(frame);
+  if (!W) resize();
+  if (running && analyser){
+    analyser.getFloatFrequencyData(freqData);
+  }
+  drawGrid();
+  const pts = drawSpectrum();
+  drawCursor(pts);
+  updateReadouts();
+  updateBands();
+  if (!running){
+    g.fillStyle = '#7e90a5'; g.font = '15px sans-serif'; g.textAlign = 'center';
+    g.fillText('「マイクで測る」または「音声ファイルで測る」を押してください', W/2, H/2);
+  }
+}
+resize();
+frame();
+
+/* テスト用フック */
+window.__analyzer = { get running(){return running;}, bandSmooth, setMode:m => document.querySelector('#modeSeg button[data-mode="'+m+'"]').click() };
+})();
+</script>
+</body>
+</html>
