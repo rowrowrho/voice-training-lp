@@ -50,6 +50,8 @@ select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border
 .note{font-size:12px;color:var(--sub)}
 h2{font-size:16px;margin-bottom:8px}
 .warnbox{margin-top:8px;font-size:13px;color:var(--warn)}
+.notice{border-left:8px solid var(--warn);background:#2a2415}
+.notice h2{color:var(--warn)}
 @media(max-width:800px){.grid{grid-template-columns:1fr}.banner{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
@@ -77,6 +79,13 @@ h2{font-size:16px;margin-bottom:8px}
         <p id="bannerMsg"></p>
         <div class="meta" id="fileMeta"></div>
       </div>
+    </section>
+
+    <section class="card notice hidden" id="stereoNote">
+      <h2>【注意書き】ステレオのファイルです</h2>
+      <p style="font-size:14px">MIXには<b>モノラル</b>のファイルが必要です。ステレオのままでは使えません。下の「WAVを書き出す」で、チャンネルをモノラルにして書き出してから、お渡しください。</p>
+      <p class="note" id="stereoExtra" style="margin-top:6px"></p>
+      <div class="row" style="margin-top:10px"><button class="btn" id="btnMono">おすすめの設定でモノラルにして書き出す</button></div>
     </section>
 
     <section class="card">
@@ -310,9 +319,10 @@ function analyze(dec){
     else if (corr <= TH.corrNg){ out.chRes = 'ng'; out.chKind = 'phase'; }
     else if (out.diff >= TH.levelDiffWarn){ out.chRes = 'warn'; out.chKind = 'diff'; }
     else if (corr < TH.corrOk){ out.chRes = 'warn'; out.chKind = 'wide'; }
-    else if (corr > 0.9995 && out.diff < 0.2){ out.chRes = 'ok'; out.chKind = 'dual'; }
-    else { out.chRes = 'ok'; out.chKind = 'stereo'; }
+    else if (corr > 0.9995 && out.diff < 0.2){ out.chRes = 'warn'; out.chKind = 'dual'; }   // MIXにはモノラルが必要なので、ステレオ形式は注意
+    else { out.chRes = 'warn'; out.chKind = 'stereo'; }
   }
+  out.stereo = ch.length >= 2;
 
   const rank = {ok:0, warn:1, ng:2};
   out.overall = [clipRes, out.noiseRes, out.chRes].reduce((a,b) => rank[b] > rank[a] ? b : a, 'ok');
@@ -346,8 +356,8 @@ function textCh(r){
   const f = x => x.toFixed(0);
   switch (r.chKind){
     case 'mono': return {val: 'モノラル', body: '1チャンネルの録音です。問題ありません。', tip: ''};
-    case 'dual': return {val: '左右が同じ', body: '左右が同じ音のステレオです。問題ありません。', tip: 'モノラルにすると、ファイルサイズを半分にできます(下の書き出しで選べます)。'};
-    case 'stereo': return {val: 'ステレオ', body: '左右の音量と位相に問題は見つかりませんでした。', tip: ''};
+    case 'dual': return {val: 'ステレオ形式(左右が同じ)', body: '左右が同じ音なので、モノラルにしても音は変わりません。', tip: 'MIXにはモノラルが必要です。下の書き出しで、モノラルにしてください。'};
+    case 'stereo': return {val: 'ステレオ', body: '左右の音量と位相に問題は見つかりませんでしたが、ステレオのままではMIXに使えません。', tip: 'MIXにはモノラルが必要です。下の書き出しで、モノラルにしてください。'};
     case 'wide': return {val: '左右がばらばら', body: '左右の音が大きく違います。ボーカルをマイク1本で録った場合は、通常は左右がそろいます。', tip: 'ミックス済みの音源やステレオ録音ではありませんか? 設定を確認してください。'};
     case 'diff': return {val: '左右差 ' + f(r.diff) + ' dB', body: '左右の音量に差があります。', tip: 'マイク入力が片側だけ強くなっていないか、確認してください。'};
     case 'oneside': return {val: (r.weak === 'L' ? '左' : '右') + 'がほぼ無音', body: '片側のチャンネルにほとんど音が入っていません。', tip: '書き出しで「' + (r.weak === 'L' ? '右' : '左') + 'だけ」のモノラルを選ぶと、そろえられます。'};
@@ -355,13 +365,18 @@ function textCh(r){
     default: return {val: '無音', body: 'どちらのチャンネルにも音が入っていません。', tip: 'ファイルが正しいか、確認してください。'};
   }
 }
+const STEREO_MSG = 'ステレオのファイルです。MIXにはモノラルが必要なので、出す前にモノラルにしてください。';
 function overallMsg(r){
   const parts = [];
   if (r.clipRes === 'ng') parts.push('音割れが多いため、録り直しをおすすめします。');
   if (r.noiseRes === 'ng') parts.push('背景ノイズが大きめです。');
   if (r.chRes === 'ng') parts.push('チャンネルに問題があります。');
-  if (r.overall === 'ng') return parts.join('');
-  if (r.overall === 'warn') return 'このままMIXに出せますが、気になる点があります。下の項目を確認してください。';
+  if (r.overall === 'ng') return parts.join('') + (r.stereo ? STEREO_MSG : '');
+  if (r.overall === 'warn'){
+    const other = r.clipRes === 'warn' || r.noiseRes === 'warn';
+    if (r.stereo) return STEREO_MSG + (other ? 'ほかにも気になる点があります。' : '');
+    return 'このままMIXに出せますが、気になる点があります。下の項目を確認してください。';
+  }
   return 'MIXに出せる状態です。問題は見つかりませんでした。';
 }
 
@@ -396,6 +411,18 @@ function render(){
   }
 
   setupExportOptions();
+  const sn = $('stereoNote');
+  sn.classList.toggle('hidden', !r.stereo);
+  const extra = {
+    oneside: '片側がほぼ無音です。音が入っている側のモノラルを自動で選んでいます。',
+    phase: '逆位相の疑いがあります。左右を平均すると音が消えるため、先に録音の設定を確認してください。',
+    diff: '左右の音量に差があります。どちらが歌声か聞いて、「左だけ」「右だけ」「平均」から選んでください。',
+    wide: '左右の音が大きく違います。どちらが歌声か聞いて、「左だけ」「右だけ」「平均」から選んでください。',
+    dual: '左右が同じ音なので、モノラルにしても音は変わりません。',
+    stereo: '左右を平均してモノラルにする設定を選んでいます。'
+  };
+  $('stereoExtra').textContent = r.stereo ? (extra[r.chKind] || '') : '';
+  $('btnMono').disabled = r.chKind === 'phase' || r.chKind === 'silent';
   $('consult').href = CONSULT_URL;
   $('copyMsg').textContent = '';
   requestAnimationFrame(drawWave);
@@ -445,8 +472,9 @@ function setupExportOptions(){
   } else {
     if (r.chKind === 'oneside'){ sel.value = r.weak === 'L' ? 'R' : 'L'; warn.push('片側がほぼ無音のため、音が入っている側のモノラルを自動で選びました。'); }
     else if (r.chKind === 'phase'){ sel.value = 'keep'; opt('avg').disabled = true; warn.push('逆位相の疑いがあるため、平均のモノラルは選べません(音が消えるため)。'); }
-    else if (r.chKind === 'dual'){ sel.value = 'L'; warn.push('左右が同じなので、モノラルにしても音は変わりません(左だけを選択済み)。'); }
-    else sel.value = 'keep';
+    else if (r.chKind === 'dual'){ sel.value = 'L'; warn.push('MIXにはモノラルが必要です。左右が同じなので、モノラル(左だけ)を選択済みです。'); }
+    else if (r.chKind === 'stereo'){ sel.value = 'avg'; warn.push('MIXにはモノラルが必要です。モノラル(左右を平均)を選択済みです。'); }
+    else { sel.value = 'keep'; warn.push('MIXにはモノラルが必要です。どちらが歌声か聞いて、モノラルの種類を選んでください。'); }
   }
   if (r.peak > 1.0) warn.push('0dBFSを超える部分があります。書き出し時に最大レベルで切られます(24bit WAVの上限)。');
   if (r.clipRes === 'ng') warn.push('音割れが多い録音です。書き出しても音割れは直りません。録り直しをおすすめします。');
@@ -507,14 +535,17 @@ $('btnExport').onclick = async () => {
 /* ---------- 結果コピー ---------- */
 function summaryText(){
   const r = S.result, c = textClip(r), nz = textNoise(r), ch = textCh(r);
-  return [
+  const lines = [
     '【録音チェック結果】総合: ' + LABEL_PLAIN[r.overall],
     '・音割れ: ' + LABEL_PLAIN[r.clipRes] + '(' + c.val + ')',
     '・背景ノイズ: ' + LABEL_PLAIN[r.noiseRes] + '(' + nz.val + (r.noiseRel ? '' : '・参考値') + ')',
     '・チャンネル: ' + LABEL_PLAIN[r.chRes] + '(' + ch.val + ')',
     '・形式: ' + S.dec.fmtName + ' / ' + r.sr + 'Hz / ' + chName(r.nCh) + ' / ' + fmtTime(r.dur)
-  ].join('\n');
+  ];
+  if (r.stereo) lines.push('※ステレオのため、MIXにはモノラルに変換してからお渡しします');
+  return lines.join('\n');
 }
+$('btnMono').onclick = () => { if (S) $('btnExport').click(); };
 $('btnCopy').onclick = async () => {
   if (!S) return;
   const t = summaryText();
