@@ -119,11 +119,11 @@ h2{font-size:16px;margin-bottom:8px}
     </section>
 
     <section class="card">
-      <h2>MIXを相談する</h2>
-      <p style="font-size:14px">判定結果をコピーして、無料相談フォームに貼り付けると、状態がそのまま伝わります。</p>
+      <h2>MIXを依頼する</h2>
+      <p style="font-size:14px">判定結果をコピーして、依頼フォームに貼り付けると、録音の状態がそのまま伝わります。</p>
       <div class="row" style="margin-top:10px">
         <button class="btn ghost" id="btnCopy">結果をコピー</button>
-        <a class="btn" id="consult" href="#" target="_blank" rel="noopener" style="text-decoration:none">無料相談フォームへ</a>
+        <a class="btn" id="consult" href="#" target="_blank" rel="noopener" style="text-decoration:none">MIX依頼フォームへ</a>
         <span class="note" id="copyMsg"></span>
       </div>
     </section>
@@ -136,8 +136,8 @@ h2{font-size:16px;margin-bottom:8px}
 (() => {
 'use strict';
 
-/* 相談フォームのURL(ここを差し替えれば全体に反映されます) */
-const CONSULT_URL = 'https://rowrowrho.github.io/voice-training-lp/';
+/* MIX依頼フォーム(Googleフォーム「MIX依頼書」)のURL。差し替えるとボタンに反映されます */
+const CONSULT_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScDBnkhKNUxxVmrZOpWXMTe_Q-75dTuoWCIFhULGhQDI18SsQ/viewform?usp=header';
 
 /* 判定のしきい値 */
 const TH = {
