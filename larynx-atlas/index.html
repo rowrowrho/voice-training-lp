@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME8HE69PX8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME8HE69PX8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>喉頭筋図鑑｜筋肉を選ぶと解剖図に色がつく - RHOボイトレ</title>
+<meta name="description" content="内喉頭筋・外喉頭筋を、名前を選ぶだけで解剖図に色がついて確認できる無料の図鑑。声帯を開く・閉じる・伸ばす筋肉の位置とはたらきがひと目でわかります。">
+<meta property="og:title" content="喉頭筋図鑑｜筋肉を選ぶと解剖図に色がつく - RHOボイトレ">
+<meta property="og:description" content="声帯を開く・閉じる・伸ばす筋肉はどこ？名前を選ぶだけで解剖図に色がつく無料の図鑑。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#173A5E; --navy-2:#0F2A46; --blue:#2E76B6; --sky:#EAF2FB; --bg:#F5F8FC; --paper:#FFFFFF;
+    --text:#2B3A4A; --text-dim:#66788C; --line:#E1E8F0; --amber:#F5B84E; --amber-bg:#FDF1DA;
+    --data:#17A98D; --data-2:#0E7F69; --data-bg:#E7F7F3;
+    --sans:"Zen Kaku Gothic New", sans-serif; --shadow:0 16px 40px rgba(23,58,94,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.8; -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column; -webkit-tap-highlight-color:transparent;}
+  a{color:inherit; text-decoration:none;}
+  img,svg{display:block; max-width:100%;}
+  button,input{font-family:var(--sans);}
+  button{cursor:pointer; border:none;}
+  button, a{-webkit-touch-callout:none;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 20px; width:100%;}
+
+  header.nav{position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; max-width:640px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900; color:var(--navy); font-size:15px;}
+  .brand-tag{font-size:10.5px; font-weight:700; color:var(--data); background:var(--data-bg); padding:4px 9px; border-radius:100px; white-space:nowrap;}
+
+  main{flex:1; padding:28px 0 56px;}
+  .eyebrow-pill{display:inline-block; background:var(--navy); color:#fff; font-size:12px; font-weight:700; padding:6px 15px; border-radius:100px; letter-spacing:.04em; margin-bottom:14px;}
+  h1{font-size:clamp(24px,6vw,30px); color:var(--navy); font-weight:900; line-height:1.4; margin-bottom:10px;}
+  .lead{font-size:14.5px; color:var(--text-dim); line-height:1.85;}
+
+  /* tabs */
+  .tabs{display:grid; grid-template-columns:1fr 1fr; gap:6px; background:var(--sky); padding:5px; border-radius:14px; margin-top:22px;}
+  .tab{padding:11px 8px; border-radius:10px; background:transparent; color:var(--navy); font-weight:700; font-size:14px; line-height:1.4;}
+  .tab small{display:block; font-size:11px; font-weight:500; color:var(--text-dim);}
+  .tab[aria-selected="true"]{background:var(--navy); color:#fff; box-shadow:0 4px 12px rgba(23,58,94,.25);}
+  .tab[aria-selected="true"] small{color:#CFE0F2;}
+
+  /* search */
+  .search{position:relative; margin-top:14px;}
+  .search input{width:100%; padding:13px 14px 13px 44px; border:1.5px solid var(--line); border-radius:12px; font-size:15px; color:var(--text); background:#fff; outline:none;}
+  .search input:focus{border-color:var(--blue); box-shadow:0 0 0 3px rgba(46,118,182,.15);}
+  .search svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-dim);}
+  .hint{font-size:12px; color:var(--text-dim); margin-top:6px;}
+
+  /* chips */
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+  .chip{padding:9px 13px; border-radius:100px; background:#fff; border:1.5px solid var(--line); color:var(--navy); font-weight:700; font-size:13.5px; line-height:1.3; text-align:left; transition:transform .12s;}
+  .chip:active{transform:scale(.97);}
+  .chip .sub{display:block; font-size:10.5px; font-weight:500; color:var(--text-dim);}
+  .chip.child{margin-left:0; background:#FAFCFE;}
+  .chip[aria-pressed="true"]{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .chip[aria-pressed="true"] .sub{color:#CFE0F2;}
+  .chip[aria-pressed="true"]::before{content:"✓ ";}
+  .chip.soon{border-style:dashed;}
+  .empty{font-size:13.5px; color:var(--text-dim); padding:12px 0;}
+
+  /* figure */
+  .fig-card{margin-top:20px; background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:14px 12px 12px; scroll-margin-top:70px;}
+  .views{display:flex; gap:6px; flex-wrap:wrap; margin:0 4px 10px;}
+  .view-btn{padding:7px 12px; border-radius:100px; background:var(--sky); color:var(--navy); font-size:12.5px; font-weight:700;}
+  .view-btn[aria-pressed="true"]{background:var(--blue); color:#fff;}
+  .view-btn:disabled{background:#F0F3F7; color:#9AA8B7; cursor:not-allowed; border:1px dashed #C9D3DE;}
+  .fig{position:relative; border-radius:14px; overflow:hidden; background:#fff; border:1px solid var(--line);}
+  .fig svg{width:100%; height:auto;}
+  .fig-note{font-size:11.5px; color:var(--text-dim); text-align:center; margin-top:8px; line-height:1.6;}
+  .shape{cursor:pointer; fill:rgba(46,118,182,.0); stroke:rgba(255,255,255,.0); stroke-width:3; transition:fill .15s;}
+  .shape.faint{fill:rgba(46,118,182,.14); stroke:rgba(23,58,94,.55); stroke-width:2.5; stroke-dasharray:9 7;}
+  .shape.faint:hover{fill:rgba(245,184,78,.35);}
+  .shape.on{fill:#F5B84E; stroke:#0F2A46; stroke-width:5; stroke-dasharray:none;}
+  .lbl{font-weight:900; font-size:54px; fill:#0F2A46; paint-order:stroke; stroke:#fff; stroke-width:12; stroke-linejoin:round; pointer-events:none;}
+  .nofig{padding:46px 18px; text-align:center; color:var(--text-dim); font-size:14px; background:var(--sky);}
+  .nofig b{display:block; color:var(--navy); font-size:15px; margin-bottom:6px;}
+
+  /* info */
+  .info{margin-top:16px; background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:22px 20px;}
+  .info h2{font-size:21px; color:var(--navy); font-weight:900; line-height:1.4;}
+  .info .yomi{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
+  .tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;}
+  .tag{font-size:12.5px; font-weight:900; padding:5px 12px; border-radius:100px; background:var(--data-bg); color:var(--data-2);}
+  .tag.amber{background:var(--amber-bg); color:#8A5C0A;}
+  .tag.gray{background:var(--sky); color:var(--navy);}
+  .blk{margin-top:16px;}
+  .blk h3{font-size:12.5px; font-weight:900; color:var(--blue); letter-spacing:.04em; margin-bottom:3px;}
+  .blk p{font-size:14.5px; color:var(--text); line-height:1.85;}
+  .seen{margin-top:16px; padding:11px 13px; border-radius:12px; background:var(--sky); font-size:13px; color:var(--navy); font-weight:700; line-height:1.7;}
+  .seen.warn{background:var(--amber-bg); color:#7A520A;}
+  .share{display:flex; gap:8px; margin-top:18px; flex-wrap:wrap;}
+  .share a,.share button{flex:1; min-width:84px; white-space:nowrap; text-align:center; padding:11px 8px; border-radius:10px; font-weight:700; font-size:13px; background:var(--sky); color:var(--navy);}
+  .share .x{background:#111; color:#fff;}
+  .share .line{background:#06C755; color:#fff;}
+  .placeholder{margin-top:20px; padding:26px 20px; text-align:center; color:var(--text-dim); font-size:14px; background:#fff; border:1px dashed #C9D3DE; border-radius:20px;}
+
+
+  /* sound lab */
+  .lab{margin-top:22px; background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:22px 16px 20px;}
+  .lab h2{font-size:19px; color:var(--navy); font-weight:900; line-height:1.5;}
+  .lab .beta{display:inline-block; font-size:11px; font-weight:900; color:#8A5C0A; background:var(--amber-bg); padding:3px 9px; border-radius:100px; vertical-align:middle; margin-left:6px;}
+  .lab > p{font-size:13.5px; margin-top:8px;}
+  .stick{position:sticky; top:52px; z-index:20; background:#fff; padding:10px 0 6px; margin-top:12px; border-bottom:1px solid var(--line);}
+  .stick .fig{max-width:300px; margin:0 auto;}
+  .stick .fig-note{margin-top:6px;}
+  .ctl{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px;}
+  .play{flex:1 1 100%; padding:15px; border-radius:12px; background:var(--data); color:#fff; font-weight:900; font-size:16px;}
+  .play[aria-pressed="true"]{background:var(--navy-2);}
+  .seg{display:flex; gap:5px; flex-wrap:wrap; align-items:center;}
+  .seg b{font-size:12px; color:var(--text-dim); margin-right:2px;}
+  .seg button{padding:7px 12px; border-radius:100px; background:var(--sky); color:var(--navy); font-weight:700; font-size:13px;}
+  .seg button[aria-pressed="true"]{background:var(--blue); color:#fff;}
+  .presets{margin-top:14px;}
+  .presets h3,.sl-h{font-size:12.5px; font-weight:900; color:var(--blue); letter-spacing:.04em; margin-bottom:6px;}
+  .presets .seg button{background:#fff; border:1.5px solid var(--line);}
+  .sl{margin-top:16px; padding:12px 12px 8px; border-radius:14px; border:1.5px solid var(--line); background:#FAFCFE;}
+  .sl.cur{border-color:var(--blue); background:#F1F7FD;}
+  .sl-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .sl-name{font-weight:900; color:var(--navy); font-size:14.5px;}
+  .sl-name small{font-size:11.5px; font-weight:700; color:#8A5C0A; background:var(--amber-bg); padding:2px 8px; border-radius:100px; margin-left:6px; white-space:nowrap;}
+  .sl-val{font-weight:900; color:var(--navy); font-size:13.5px; min-width:3.2em; text-align:right;}
+  .sl input[type=range]{width:100%; margin:8px 0 2px; accent-color:var(--blue); height:30px;}
+  .sl-ends{display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim);}
+  .read{margin-top:16px; padding:14px; border-radius:14px; background:var(--sky);}
+  .read dl{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:13.5px;}
+  .read dt{font-weight:700; color:var(--text-dim);}
+  .read dd{font-weight:900; color:var(--navy);}
+  .warn-s{margin-top:12px; font-size:11.5px; color:var(--text-dim); line-height:1.7;}
+  .cta{margin-top:28px; background:linear-gradient(135deg,var(--navy-2),var(--navy)); color:#fff; border-radius:22px; padding:26px 22px; text-align:center;}
+  .cta h2{font-size:17px; font-weight:900; line-height:1.6; margin-bottom:8px;}
+  .cta p{font-size:13.5px; color:#CFE0F2; line-height:1.8;}
+  .cta a{display:block; margin-top:16px; background:var(--amber); color:var(--navy-2); font-weight:900; padding:14px; border-radius:12px; font-size:15px;}
+  .back{display:block; text-align:center; margin-top:16px; font-size:13px; font-weight:700; color:var(--blue);}
+  .disc{margin-top:22px; font-size:11.5px; color:var(--text-dim); line-height:1.8;}
+  footer{padding:20px; text-align:center; font-size:11.5px; color:var(--text-dim);}
+</style>
+</head>
+<body>
+<header class="nav"><div class="nav-inner">
+  <a class="brand" href="https://rowrowrho.github.io/voice-training-lp/">RHOボイトレ <span class="brand-tag">喉頭筋図鑑</span></a>
+</div></header>
+
+<main><div class="wrap">
+  <span class="eyebrow-pill">無料ツール</span>
+  <h1>喉頭筋図鑑</h1>
+  <p class="lead">声帯を「開く・閉じる・伸ばす」筋肉は、どこにあるの？<br>筋肉の名前を選ぶと、解剖図の該当する場所に色がつきます。</p>
+
+  <div class="tabs" role="tablist" aria-label="筋肉のグループ">
+    <button class="tab" role="tab" id="tab-in" aria-selected="true" data-grp="in">内喉頭筋<small>声帯そのものを動かす</small></button>
+    <button class="tab" role="tab" id="tab-out" aria-selected="false" data-grp="out">外喉頭筋<small>喉頭ごと上げ下げする</small></button>
+  </div>
+
+  <div class="search">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input id="q" type="search" placeholder="筋肉の名前で検索（例：後輪状・PCA・開く）" autocomplete="off" aria-label="筋肉を検索">
+  </div>
+  <p class="hint">ひらがな・英語名・略称・「開く／閉じる」などでも探せます。</p>
+
+  <div class="chips" id="chips" role="group" aria-label="筋肉の一覧"></div>
+
+  <section class="fig-card" id="figCard" aria-live="polite">
+    <div class="views" id="views" role="group" aria-label="見る角度"></div>
+    <div class="fig" id="fig"></div>
+    <p class="fig-note" id="figNote"></p>
+  </section>
+
+  <section id="infoWrap"></section>
+
+  <section class="lab" id="lab" aria-label="筋肉を引っ張ると声がどう変わるかを聞く">
+    <h2>筋肉を引っ張ってみよう<span class="beta">イメージ用の合成音</span></h2>
+    <p>スライダーで筋肉の「引っぱり具合」を動かすと、声の音色がどう変わるかを聞けます。上の図もいっしょに動きます。<br>※ 実際の人間の声ではなく、模型として単純化した合成音です。</p>
+    <div class="stick">
+      <div class="fig" id="fig2"></div>
+      <p class="fig-note" id="figNote2"></p>
+    </div>
+    <div class="ctl">
+      <button type="button" class="play" id="play" aria-pressed="false">▶ 音を鳴らす</button>
+      <div class="seg" id="vowels"><b>母音</b></div>
+      <div class="seg" id="pitches"><b>声の高さ</b></div>
+    </div>
+    <div class="presets"><h3>お手本の組み合わせ</h3><div class="seg" id="presets"></div></div>
+    <div id="sliders"></div>
+    <div class="read"><dl id="readout"></dl></div>
+    <p class="warn-s">※ 音量に注意してください。最初は小さめの音量から聞いてね。<br>※ 実際の発声は、これらの筋肉が同時にからみ合って決まります。ここでは1本ずつの影響を、わかりやすく強調して表現しています。</p>
+  </section>
+
+  <section class="cta">
+    <h2>「自分の喉の使い方、どうなってる？」<br>気になったら声を聴かせてください</h2>
+    <p>筋肉の名前がわかっても、実際に声でどう使えているかは別の話。無料相談で、あなたの声のクセを一緒に見ていきます。</p>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform" data-cta="larynx_atlas_consult">無料相談をする</a>
+  </section>
+  <a class="back" href="https://rowrowrho.github.io/voice-training-lp/">← RHOボイトレのトップへ</a>
+  <p class="disc">※ 解剖図はAIで作成した模式図です。実際の人体と細部が異なる場合があります。診断や治療の目的には使えません。喉の痛み・声枯れが続く場合は、耳鼻咽喉科を受診してください。</p>
+</div></main>
+<footer>© RHOボイトレ</footer>
+
+<script>
+/* ===== 図（view）データ：座標は画像 1448×1086 基準 ===== */
+var VIEWS = [{"id": "post", "name": "後ろから", "grp": "in", "img": "post.jpg", "w": 1448, "h": 1086, "alt": "内喉頭筋を後ろから見た解剖図", "shapes": {"ia_o": [{"d": "M679,440 L679,456 L666,464 L656,464 L655,467 L657,500 L661,503 L664,527 L664,548 L662,554 L670,555 L670,560 L675,562 L677,570 L701,570 L703,546 L717,539 L731,539 L739,544 L741,570 L766,570 L766,565 L776,554 L781,554 L780,524 L782,508 L786,507 L789,493 L788,465 L778,463 L766,457 L762,453 L762,440Z", "lx": 722, "ly": 501}], "ia_t": [{"d": "M655,575 L655,625 L690,650 L760,650 L795,625 L795,575 L767,574 L766,572 L734,572 L731,574 L677,572 L676,574Z", "lx": 725, "ly": 609}], "pca": [{"d": "M579,584 L575,592 L575,598 L572,599 L572,603 L568,608 L568,612 L558,615 L565,648 L582,699 L587,700 L597,713 L628,744 L627,767 L634,767 L640,777 L646,778 L646,783 L660,792 L679,792 L682,785 L689,785 L701,779 L723,780 L700,680 L676,641 L654,625 L654,606 L641,585 L588,581 L587,584Z", "lx": 640, "ly": 684}, {"d": "M866,583 L858,580 L803,585 L796,596 L796,625 L763,649 L744,680 L724,764 L723,781 L746,779 L761,785 L767,792 L784,792 L819,769 L818,749 L845,722 L858,703 L861,702 L878,651 L887,611 L877,605 L874,594 L867,593Z", "lx": 805, "ly": 686}], "lca": [{"d": "M528,602 L438,608 L439,621 L449,621 L454,627 L454,630 L468,643 L483,674 L483,687 L473,704 L473,710 L475,711 L473,732 L467,743 L467,747 L471,749 L473,757 L477,762 L484,761 L505,749 L511,749 L515,743 L541,728 L573,705 L565,687 L553,626 L537,636 L521,635 L521,622 L526,612Z", "lx": 509, "ly": 675}, {"d": "M917,602 L922,620 L922,632 L919,633 L918,636 L906,636 L897,629 L890,628 L879,687 L871,702 L871,706 L909,733 L932,746 L938,752 L942,752 L957,761 L965,763 L969,755 L973,754 L977,739 L973,734 L973,721 L971,720 L969,699 L962,687 L962,673 L980,637 L994,621 L1005,621 L1006,608Z", "lx": 935, "ly": 676}], "ta": [{"d": "M590,415 L509,417 L496,450 L496,456 L441,501 L419,514 L425,571 L434,612 L437,612 L438,607 L529,601 L531,580 L526,578 L528,535 L535,525 L542,525 L542,513 L545,512 L548,506 L551,506 L551,502 L558,496 L561,485 L571,482 L583,482 L584,486 L586,486 L586,472 L594,471 L592,468 L592,454 L597,453 L597,449 L592,448 L592,443 L586,435 L586,423Z", "lx": 502, "ly": 512}, {"d": "M854,415 L857,423 L861,425 L861,437 L855,438 L852,445 L843,445 L843,447 L848,451 L855,476 L860,480 L860,487 L867,488 L866,511 L878,511 L879,514 L892,515 L892,529 L888,534 L884,534 L883,545 L888,545 L890,541 L894,541 L895,537 L899,534 L912,534 L914,536 L917,546 L917,569 L912,570 L912,580 L916,601 L1009,608 L1015,570 L1018,512 L988,491 L946,455 L942,439 L938,435 L932,417Z", "lx": 937, "ly": 512}]}}, {"id": "top", "name": "上から", "grp": "in", "img": "top.jpg", "w": 1448, "h": 1086, "alt": "内喉頭筋を真上から見た解剖図", "shapes": {"ia_o": [{"d": "M634,625 L630,645 L633,647 L633,663 L630,664 L630,702 L640,709 L640,721 L634,722 L643,765 L643,781 L640,790 L653,790 L654,785 L715,768 L731,768 L808,791 L805,781 L805,761 L815,723 L815,633 L813,625 L791,625 L788,631 L765,644 L752,643 L752,625 L693,625 L690,642 L678,642 L660,633 L658,626Z", "lx": 723, "ly": 702}], "pca": [{"d": "M491,774 L491,790 L495,796 L495,805 L504,819 L508,821 L510,829 L509,852 L514,853 L524,864 L530,864 L534,873 L570,893 L578,901 L616,916 L640,918 L633,886 L621,867 L620,840 L622,834 L610,833 L611,819 L624,820 L624,835 L631,835 L631,832 L635,831 L635,821 L640,814 L637,809 L637,801 L632,801 L632,805 L627,806 L626,809 L593,809 L592,804 L586,799 L584,791 L567,791 L564,785 L557,785 L543,779 L533,779 L530,776Z", "lx": 568, "ly": 841}, {"d": "M953,775 L940,773 L916,776 L897,781 L894,787 L877,788 L871,794 L862,797 L858,804 L854,805 L854,811 L850,814 L826,814 L825,809 L810,809 L810,829 L812,829 L813,817 L837,817 L838,820 L845,821 L847,824 L846,841 L829,840 L828,836 L820,836 L820,839 L825,840 L825,846 L829,847 L829,864 L815,889 L810,919 L827,917 L835,913 L837,909 L850,909 L866,904 L867,901 L880,893 L892,889 L915,874 L931,860 L933,855 L949,844 L950,839 L940,838 L940,824 L951,809Z", "lx": 883, "ly": 842}], "lca": [{"d": "M505,505 L425,508 L425,520 L420,523 L395,524 L394,517 L390,516 L390,512 L379,512 L379,517 L370,518 L369,523 L350,522 L346,528 L340,529 L338,532 L329,532 L328,536 L323,537 L323,542 L337,543 L337,565 L335,566 L333,597 L338,598 L339,628 L321,631 L334,681 L339,682 L341,689 L345,690 L346,694 L354,694 L355,698 L359,699 L359,705 L362,705 L363,708 L380,709 L385,714 L395,716 L399,722 L409,722 L415,730 L431,735 L467,718 L480,703 L482,696 L487,695 L489,689 L492,688 L498,678 L501,677 L501,674 L510,666 L512,660 L515,659 L518,650 L527,638 L529,630 L532,629 L528,591 L508,589 L496,584 L498,561 L504,558 L516,558 L520,567 L526,567 L522,551 L517,549 L517,537Z", "lx": 426, "ly": 613}, {"d": "M939,505 L924,545 L924,553 L920,556 L918,567 L926,566 L930,560 L945,560 L946,586 L927,589 L926,593 L916,597 L914,624 L917,625 L922,644 L929,648 L935,660 L943,667 L943,671 L952,675 L953,684 L958,685 L959,692 L977,711 L979,718 L985,723 L1015,735 L1042,726 L1044,716 L1071,713 L1071,709 L1078,708 L1079,704 L1096,701 L1099,695 L1103,695 L1102,667 L1088,666 L1090,647 L1097,636 L1109,636 L1110,648 L1117,647 L1115,642 L1117,623 L1109,622 L1109,602 L1115,601 L1116,594 L1106,593 L1106,581 L1115,580 L1115,553 L1122,552 L1122,534 L1117,533 L1117,527 L1110,527 L1102,523 L1101,520 L1084,520 L1082,517 L1072,517 L1071,514 L1065,514 L1064,510 L1054,510 L1052,508 L1040,508 L1039,519 L1026,519 L1019,512 L1019,508 L993,506 L992,512 L979,512 L974,510 L972,506Z", "lx": 1019, "ly": 610}], "ta": [{"d": "M699,262 L635,260 L635,263 L626,269 L607,270 L606,259 L600,259 L598,261 L599,287 L588,295 L579,296 L579,300 L567,310 L557,312 L557,320 L548,327 L543,327 L542,333 L538,333 L538,350 L531,351 L529,360 L513,360 L512,356 L499,356 L499,358 L508,359 L508,371 L494,372 L494,385 L499,386 L500,413 L495,419 L495,425 L490,426 L490,441 L517,536 L534,536 L542,555 L568,562 L568,559 L573,557 L574,554 L587,548 L609,549 L615,538 L615,528 L625,493 L628,490 L649,419 L652,416 L662,385 L663,376 L666,373Z", "lx": 587, "ly": 405}, {"d": "M745,262 L780,382 L821,501 L821,507 L826,515 L834,541 L837,542 L838,552 L843,549 L860,549 L861,553 L875,553 L879,561 L905,554 L905,550 L908,549 L911,542 L925,542 L948,463 L948,452 L951,451 L951,443 L954,441 L954,427 L950,422 L950,414 L944,411 L940,403 L941,390 L954,390 L954,360 L927,360 L926,357 L919,356 L918,350 L912,349 L912,343 L906,342 L906,324 L904,324 L903,335 L890,335 L884,331 L883,301 L889,300 L890,297 L896,297 L894,288 L888,287 L888,283 L876,281 L875,272 L852,266 L850,261 L847,261 L847,265 L844,266 L846,292 L833,293 L827,290 L826,287 L817,286 L817,272 L811,271 L811,260Z", "lx": 858, "ly": 405}]}}, {"id": "side", "name": "横から", "grp": "in", "img": "side.jpg", "w": 1448, "h": 1086, "alt": "内喉頭筋を横から見た解剖図（甲状軟骨の板を外した断面）", "shapes": {"ct": [{"d": "M508,636 L506,642 L508,672 L516,673 L516,688 L521,689 L521,692 L524,693 L524,700 L530,703 L530,725 L540,728 L540,741 L561,741 L562,749 L569,749 L573,755 L575,769 L578,770 L578,777 L582,779 L585,787 L585,801 L588,802 L588,815 L585,816 L585,822 L605,820 L606,823 L612,823 L623,814 L640,806 L679,774 L683,768 L689,768 L699,762 L723,754 L727,746 L762,743 L762,734 L749,733 L750,705 L739,704 L739,690 L700,640 L603,616 L590,616 L589,613 L574,609 L571,612 L558,612 L545,607 L537,608 L537,618 L532,619 L532,624 L528,625 L526,637Z", "lx": 625, "ly": 704}], "lca": [{"d": "M867,502 L840,509 L794,528 L698,581 L602,609 L602,612 L608,617 L700,639 L720,664 L791,660 L841,636 L838,631 L827,629 L829,605 L836,591 L843,587 L847,580 L853,580 L853,565 L855,562 L859,562 L862,555 L862,537 L867,516Z", "lx": 763, "ly": 594}], "ta": [{"d": "M500,341 L500,368 L502,369 L500,404 L512,405 L510,445 L511,532 L517,529 L538,527 L555,521 L566,521 L581,517 L603,519 L604,523 L697,512 L729,513 L731,516 L738,518 L738,530 L733,531 L733,547 L728,548 L727,551 L719,555 L706,557 L705,560 L605,560 L604,562 L569,566 L510,564 L510,573 L505,574 L505,576 L511,577 L513,600 L508,601 L508,606 L517,606 L518,600 L534,600 L535,606 L545,606 L546,600 L571,602 L572,608 L579,610 L601,610 L602,608 L695,581 L782,533 L837,510 L838,507 L834,504 L835,491 L856,490 L866,493 L867,486 L861,483 L855,472 L855,449 L858,448 L859,440 L868,440 L870,437 L874,437 L874,432 L871,426 L862,426 L860,424 L860,416 L848,415 L848,406 L845,405 L845,400 L834,399 L824,388 L799,374 L785,374 L784,388 L767,388 L763,384 L762,374 L756,373 L753,377 L751,398 L739,398 L738,394 L733,394 L731,384 L722,384 L721,388 L704,387 L700,375 L699,361 L686,361 L684,348 L679,346 L679,333 L665,332 L666,318 L689,318 L694,321 L694,315 L684,315 L683,309 L658,295 L653,295 L651,291 L640,285 L621,285 L620,292 L608,292 L604,285 L535,286 L531,291 L528,291 L527,300 L523,307 L536,307 L537,321 L513,323 L513,325 L527,326 L527,338 L514,339 L513,334 L511,334 L507,341Z", "lx": 654, "ly": 442}]}}, {"id": "oside", "name": "横から", "grp": "out", "img": "oside.jpg", "w": 1448, "h": 1086, "alt": "首を横から見た外喉頭筋の解剖図", "shapes": {"o_up": [{"d": "M567,369 L567,361 L561,360 L561,344 L547,297 L528,256 L519,242 L513,237 L513,227 L511,225 L500,225 L485,218 L463,212 L464,192 L468,189 L480,189 L480,186 L284,193 L286,208 L281,212 L258,212 L242,209 L240,207 L240,194 L210,195 L210,197 L216,198 L216,203 L228,211 L235,211 L237,218 L298,261 L450,332 L499,391 L525,384 L519,379 L520,366 L532,366 L538,370 L553,373Z M499,186 L500,193 L521,195 L525,199 L528,210 L536,212 L536,228 L542,229 L579,333 L578,355 L575,356 L575,360 L585,360 L586,367 L595,367 L601,361 L615,361 L627,358 L648,349 L660,349 L661,353 L671,353 L672,356 L679,356 L679,348 L698,342 L741,294 L741,288 L747,287 L779,251 L778,247 L734,192 L726,189 L726,182 L700,150 L575,150 L573,153 L554,155 L538,169 L537,175 L531,175 L520,185Z", "lx": 543, "ly": 256}], "o_down": [{"d": "M620,415 L515,425 L520,448 L519,529 L543,584 L549,619 L551,705 L549,723 L543,726 L560,880 L660,860 L701,778 L726,685 L729,655 L727,655 L706,724 L700,736 L696,738 L696,746 L694,748 L681,748 L680,743 L678,743 L678,749 L669,751 L668,754 L660,756 L647,756 L645,754 L645,742 L637,734 L632,701 L637,695 L643,695 L644,688 L657,688 L658,683 L670,683 L674,686 L675,672 L662,637 L662,624 L682,618 L683,615 L704,613 L712,607 L727,607 L730,623 L733,623 L740,559 L736,551 L732,551 L731,584 L723,604 L651,603 L627,535 L606,490 L606,478 L611,477 L613,472 L607,471 L607,459 L610,456 L632,457 L636,455 L636,448 L640,444 L656,444 L656,440Z", "lx": 603, "ly": 644}]}}, {"id": "ofront", "name": "前から", "grp": "out", "img": "ofront.jpg", "w": 1448, "h": 1086, "alt": "首を前から見た外喉頭筋の解剖図", "shapes": {"o_up": [{"d": "M471,175 L519,259 L548,304 L558,310 L559,314 L577,315 L578,327 L604,331 L607,337 L610,338 L613,349 L624,349 L628,354 L645,361 L661,362 L678,360 L679,358 L713,357 L722,350 L722,196 L718,192 L717,173 L712,169 L712,160 L707,151 L707,139 L722,138 L722,130 L698,130 L688,134 L672,135 L671,141 L655,142 L654,145 L641,145 L635,150 L634,154 L628,154 L627,156 L615,156 L614,153 L586,152Z", "lx": 623, "ly": 239}, {"d": "M723,351 L731,357 L758,355 L759,361 L771,361 L772,364 L775,362 L818,361 L821,354 L830,354 L831,350 L838,349 L839,344 L844,344 L844,335 L847,331 L852,331 L854,327 L871,327 L874,315 L880,315 L882,311 L892,310 L925,259 L973,175 L859,152 L815,154 L814,147 L784,144 L777,136 L762,135 L746,130 L723,130 L724,148 L739,149 L739,168 L735,174 L735,187 L728,196 L723,196Z", "lx": 822, "ly": 240}], "o_down": [{"d": "M622,815 L640,880 L654,881 L654,865 L649,865 L647,862 L647,848 L644,843 L638,841 L626,818Z M595,405 L594,422 L596,422 L599,409 L612,410 L612,466 L606,484 L593,485 L592,475 L590,475 L586,545 L595,546 L595,562 L585,563 L600,741 L612,783 L622,787 L623,774 L640,774 L659,793 L668,795 L689,852 L693,856 L703,878 L705,878 L693,810 L660,669 L663,597 L659,596 L659,591 L656,591 L655,585 L650,582 L609,581 L607,577 L601,576 L601,562 L639,561 L641,559 L651,559 L652,554 L662,552 L664,546 L668,545 L673,490 L677,479 L690,479 L700,488 L711,515 L716,517 L717,492 L705,492 L703,487 L700,486 L700,470 L704,469 L705,462 L718,462 L717,451 L710,450 L708,424 L712,423 L713,414 L722,412 L722,401 L706,400 L705,402 L670,404 L669,406 L657,406 L653,402Z", "lx": 642, "ly": 597}, {"d": "M781,404 L768,401 L760,406 L746,406 L742,403 L742,400 L723,401 L725,435 L735,436 L735,459 L733,461 L735,516 L731,517 L728,522 L739,522 L739,514 L748,499 L748,494 L751,493 L753,486 L761,478 L774,478 L778,491 L782,536 L788,553 L798,554 L800,560 L845,562 L844,579 L800,582 L799,586 L792,587 L792,596 L788,597 L791,667 L757,818 L746,883 L748,883 L760,859 L782,801 L790,800 L797,787 L808,787 L809,774 L830,772 L831,780 L833,780 L844,741 L858,572 L847,571 L847,559 L851,558 L852,549 L856,548 L858,544 L856,506 L850,500 L839,467 L841,405Z", "lx": 803, "ly": 587}]}}];
+
+/* ===== 筋肉データ ===== */
+var MUSCLES = [
+  /* --- 内喉頭筋 --- */
+  { id:'pca', grp:'in', name:'後輪状披裂筋', yomi:'こうりんじょうひれつきん', eng:'Posterior cricoarytenoid', abbr:'PCA',
+    aliases:['声帯を開く','声門を開く','外転','開く筋','息を吸う','ひらく','ひらくきん','あける'], tags:[['開く','amber']],
+    action:'披裂軟骨を外側に回して、声帯を開く筋肉。声帯を開ける役目をもつ唯一の内喉頭筋です。',
+    voice:'息を吸うときに働きます。声を出している間は「閉じる」筋肉と綱引きをして、声門の開き具合（息の混ざり方）を調整します。',
+    where:'輪状軟骨の後ろの板（輪状軟骨板）から、披裂軟骨の筋突起へ。', nerve:'反回神経',
+    shapes:['pca'] },
+  { id:'lca', grp:'in', name:'外側輪状披裂筋', yomi:'がいそくりんじょうひれつきん', eng:'Lateral cricoarytenoid', abbr:'LCA',
+    aliases:['声帯を閉じる','声門を閉じる','内転','閉じる筋','とじる','とじるきん','しめる'], tags:[['閉じる','']],
+    action:'披裂軟骨を内側に回して、声帯どうしを近づけて閉じる筋肉。',
+    voice:'閉じる力が足りないと息が漏れて芯のない声に、強すぎると押し込んだ苦しい声になりやすくなります。',
+    where:'輪状軟骨弓の外側の縁から、披裂軟骨の筋突起へ。', nerve:'反回神経',
+    shapes:['lca'] },
+  { id:'ia', grp:'in', name:'披裂筋（横・斜）', yomi:'ひれつきん', eng:'Interarytenoid', abbr:'IA',
+    aliases:['声門後部','声帯を閉じる','閉じる筋','とじる','しめる'], tags:[['閉じる','']],
+    action:'左右の披裂軟骨を引き寄せて、声門の後ろ側を閉じる筋肉。横披裂筋と斜披裂筋の2つの部分でできています。',
+    voice:'ここが閉じにくいと、声帯の後ろ側に隙間が残って息漏れ（かすれ・ささやき成分）の原因になります。',
+    where:'左右の披裂軟骨のあいだ（後ろ面）。', nerve:'反回神経',
+    shapes:['ia_t','ia_o'] },
+  { id:'ia_t', grp:'in', pullKey:'ia', name:'横披裂筋', yomi:'おうひれつきん', eng:'Transverse arytenoid', abbr:'',
+    aliases:['披裂筋','とじる'], tags:[['閉じる','']], child:true,
+    action:'左右の披裂軟骨を、横方向にまっすぐ引き寄せる筋肉。',
+    voice:'声門の後ろ側（軟骨のあいだ）を閉じる働きをします。',
+    where:'左右の披裂軟骨の後ろ面をつなぐ。', nerve:'反回神経', shapes:['ia_t'] },
+  { id:'ia_o', grp:'in', pullKey:'ia', name:'斜披裂筋', yomi:'しゃひれつきん', eng:'Oblique arytenoid', abbr:'',
+    aliases:['披裂筋'], tags:[['閉じる','']], child:true,
+    action:'左右の披裂軟骨を、X字の筋走行で引き寄せる筋肉。',
+    voice:'声門後部を閉じる力を横披裂筋と一緒に支えます。',
+    where:'片方の筋突起から、反対側の披裂軟骨の先へ斜めに交差。', nerve:'反回神経', shapes:['ia_o'] },
+  { id:'ta', grp:'in', name:'甲状披裂筋', yomi:'こうじょうひれつきん', eng:'Thyroarytenoid', abbr:'TA',
+    aliases:['声帯筋','vocalis','声帯そのもの','地声','チェスト','緩める','ゆるめる','とじる','せいたいきん'], tags:[['閉じる',''],['声帯をゆるめる','gray']],
+    action:'声帯の本体をつくる筋肉。縮んで声帯を短く・厚くし、声帯を閉じる方向にも働きます。',
+    voice:'地声（チェストボイス）の厚みや芯に関わります。輪状甲状筋の「伸ばす」力との綱引きのバランスが、地声⇄裏声のつながりに影響します。',
+    where:'甲状軟骨の内側（前）から、披裂軟骨へ。', nerve:'反回神経',
+    shapes:['ta'], note:'後ろからは、甲状軟骨の内側に向かう部分だけが見えます。横から・上からの図で全体を確認できます。' },
+  { id:'ct', grp:'in', name:'輪状甲状筋', yomi:'りんじょうこうじょうきん', eng:'Cricothyroid', abbr:'CT',
+    aliases:['声帯を伸ばす','高音','裏声','ファルセット','伸ばす筋','のばす','のばすきん','こうおん'], tags:[['伸ばす','amber']],
+    action:'甲状軟骨を前下方に傾けて、声帯を前後に引き伸ばして薄く張る筋肉。',
+    voice:'高い音程を出すときの主役です。伸ばす（輪状甲状筋）と縮める（甲状披裂筋）の綱引きが、地声と裏声のバランスをつくります。',
+    where:'輪状軟骨の前外側から、甲状軟骨の下縁へ。', nerve:'上喉頭神経（外枝）。ほかの内喉頭筋は反回神経',
+    shapes:['ct'] },
+
+  /* --- 外喉頭筋（図は準備中） --- */
+  { id:'o_up', grp:'out', name:'舌骨上筋群', yomi:'ぜっこつじょうきんぐん', eng:'Suprahyoid muscles', abbr:'', pullKey:'o_up',
+    aliases:['挙上筋群','喉頭を上げる','ハイラリンクス','引き上げ','きょじょう','あげる'], tags:[['挙上（上げる）','amber']],
+    action:'あごと舌骨のあいだにある筋肉の集まり（顎二腹筋・茎突舌骨筋・顎舌骨筋・オトガイ舌骨筋）。舌骨と喉頭を引き上げます。',
+    voice:'働きすぎると喉頭が上がりっぱなしになり（ハイラリンクス）、高音で苦しい細い声になりやすくなります。',
+    where:'下あご・頭蓋骨 ⇄ 舌骨', nerve:'筋によって異なる', shapes:['o_up'] },
+  { id:'o_down', grp:'out', pullKey:'o_down', name:'舌骨下筋群', yomi:'ぜっこつかきんぐん', eng:'Infrahyoid muscles', abbr:'',
+    aliases:['下制筋群','喉頭を下げる','引き下げ','かせい','さげる'], tags:[['下制（下げる）','gray']],
+    action:'舌骨より下にある筋肉の集まり（胸骨舌骨筋・肩甲舌骨筋・胸骨甲状筋・甲状舌骨筋）。舌骨と喉頭を引き下げ、安定させます。',
+    voice:'挙上筋群との綱引きで、喉頭の高さが決まります。',
+    where:'舌骨・甲状軟骨 ⇄ 胸骨・肩甲骨', nerve:'頸神経ワナ（甲状舌骨筋は舌下神経経由の C1）', shapes:['o_down'] },
+  { id:'digastric', grp:'out', via:'o_up', name:'顎二腹筋', yomi:'がくにふくきん', eng:'Digastric', abbr:'', aliases:['舌骨上筋群','挙上筋群'], tags:[['挙上（上げる）','amber']], child:true,
+    action:'あごの先と側頭骨の後ろを結ぶ筋肉。舌骨を引き上げ、あごを開く働きもあります。', voice:'', where:'', nerve:'', shapes:[] },
+  { id:'stylohyoid', grp:'out', via:'o_up', name:'茎突舌骨筋', yomi:'けいとつぜっこつきん', eng:'Stylohyoid', abbr:'', aliases:['舌骨上筋群','挙上筋群'], tags:[['挙上（上げる）','amber']], child:true,
+    action:'舌骨を後ろ上方に引く筋肉。', voice:'', where:'', nerve:'', shapes:[] },
+  { id:'mylohyoid', grp:'out', via:'o_up', name:'顎舌骨筋', yomi:'がくぜっこつきん', eng:'Mylohyoid', abbr:'', aliases:['舌骨上筋群','挙上筋群','口の底'], tags:[['挙上（上げる）','amber']], child:true,
+    action:'口の底（舌の下）をつくる筋肉。舌骨と口の底を引き上げます。', voice:'', where:'', nerve:'', shapes:[] },
+  { id:'geniohyoid', grp:'out', via:'o_up', name:'オトガイ舌骨筋', yomi:'おとがいぜっこつきん', eng:'Geniohyoid', abbr:'', aliases:['舌骨上筋群','挙上筋群'], tags:[['挙上（上げる）','amber']], child:true,
+    action:'あごの先から舌骨へ。舌骨を前上方に引く筋肉。', voice:'', where:'', nerve:'', shapes:[] },
+  { id:'thyrohyoid', grp:'out', via:'o_down', name:'甲状舌骨筋', yomi:'こうじょうぜっこつきん', eng:'Thyrohyoid', abbr:'', aliases:['舌骨下筋群'], tags:[['挙上（上げる）','amber']], child:true,
+    action:'甲状軟骨と舌骨のあいだにある筋肉。両者を近づけて、喉頭を舌骨のほうへ引き上げます。', voice:'', where:'', nerve:'', shapes:[] },
+  { id:'sternohyoid', grp:'out', via:'o_down', name:'胸骨舌骨筋', yomi:'きょうこつぜっこつきん', eng:'Sternohyoid', abbr:'', aliases:['舌骨下筋群','下制筋群'], tags:[['下制（下げる）','gray']], child:true,
+    action:'胸骨から舌骨へ。舌骨を引き下げる筋肉。', voice:'', where:'', nerve:'', shapes:[] },
+  { id:'omohyoid', grp:'out', via:'o_down', name:'肩甲舌骨筋', yomi:'けんこうぜっこつきん', eng:'Omohyoid', abbr:'', aliases:['舌骨下筋群','下制筋群'], tags:[['下制（下げる）','gray']], child:true,
+    action:'肩甲骨から舌骨へ。舌骨を後ろ下方に引く筋肉。', voice:'', where:'', nerve:'', shapes:[] },
+  { id:'sternothyroid', grp:'out', via:'o_down', name:'胸骨甲状筋', yomi:'きょうこつこうじょうきん', eng:'Sternothyroid', abbr:'', aliases:['舌骨下筋群','下制筋群'], tags:[['下制（下げる）','gray']], child:true,
+    action:'胸骨から甲状軟骨へ。甲状軟骨（喉頭）を引き下げる筋肉。', voice:'', where:'', nerve:'', shapes:[] }
+];
+
+/* ===== 状態 ===== */
+var state = { grp:'in', sel:null, view:'post', q:'', pull:{ pca:.1, lca:.5, ia:.5, ta:.5, ct:.5, o_up:.5, o_down:.5 } };
+function $(id){ return document.getElementById(id); }
+function byId(id){ for (var i=0;i<MUSCLES.length;i++) if (MUSCLES[i].id===id) return MUSCLES[i]; return null; }
+function viewById(id){ for (var i=0;i<VIEWS.length;i++) if (VIEWS[i].id===id) return VIEWS[i]; return null; }
+function track(name, params){ try{ gtag('event', name, params||{}); }catch(e){} }
+
+/* 検索の正規化：小文字化・カタカナ→ひらがな・空白や記号除去 */
+function norm(s){
+  s = String(s||'').toLowerCase().replace(/[ァ-ヶ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0)-0x60); });
+  return s.replace(/[\s・\-　（）()]/g,'');
+}
+function hay(m){
+  return norm([m.name,m.yomi,m.eng,m.abbr,(m.aliases||[]).join(' '),m.tags.map(function(t){return t[0];}).join(' '),m.action].join(' '));
+}
+
+/* その筋肉が写っている図を探す */
+function viewsFor(m){
+  var out=[]; VIEWS.forEach(function(v){
+    if (v.soon || !v.shapes) return;
+    if (shp(m).some(function(s){ return v.shapes[s]; })) out.push(v);
+  });
+  return out;
+}
+
+/* ===== 描画：チップ ===== */
+function renderChips(){
+  var box = $('chips'); box.innerHTML='';
+  var nq = norm(state.q), n=0;
+  MUSCLES.forEach(function(m){
+    if (m.grp!==state.grp) return;
+    if (nq && hay(m).indexOf(nq)<0) return;
+    n++;
+    var b = document.createElement('button');
+    b.className = 'chip' + (m.child?' child':'') + (viewsFor(m).length?'':' soon');
+    b.type='button'; b.setAttribute('aria-pressed', state.sel===m.id ? 'true':'false');
+    b.innerHTML = (m.child?'└ ':'') + m.name + '<span class="sub">' + (m.abbr? m.abbr+' ・ ':'') + (viewsFor(m).length? (m.via?'図あり（筋群で表示）':'図あり'):'図は準備中') + '</span>';
+    b.addEventListener('click', function(){ select(m.id, true); });
+    box.appendChild(b);
+  });
+  if (!n){ var e=document.createElement('p'); e.className='empty'; e.textContent='見つかりませんでした。別の言葉（例：開く・閉じる・伸ばす）でも試してみてください。'; box.appendChild(e); }
+}
+
+/* ===== 描画：図 ===== */
+var SVGNS='http://www.w3.org/2000/svg';
+function el(name, attrs){ var e=document.createElementNS(SVGNS,name); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+
+function bbox(d){
+  var n=d.match(/-?\d+(?:\.\d+)?/g).map(Number), x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  for (var i=0;i+1<n.length;i+=2){ x0=Math.min(x0,n[i]); x1=Math.max(x1,n[i]); y0=Math.min(y0,n[i+1]); y1=Math.max(y1,n[i+1]); }
+  return {x0:x0,x1:x1,y0:y0,y1:y1};
+}
+function renderViews(){
+  var box=$('views'); box.innerHTML='';
+  VIEWS.filter(function(v){ return v.grp===state.grp; }).forEach(function(v){
+    var b=document.createElement('button'); b.type='button'; b.className='view-btn';
+    b.textContent = v.name + (v.soon?'（準備中）':'');
+    b.disabled = !!v.soon;
+    b.setAttribute('aria-pressed', (!v.soon && state.view===v.id)?'true':'false');
+    if (!v.soon) b.addEventListener('click', function(){ state.view=v.id; track('larynx_view',{view:v.id}); render(); });
+    box.appendChild(b);
+  });
+}
+
+function shp(m){ return m.shapes.length ? m.shapes : (m.via ? byId(m.via).shapes : []); }
+function pullKeyOf(m){ return m.pullKey || m.via || m.id; }
+
+function drawFig(fig, note, mini){
+  fig.innerHTML='';
+  var v = viewById(state.view);
+  var live = VIEWS.filter(function(x){ return x.grp===state.grp && !x.soon; });
+  if (!v || v.grp!==state.grp || v.soon){ v = live[0] || null; if (v) state.view=v.id; }
+  if (!v){ note.textContent=''; return; }
+  var W=v.w, H=v.h, m = state.sel? byId(state.sel):null;
+  var ms = m? shp(m):[];
+  var on = {}; ms.forEach(function(s){ on[s]=true; });
+  var svg = el('svg',{viewBox:'0 0 '+W+' '+H, role:'img', 'aria-label':v.alt});
+  svg.appendChild(el('image',{href:v.img, x:0, y:0, width:W, height:H}));
+  var hasOn = !!m && ms.some(function(s){ return v.shapes[s]; });
+  var maskId = 'hole_'+fig.id;
+  var strength = m && state.pull[pullKeyOf(m)]!=null ? state.pull[pullKeyOf(m)] : .5;
+  var fo = (.2 + .6*strength).toFixed(2);
+
+  if (hasOn){
+    var defs=el('defs',{}), mask=el('mask',{id:maskId});
+    mask.appendChild(el('rect',{x:0,y:0,width:W,height:H,fill:'#fff'}));
+    ms.forEach(function(s){ (v.shapes[s]||[]).forEach(function(p){ mask.appendChild(el('path',{d:p.d, fill:'#000', stroke:'#000','stroke-width':6})); }); });
+    defs.appendChild(mask); svg.appendChild(defs);
+    svg.appendChild(el('rect',{x:0,y:0,width:W,height:H,fill:'#0F2A46',opacity:'.45',mask:'url(#'+maskId+')'}));
+  }
+  Object.keys(v.shapes).forEach(function(s){
+    var owner = byId(s) || MUSCLES.filter(function(x){ return x.shapes.length===1 && x.shapes[0]===s; })[0];
+    var isOn = !!on[s];
+    if (hasOn && !isOn) return;
+    v.shapes[s].forEach(function(p){
+      var path = el('path',{d:p.d, 'class':'shape '+(isOn?'on':'faint'), tabindex:'0', role:'button', 'aria-label':(owner?owner.name:s)+' を選ぶ'});
+      if (isOn) path.setAttribute('fill-opacity', fo);
+      path.addEventListener('click', function(){ if (owner) select(owner.id,false); });
+      path.addEventListener('keydown', function(e){ if ((e.key==='Enter'||e.key===' ') && owner){ e.preventDefault(); select(owner.id,false); } });
+      svg.appendChild(path);
+    });
+  });
+  /* 文字ラベル（色だけに頼らない） */
+  if (hasOn){
+    var FS=54;
+    ms.forEach(function(s){
+      var arr=v.shapes[s]; if (!arr||!arr.length) return;
+      var sub = byId(s), nm = (m.shapes.length>1 && sub)? sub.name : (m.via? byId(m.via).name : m.name);
+      var tw = nm.length*FS;
+      var bbs = arr.map(function(p){ return bbox(p.d); });
+      function put(x,y,anchor){ var t=el('text',{'class':'lbl',x:x,y:y,'text-anchor':anchor}); t.textContent=nm; svg.appendChild(t); }
+      function above(b){ var cx=Math.min(W-tw/2-12, Math.max(tw/2+12,(b.x0+b.x1)/2)); put(cx, Math.max(FS, b.y0-26), 'middle'); }
+      if (arr.length>=2){
+        var L=bbs[0], R=bbs[bbs.length-1];
+        if (L.x0-14-tw>8) put(L.x0-14, (L.y0+L.y1)/2+18, 'end'); else above(L);
+        if (R.x1+14+tw<W-8) put(R.x1+14, (R.y0+R.y1)/2+18, 'start'); else above(R);
+      } else {
+        var b=bbs[0], cx=(b.x0+b.x1)/2;
+        if (/_t$/.test(s)) put(cx, b.y1+64, 'middle'); else above(b);
+      }
+    });
+  }
+  fig.appendChild(svg);
+  var vname = v.name;
+  if (!m){ note.textContent='筋肉を選ぶか、図の点線の部分をタップしてください。'; }
+  else if (hasOn){
+    note.textContent = m.via
+      ? '「'+m.name+'」は'+byId(m.via).name+'の一員です。重なりが多く、この図では筋群まとめて色をつけています（'+vname+'）。'
+      : '色がついた部分が「'+m.name+'」です（'+vname+'）。';
+  } else { note.textContent = 'この角度（'+vname+'）では「'+m.name+'」は見えません。別の角度を選んでください。'; }
+}
+
+function renderFig(){
+  var fig=$('fig'), note=$('figNote');
+  drawFig(fig, note, false);
+  if ($('fig2')) drawFig($('fig2'), $('figNote2'), true);
+}
+
+/* ===== 描画：情報カード ===== */
+function renderInfo(){
+  var wrap=$('infoWrap'); wrap.innerHTML='';
+  var m = state.sel? byId(state.sel):null;
+  if (!m){ wrap.innerHTML='<div class="placeholder">上の一覧から筋肉を選ぶと、ここに<br>はたらきと、発声への影響が表示されます。</div>'; return; }
+  var tags = m.tags.map(function(t){ return '<span class="tag '+(t[1]||'')+'">'+t[0]+'</span>'; }).join('');
+  var vs = viewsFor(m);
+  var seen = m.via ? '<div class="seen">この筋肉は'+byId(m.via).name+'の一員です。図では重なりが多いため、筋群まとめて色がつきます。</div>' : (vs.length ? (m.note? '<div class="seen">'+m.note+'</div>':'') : '<div class="seen warn">この筋肉の解剖図は準備中です。</div>');
+  var h = '<div class="info"><h2>'+m.name+'</h2><p class="yomi">'+m.yomi+(m.eng?' ／ '+m.eng:'')+(m.abbr?'（'+m.abbr+'）':'')+'</p>'
+    +'<div class="tags">'+tags+'</div>'
+    +'<div class="blk"><h3>はたらき</h3><p>'+m.action+'</p></div>'
+    +(m.voice?'<div class="blk"><h3>発声への影響</h3><p>'+m.voice+'</p></div>':'')
+    +(m.where?'<div class="blk"><h3>どこにある？</h3><p>'+m.where+'</p></div>':'')
+    +(m.nerve?'<div class="blk"><h3>支配する神経</h3><p>'+m.nerve+'</p></div>':'')
+    + seen
+    +'<div class="share"><a class="x" target="_blank" rel="noopener" id="shX">Xでシェア</a><a class="line" target="_blank" rel="noopener" id="shL">LINEで送る</a><button type="button" id="shC">コピー</button></div></div>';
+  wrap.innerHTML=h;
+  var url = location.href.split('#')[0] + '#' + m.id;
+  var txt = '喉頭筋図鑑で「'+m.name+'」を見てみた\n\n#RHOボイトレ\n\n'+url;
+  $('shX').href = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(txt);
+  $('shL').href = 'https://line.me/R/msg/text/?'+encodeURIComponent(txt);
+  $('shX').addEventListener('click', function(){ track('larynx_share',{via:'x',muscle:m.id}); });
+  $('shL').addEventListener('click', function(){ track('larynx_share',{via:'line',muscle:m.id}); });
+  $('shC').addEventListener('click', function(){
+    var b=this;
+    function done(){ b.textContent='コピーしました'; setTimeout(function(){ b.textContent='コピー'; },1600); }
+    try{ navigator.clipboard.writeText(url).then(done, function(){ prompt('リンクをコピーしてください', url); }); }
+    catch(e){ prompt('リンクをコピーしてください', url); }
+    track('larynx_share',{via:'copy',muscle:m.id});
+  });
+}
+
+function render(){
+  document.querySelectorAll('.tab').forEach(function(t){ t.setAttribute('aria-selected', t.dataset.grp===state.grp?'true':'false'); });
+  renderChips(); renderViews(); renderFig(); renderInfo();
+}
+
+function select(id, fromChip){
+  var m = byId(id); if (!m) return;
+  if (m.grp!==state.grp){ state.grp=m.grp; state.q=''; $('q').value=''; }
+  state.sel = id;
+  var vs = viewsFor(m), cur = viewById(state.view);
+  if (vs.length && vs.indexOf(cur)<0) state.view = vs[0].id;
+  try{ history.replaceState(null,'','#'+id); }catch(e){}
+  track('larynx_select',{muscle:id});
+  render(); markCur(pullKeyOf(m));
+  if (fromChip){
+    var r=$('figCard').getBoundingClientRect();
+    if (r.top<60 || r.top>window.innerHeight*0.65) $('figCard').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+
+/* ===== 合成音ラボ（Web Audio：声帯の振動＋息のノイズ＋母音フィルタ） ===== */
+var LAB = [
+  { id:'pca',    name:'後輪状披裂筋', tag:'開く',   lo:'ゆるめる', hi:'強く引く' },
+  { id:'lca',    name:'外側輪状披裂筋', tag:'閉じる', lo:'ゆるめる', hi:'強く引く' },
+  { id:'ia',     name:'披裂筋（横・斜）', tag:'閉じる', lo:'ゆるめる', hi:'強く引く' },
+  { id:'ta',     name:'甲状披裂筋', tag:'縮めて厚く', lo:'ゆるめる', hi:'強く引く' },
+  { id:'ct',     name:'輪状甲状筋', tag:'伸ばす', lo:'ゆるめる', hi:'強く引く' },
+  { id:'o_up',   name:'舌骨上筋群', tag:'喉頭を上げる', lo:'ゆるめる', hi:'強く引く' },
+  { id:'o_down', name:'舌骨下筋群', tag:'喉頭を下げる', lo:'ゆるめる', hi:'強く引く' }
+];
+var VOWELS = { 'あ':[800,1200,2500], 'い':[300,2300,3000], 'う':[330,1300,2400], 'え':[500,1900,2500], 'お':[500,900,2400] };
+var PITCHES = { '低め':110, 'ふつう':165, '高め':247 };
+var PRESETS = [
+  { name:'ふつうの声',   v:{ pca:.1, lca:.5, ia:.5, ta:.5, ct:.5, o_up:.5, o_down:.5 } },
+  { name:'息もれ・ささやき', v:{ pca:.85, lca:.15, ia:.1, ta:.2, ct:.4, o_up:.5, o_down:.5 } },
+  { name:'地声（厚い）', v:{ pca:.05, lca:.6, ia:.6, ta:.9, ct:.3, o_up:.4, o_down:.6 } },
+  { name:'裏声（薄い）', v:{ pca:.15, lca:.55, ia:.5, ta:.1, ct:.95, o_up:.5, o_down:.5 } },
+  { name:'押し込んだ声', v:{ pca:0, lca:.95, ia:.9, ta:.8, ct:.35, o_up:.75, o_down:.3 } },
+  { name:'喉が上がった声', v:{ pca:.1, lca:.7, ia:.7, ta:.4, ct:.8, o_up:.95, o_down:.1 } }
+];
+var lab = { vowel:'あ', pitch:'ふつう', playing:false, ctx:null, nodes:null, dirty:false };
+function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+
+/* 筋肉の値(0〜1) → 音のパラメータ */
+function labParams(pull, vowel, base){
+  var P=pull.pca, L=pull.lca, I=pull.ia, T=pull.ta, C=pull.ct, U=pull.o_up, D=pull.o_down;
+  var c = .45*L + .35*I + .2*T - .6*P;               /* 声帯が閉じている度合い（0.44 がふつう） */
+  var h = U - D;                                      /* 喉頭の高さ（-1〜1） */
+  var open = Math.max(0, (C-T)-.3)*.4;                /* 裏声の隙間 */
+  var b = clamp(.13 + (.44-c)*1.6 + .5*P + open, 0, 1);            /* 息の混ざり */
+  var p = clamp((c-.52)*2.4 + .3*Math.max(0,h), 0, 1);             /* 押し込み */
+  var s = clamp(1.1 + 1.2*(C-.5) - .8*(T-.5) - .9*p + .6*b, .4, 2.6);  /* 倍音の減り方（大きいほど丸く薄い） */
+  var g = clamp(.25 + c*1.3, .1, 1) * (1 - .7*P);                  /* 声の大きさ */
+  var f0 = base * Math.pow(2, (C-.5)*1.5 - (T-.5)*.4);
+  var sc = Math.pow(2, .22*h);                        /* 声道の長さ → フォルマント倍率 */
+  var F = VOWELS[vowel].map(function(x){ return x*sc; });
+  var body = clamp(.2 + .7*T - .3*C, .1, 1);
+  return { c:c, h:h, b:b, p:p, s:s, g:g, f0:f0, F:F, body:body, f3:.3*(1+.8*h)*(1+.6*p) };
+}
+
+function buildGraph(ctx){
+  var N={};
+  N.osc = ctx.createOscillator(); N.osc.frequency.value=165;
+  N.srcG = ctx.createGain();
+  var nb = ctx.createBuffer(1, ctx.sampleRate*2, ctx.sampleRate), d = nb.getChannelData(0);
+  for (var i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+  N.noise = ctx.createBufferSource(); N.noise.buffer=nb; N.noise.loop=true;
+  N.nbp = ctx.createBiquadFilter(); N.nbp.type='bandpass'; N.nbp.frequency.value=2200; N.nbp.Q.value=.7;
+  N.nG = ctx.createGain();
+  N.mix = ctx.createGain();
+  N.lfo = ctx.createOscillator(); N.lfo.frequency.value=5.5; N.lfoG = ctx.createGain(); N.lfoG.gain.value=7;
+  N.lfo.connect(N.lfoG); N.lfoG.connect(N.osc.detune);
+  N.osc.connect(N.srcG); N.srcG.connect(N.mix);
+  N.noise.connect(N.nbp); N.nbp.connect(N.nG); N.nG.connect(N.mix);
+  N.master = ctx.createGain(); N.master.gain.value=0;
+  N.comp = ctx.createDynamicsCompressor();
+  N.fs=[]; N.fg=[];
+  var Q=[8,10,12], G=[1,.6,.3];
+  for (var k=0;k<3;k++){
+    var f=ctx.createBiquadFilter(); f.type='bandpass'; f.Q.value=Q[k]; f.frequency.value=1000;
+    var fg=ctx.createGain(); fg.gain.value=G[k]*(k==2?1:1);
+    N.mix.connect(f); f.connect(fg); fg.connect(N.master); N.fs.push(f); N.fg.push(fg);
+  }
+  N.lp = ctx.createBiquadFilter(); N.lp.type='lowpass'; N.lp.frequency.value=600;
+  N.bodyG = ctx.createGain(); N.bodyG.gain.value=.5;
+  N.mix.connect(N.lp); N.lp.connect(N.bodyG); N.bodyG.connect(N.master);
+  N.master.connect(N.comp); N.comp.connect(ctx.destination);
+  return N;
+}
+/* 倍音の組み合わせが変わっても音の大きさが極端に変わらないように補正 */
+function waveGain(sl){
+  var pts=128, pk=0, sq=0;
+  for (var i=0;i<pts;i++){ var x=0, ph=2*Math.PI*i/pts; for (var k=1;k<=40;k++) x+=Math.pow(k,-sl)*Math.sin(k*ph); pk=Math.max(pk,Math.abs(x)); sq+=x*x; }
+  var rmsN = Math.sqrt(sq/pts)/pk;     /* 最大値で正規化したときの実効値 */
+  return clamp(.3/rmsN, .3, 2.2) * clamp(1 + .5*(sl-1.2), .8, 1.8);
+}
+function applyParams(ctx, N, pr, instant){
+  var t=ctx.currentTime, tc = instant?0.001:0.03;
+  N.osc.frequency.setTargetAtTime(pr.f0, t, tc);
+  var n=40, re=new Float32Array(n+1), im=new Float32Array(n+1);
+  for (var k=1;k<=n;k++) im[k]=Math.pow(k,-pr.s);
+  N.osc.setPeriodicWave(ctx.createPeriodicWave(re,im));
+  N.srcG.gain.setTargetAtTime(pr.g*waveGain(pr.s), t, tc);
+  N.bodyG.gain.setTargetAtTime(pr.body, t, tc);
+  N.nG.gain.setTargetAtTime(1.2*pr.b, t, tc);
+  for (var k2=0;k2<3;k2++){
+    N.fs[k2].frequency.setTargetAtTime(pr.F[k2], t, tc);
+  }
+  N.fg[2].gain.setTargetAtTime(pr.f3, t, tc);
+}
+function labStart(){
+  if (!lab.ctx){
+    var AC = window.AudioContext||window.webkitAudioContext; if (!AC) return false;
+    lab.ctx = new AC();
+  }
+  if (lab.ctx.state==='suspended') lab.ctx.resume();
+  lab.nodes = buildGraph(lab.ctx);
+  var N=lab.nodes; applyParams(lab.ctx, N, labParams(state.pull, lab.vowel, PITCHES[lab.pitch]), true);
+  N.osc.start(); N.noise.start(); N.lfo.start();
+  N.master.gain.setTargetAtTime(.55, lab.ctx.currentTime, .05);
+  lab.playing=true; return true;
+}
+function labStop(){
+  if (!lab.nodes) { lab.playing=false; return; }
+  var N=lab.nodes, c=lab.ctx;
+  N.master.gain.setTargetAtTime(0, c.currentTime, .04);
+  setTimeout(function(){ try{ N.osc.stop(); N.noise.stop(); N.lfo.stop(); }catch(e){} try{ N.master.disconnect(); }catch(e){} }, 220);
+  lab.nodes=null; lab.playing=false;
+}
+function labUpdate(){
+  if (lab.dirty) return; lab.dirty=true;
+  requestAnimationFrame(function(){
+    lab.dirty=false;
+    if (lab.playing && lab.nodes) applyParams(lab.ctx, lab.nodes, labParams(state.pull, lab.vowel, PITCHES[lab.pitch]), false);
+    renderRead();
+  });
+}
+var NOTE_N=['ド','ド#','レ','レ#','ミ','ファ','ファ#','ソ','ソ#','ラ','ラ#','シ'];
+function noteName(f){ var m=Math.round(12*Math.log(f/440)/Math.LN2+69); return NOTE_N[((m%12)+12)%12]+(Math.floor(m/12)-1); }
+function renderRead(){
+  var pr=labParams(state.pull, lab.vowel, PITCHES[lab.pitch]), T=state.pull.ta, C=state.pull.ct;
+  var breath = pr.b<.2?'ほとんどなし':(pr.b<.5?'少し混ざる':'多い（かすれ・息もれ）');
+  var tight = pr.c<.3?'弱い（ゆるい）':(pr.p<.15?'ふつう':(pr.p<.5?'やや強い':'強い（押し込み）'));
+  var thick = (T-C)>.2?'厚い（地声寄り）':((T-C)<-.2?'薄い（裏声寄り）':'ふつう');
+  var lar = pr.h>.2?'高め（上がっている）':(pr.h<-.2?'低め（下がっている）':'ふつう');
+  $('readout').innerHTML = '<dt>声の高さ</dt><dd>'+noteName(pr.f0)+'（約'+Math.round(pr.f0)+'Hz）</dd>'
+    +'<dt>息の混ざり</dt><dd>'+breath+'</dd><dt>声帯の閉じ具合</dt><dd>'+tight+'</dd>'
+    +'<dt>声の厚み</dt><dd>'+thick+'</dd><dt>喉頭の高さ</dt><dd>'+lar+'</dd>';
+}
+function renderLab(){
+  var box=$('sliders'); box.innerHTML='<h3 class="sl-h" style="margin-top:16px">筋肉ごとの引っぱり具合</h3>';
+  LAB.forEach(function(L){
+    var d=document.createElement('div'); d.className='sl'; d.id='sl_'+L.id;
+    d.innerHTML='<div class="sl-top"><span class="sl-name">'+L.name+'<small>'+L.tag+'</small></span><span class="sl-val" id="sv_'+L.id+'"></span></div>'
+      +'<input type="range" min="0" max="100" step="1" aria-label="'+L.name+'の引っぱり具合" id="si_'+L.id+'">'
+      +'<div class="sl-ends"><span>'+L.lo+'</span><span>'+L.hi+'</span></div>';
+    box.appendChild(d);
+    var inp=d.querySelector('input'); inp.value=Math.round(state.pull[L.id]*100);
+    function sync(){ $('sv_'+L.id).textContent=Math.round(state.pull[L.id]*100)+'%'; }
+    sync();
+    inp.addEventListener('input', function(){
+      state.pull[L.id]=inp.value/100; sync(); markCur(L.id);
+      if (state.sel!==L.id) select(L.id,false); else renderFig();
+      labUpdate();
+    });
+    inp.addEventListener('change', function(){ track('lab_slider',{muscle:L.id}); });
+    inp.addEventListener('focus', function(){ markCur(L.id); });
+  });
+  renderRead();
+}
+function markCur(id){ LAB.forEach(function(L){ var e=$('sl_'+L.id); if (e) e.classList.toggle('cur', L.id===id); }); }
+function syncSliders(){ LAB.forEach(function(L){ var i=$('si_'+L.id); if (i){ i.value=Math.round(state.pull[L.id]*100); $('sv_'+L.id).textContent=i.value+'%'; } }); }
+(function initLab(){
+  var vb=$('vowels'); Object.keys(VOWELS).forEach(function(k){
+    var b=document.createElement('button'); b.type='button'; b.textContent=k; b.setAttribute('aria-pressed', k===lab.vowel?'true':'false');
+    b.addEventListener('click', function(){ lab.vowel=k; vb.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); }); labUpdate(); track('lab_vowel',{v:k}); });
+    vb.appendChild(b);
+  });
+  var pb=$('pitches'); Object.keys(PITCHES).forEach(function(k){
+    var b=document.createElement('button'); b.type='button'; b.textContent=k; b.setAttribute('aria-pressed', k===lab.pitch?'true':'false');
+    b.addEventListener('click', function(){ lab.pitch=k; pb.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); }); labUpdate(); });
+    pb.appendChild(b);
+  });
+  var pr=$('presets'); PRESETS.forEach(function(P){
+    var b=document.createElement('button'); b.type='button'; b.textContent=P.name;
+    b.addEventListener('click', function(){
+      for (var k in P.v) state.pull[k]=P.v[k]; syncSliders(); renderFig(); labUpdate(); track('lab_preset',{preset:P.name});
+    });
+    pr.appendChild(b);
+  });
+  $('play').addEventListener('click', function(){
+    var btn=this;
+    if (lab.playing){ labStop(); btn.setAttribute('aria-pressed','false'); btn.textContent='▶ 音を鳴らす'; }
+    else if (labStart()){ btn.setAttribute('aria-pressed','true'); btn.textContent='■ 音を止める'; track('lab_play'); }
+    else { btn.textContent='このブラウザでは音が出せません'; }
+  });
+  function stopAll(){ if (lab.playing){ labStop(); var b=$('play'); b.setAttribute('aria-pressed','false'); b.textContent='▶ 音を鳴らす'; } }
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) stopAll(); });
+  window.addEventListener('pagehide', stopAll);
+})();
+
+/* ===== イベント ===== */
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    if (state.grp===t.dataset.grp) return;
+    state.grp=t.dataset.grp; state.q=''; $('q').value=''; state.sel=null;
+    var live=VIEWS.filter(function(v){ return v.grp===state.grp && !v.soon; }); state.view = live[0]?live[0].id:state.view;
+    track('larynx_tab',{group:state.grp}); render();
+  });
+});
+$('q').addEventListener('input', function(e){ state.q=e.target.value; renderChips(); });
+document.querySelector('.cta a').addEventListener('click', function(){ track('larynx_cta_click'); });
+
+/* リンク先指定（#pca など）で直接開く */
+renderLab();
+(function(){
+  var id = location.hash.replace('#','');
+  if (id && byId(id)) { select(id,false); } else { render(); }
+})();
+</script>
+</body>
+</html>
