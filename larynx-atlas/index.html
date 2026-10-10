@@ -102,44 +102,9 @@
   .blk p{font-size:14.5px; color:var(--text); line-height:1.85;}
   .seen{margin-top:16px; padding:11px 13px; border-radius:12px; background:var(--sky); font-size:13px; color:var(--navy); font-weight:700; line-height:1.7;}
   .seen.warn{background:var(--amber-bg); color:#7A520A;}
-  .share{display:flex; gap:8px; margin-top:18px; flex-wrap:wrap;}
-  .share a,.share button{flex:1; min-width:84px; white-space:nowrap; text-align:center; padding:11px 8px; border-radius:10px; font-weight:700; font-size:13px; background:var(--sky); color:var(--navy);}
-  .share .x{background:#111; color:#fff;}
-  .share .line{background:#06C755; color:#fff;}
   .placeholder{margin-top:20px; padding:26px 20px; text-align:center; color:var(--text-dim); font-size:14px; background:#fff; border:1px dashed #C9D3DE; border-radius:20px;}
 
 
-  /* sound lab */
-  .lab{margin-top:22px; background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:22px 16px 20px;}
-  .lab h2{font-size:19px; color:var(--navy); font-weight:900; line-height:1.5;}
-  .lab .beta{display:inline-block; font-size:11px; font-weight:900; color:#8A5C0A; background:var(--amber-bg); padding:3px 9px; border-radius:100px; vertical-align:middle; margin-left:6px;}
-  .lab > p{font-size:13.5px; margin-top:8px;}
-  .stick{position:sticky; top:52px; z-index:20; background:#fff; padding:10px 0 6px; margin-top:12px; border-bottom:1px solid var(--line);}
-  .stick .fig{max-width:300px; margin:0 auto;}
-  .stick .fig-note{margin-top:6px;}
-  .ctl{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px;}
-  .play{flex:1 1 100%; padding:15px; border-radius:12px; background:var(--data); color:#fff; font-weight:900; font-size:16px;}
-  .play[aria-pressed="true"]{background:var(--navy-2);}
-  .seg{display:flex; gap:5px; flex-wrap:wrap; align-items:center;}
-  .seg b{font-size:12px; color:var(--text-dim); margin-right:2px;}
-  .seg button{padding:7px 12px; border-radius:100px; background:var(--sky); color:var(--navy); font-weight:700; font-size:13px;}
-  .seg button[aria-pressed="true"]{background:var(--blue); color:#fff;}
-  .presets{margin-top:14px;}
-  .presets h3,.sl-h{font-size:12.5px; font-weight:900; color:var(--blue); letter-spacing:.04em; margin-bottom:6px;}
-  .presets .seg button{background:#fff; border:1.5px solid var(--line);}
-  .sl{margin-top:16px; padding:12px 12px 8px; border-radius:14px; border:1.5px solid var(--line); background:#FAFCFE;}
-  .sl.cur{border-color:var(--blue); background:#F1F7FD;}
-  .sl-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
-  .sl-name{font-weight:900; color:var(--navy); font-size:14.5px;}
-  .sl-name small{font-size:11.5px; font-weight:700; color:#8A5C0A; background:var(--amber-bg); padding:2px 8px; border-radius:100px; margin-left:6px; white-space:nowrap;}
-  .sl-val{font-weight:900; color:var(--navy); font-size:13.5px; min-width:3.2em; text-align:right;}
-  .sl input[type=range]{width:100%; margin:8px 0 2px; accent-color:var(--blue); height:30px;}
-  .sl-ends{display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim);}
-  .read{margin-top:16px; padding:14px; border-radius:14px; background:var(--sky);}
-  .read dl{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:13.5px;}
-  .read dt{font-weight:700; color:var(--text-dim);}
-  .read dd{font-weight:900; color:var(--navy);}
-  .warn-s{margin-top:12px; font-size:11.5px; color:var(--text-dim); line-height:1.7;}
   .cta{margin-top:28px; background:linear-gradient(135deg,var(--navy-2),var(--navy)); color:#fff; border-radius:22px; padding:26px 22px; text-align:center;}
   .cta h2{font-size:17px; font-weight:900; line-height:1.6; margin-bottom:8px;}
   .cta p{font-size:13.5px; color:#CFE0F2; line-height:1.8;}
@@ -179,24 +144,6 @@
   </section>
 
   <section id="infoWrap"></section>
-
-  <section class="lab" id="lab" aria-label="筋肉を引っ張ると声がどう変わるかを聞く">
-    <h2>筋肉を引っ張ってみよう<span class="beta">イメージ用の合成音</span></h2>
-    <p>スライダーで筋肉の「引っぱり具合」を動かすと、声の音色がどう変わるかを聞けます。上の図もいっしょに動きます。<br>※ 実際の人間の声ではなく、模型として単純化した合成音です。</p>
-    <div class="stick">
-      <div class="fig" id="fig2"></div>
-      <p class="fig-note" id="figNote2"></p>
-    </div>
-    <div class="ctl">
-      <button type="button" class="play" id="play" aria-pressed="false">▶ 音を鳴らす</button>
-      <div class="seg" id="vowels"><b>母音</b></div>
-      <div class="seg" id="pitches"><b>声の高さ</b></div>
-    </div>
-    <div class="presets"><h3>お手本の組み合わせ</h3><div class="seg" id="presets"></div></div>
-    <div id="sliders"></div>
-    <div class="read"><dl id="readout"></dl></div>
-    <p class="warn-s">※ 音量に注意してください。最初は小さめの音量から聞いてね。<br>※ 実際の発声は、これらの筋肉が同時にからみ合って決まります。ここでは1本ずつの影響を、わかりやすく強調して表現しています。</p>
-  </section>
 
   <section class="cta">
     <h2>「自分の喉の使い方、どうなってる？」<br>気になったら声を聴かせてください</h2>
@@ -286,7 +233,7 @@ var MUSCLES = [
 ];
 
 /* ===== 状態 ===== */
-var state = { grp:'in', sel:null, view:'post', q:'', pull:{ pca:.1, lca:.5, ia:.5, ta:.5, ct:.5, o_up:.5, o_down:.5 } };
+var state = { grp:'in', sel:null, view:'post', q:'' };
 function $(id){ return document.getElementById(id); }
 function byId(id){ for (var i=0;i<MUSCLES.length;i++) if (MUSCLES[i].id===id) return MUSCLES[i]; return null; }
 function viewById(id){ for (var i=0;i<VIEWS.length;i++) if (VIEWS[i].id===id) return VIEWS[i]; return null; }
@@ -350,7 +297,6 @@ function renderViews(){
 }
 
 function shp(m){ return m.shapes.length ? m.shapes : (m.via ? byId(m.via).shapes : []); }
-function pullKeyOf(m){ return m.pullKey || m.via || m.id; }
 
 function drawFig(fig, note, mini){
   fig.innerHTML='';
@@ -374,8 +320,7 @@ function drawFig(fig, note, mini){
   svg.appendChild(imgEl);
   var hasOn = !!m && ms.some(function(s){ return v.shapes[s]; });
   var maskId = 'hole_'+fig.id;
-  var strength = m && state.pull[pullKeyOf(m)]!=null ? state.pull[pullKeyOf(m)] : .5;
-  var fo = (.2 + .6*strength).toFixed(2);
+  var fo = '.42';
 
   if (hasOn){
     var defs=el('defs',{}), mask=el('mask',{id:maskId});
@@ -447,21 +392,8 @@ function renderInfo(){
     +(m.where?'<div class="blk"><h3>どこにある？</h3><p>'+m.where+'</p></div>':'')
     +(m.nerve?'<div class="blk"><h3>支配する神経</h3><p>'+m.nerve+'</p></div>':'')
     + seen
-    +'<div class="share"><a class="x" target="_blank" rel="noopener" id="shX">Xでシェア</a><a class="line" target="_blank" rel="noopener" id="shL">LINEで送る</a><button type="button" id="shC">コピー</button></div></div>';
+    +'</div>';
   wrap.innerHTML=h;
-  var url = location.href.split('#')[0] + '#' + m.id;
-  var txt = '喉頭筋図鑑で「'+m.name+'」を見てみた\n\n#RHOボイトレ\n\n'+url;
-  $('shX').href = 'https://twitter.com/intent/tweet?text='+encodeURIComponent(txt);
-  $('shL').href = 'https://line.me/R/msg/text/?'+encodeURIComponent(txt);
-  $('shX').addEventListener('click', function(){ track('larynx_share',{via:'x',muscle:m.id}); });
-  $('shL').addEventListener('click', function(){ track('larynx_share',{via:'line',muscle:m.id}); });
-  $('shC').addEventListener('click', function(){
-    var b=this;
-    function done(){ b.textContent='コピーしました'; setTimeout(function(){ b.textContent='コピー'; },1600); }
-    try{ navigator.clipboard.writeText(url).then(done, function(){ prompt('リンクをコピーしてください', url); }); }
-    catch(e){ prompt('リンクをコピーしてください', url); }
-    track('larynx_share',{via:'copy',muscle:m.id});
-  });
 }
 
 function render(){
@@ -477,194 +409,13 @@ function select(id, fromChip){
   if (vs.length && vs.indexOf(cur)<0) state.view = vs[0].id;
   try{ history.replaceState(null,'','#'+id); }catch(e){}
   track('larynx_select',{muscle:id});
-  render(); markCur(pullKeyOf(m));
+  render();
   if (fromChip){
     var r=$('figCard').getBoundingClientRect();
     if (r.top<60 || r.top>window.innerHeight*0.65) $('figCard').scrollIntoView({behavior:'smooth',block:'start'});
   }
 }
 
-
-/* ===== 合成音ラボ（Web Audio：声帯の振動＋息のノイズ＋母音フィルタ） ===== */
-var LAB = [
-  { id:'pca',    name:'後輪状披裂筋', tag:'開く',   lo:'ゆるめる', hi:'強く引く' },
-  { id:'lca',    name:'外側輪状披裂筋', tag:'閉じる', lo:'ゆるめる', hi:'強く引く' },
-  { id:'ia',     name:'披裂筋（横・斜）', tag:'閉じる', lo:'ゆるめる', hi:'強く引く' },
-  { id:'ta',     name:'甲状披裂筋', tag:'縮めて厚く', lo:'ゆるめる', hi:'強く引く' },
-  { id:'ct',     name:'輪状甲状筋', tag:'伸ばす', lo:'ゆるめる', hi:'強く引く' },
-  { id:'o_up',   name:'舌骨上筋群', tag:'喉頭を上げる', lo:'ゆるめる', hi:'強く引く' },
-  { id:'o_down', name:'舌骨下筋群', tag:'喉頭を下げる', lo:'ゆるめる', hi:'強く引く' }
-];
-var VOWELS = { 'あ':[800,1200,2500], 'い':[300,2300,3000], 'う':[330,1300,2400], 'え':[500,1900,2500], 'お':[500,900,2400] };
-var PITCHES = { '低め':110, 'ふつう':165, '高め':247 };
-var PRESETS = [
-  { name:'ふつうの声',   v:{ pca:.1, lca:.5, ia:.5, ta:.5, ct:.5, o_up:.5, o_down:.5 } },
-  { name:'息もれ・ささやき', v:{ pca:.85, lca:.15, ia:.1, ta:.2, ct:.4, o_up:.5, o_down:.5 } },
-  { name:'地声（厚い）', v:{ pca:.05, lca:.6, ia:.6, ta:.9, ct:.3, o_up:.4, o_down:.6 } },
-  { name:'裏声（薄い）', v:{ pca:.15, lca:.55, ia:.5, ta:.1, ct:.95, o_up:.5, o_down:.5 } },
-  { name:'押し込んだ声', v:{ pca:0, lca:.95, ia:.9, ta:.8, ct:.35, o_up:.75, o_down:.3 } },
-  { name:'喉が上がった声', v:{ pca:.1, lca:.7, ia:.7, ta:.4, ct:.8, o_up:.95, o_down:.1 } }
-];
-var lab = { vowel:'あ', pitch:'ふつう', playing:false, ctx:null, nodes:null, dirty:false };
-function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
-
-/* 筋肉の値(0〜1) → 音のパラメータ */
-function labParams(pull, vowel, base){
-  var P=pull.pca, L=pull.lca, I=pull.ia, T=pull.ta, C=pull.ct, U=pull.o_up, D=pull.o_down;
-  var c = .45*L + .35*I + .2*T - .6*P;               /* 声帯が閉じている度合い（0.44 がふつう） */
-  var h = U - D;                                      /* 喉頭の高さ（-1〜1） */
-  var open = Math.max(0, (C-T)-.3)*.4;                /* 裏声の隙間 */
-  var b = clamp(.13 + (.44-c)*1.6 + .5*P + open, 0, 1);            /* 息の混ざり */
-  var p = clamp((c-.52)*2.4 + .3*Math.max(0,h), 0, 1);             /* 押し込み */
-  var s = clamp(1.1 + 1.2*(C-.5) - .8*(T-.5) - .9*p + .6*b, .4, 2.6);  /* 倍音の減り方（大きいほど丸く薄い） */
-  var g = clamp(.25 + c*1.3, .1, 1) * (1 - .7*P);                  /* 声の大きさ */
-  var f0 = base * Math.pow(2, (C-.5)*1.5 - (T-.5)*.4);
-  var sc = Math.pow(2, .22*h);                        /* 声道の長さ → フォルマント倍率 */
-  var F = VOWELS[vowel].map(function(x){ return x*sc; });
-  var body = clamp(.2 + .7*T - .3*C, .1, 1);
-  return { c:c, h:h, b:b, p:p, s:s, g:g, f0:f0, F:F, body:body, f3:.3*(1+.8*h)*(1+.6*p) };
-}
-
-function buildGraph(ctx){
-  var N={};
-  N.osc = ctx.createOscillator(); N.osc.frequency.value=165;
-  N.srcG = ctx.createGain();
-  var nb = ctx.createBuffer(1, ctx.sampleRate*2, ctx.sampleRate), d = nb.getChannelData(0);
-  for (var i=0;i<d.length;i++) d[i]=Math.random()*2-1;
-  N.noise = ctx.createBufferSource(); N.noise.buffer=nb; N.noise.loop=true;
-  N.nbp = ctx.createBiquadFilter(); N.nbp.type='bandpass'; N.nbp.frequency.value=2200; N.nbp.Q.value=.7;
-  N.nG = ctx.createGain();
-  N.mix = ctx.createGain();
-  N.lfo = ctx.createOscillator(); N.lfo.frequency.value=5.5; N.lfoG = ctx.createGain(); N.lfoG.gain.value=7;
-  N.lfo.connect(N.lfoG); N.lfoG.connect(N.osc.detune);
-  N.osc.connect(N.srcG); N.srcG.connect(N.mix);
-  N.noise.connect(N.nbp); N.nbp.connect(N.nG); N.nG.connect(N.mix);
-  N.master = ctx.createGain(); N.master.gain.value=0;
-  N.comp = ctx.createDynamicsCompressor();
-  N.fs=[]; N.fg=[];
-  var Q=[8,10,12], G=[1,.6,.3];
-  for (var k=0;k<3;k++){
-    var f=ctx.createBiquadFilter(); f.type='bandpass'; f.Q.value=Q[k]; f.frequency.value=1000;
-    var fg=ctx.createGain(); fg.gain.value=G[k]*(k==2?1:1);
-    N.mix.connect(f); f.connect(fg); fg.connect(N.master); N.fs.push(f); N.fg.push(fg);
-  }
-  N.lp = ctx.createBiquadFilter(); N.lp.type='lowpass'; N.lp.frequency.value=600;
-  N.bodyG = ctx.createGain(); N.bodyG.gain.value=.5;
-  N.mix.connect(N.lp); N.lp.connect(N.bodyG); N.bodyG.connect(N.master);
-  N.master.connect(N.comp); N.comp.connect(ctx.destination);
-  return N;
-}
-/* 倍音の組み合わせが変わっても音の大きさが極端に変わらないように補正 */
-function waveGain(sl){
-  var pts=128, pk=0, sq=0;
-  for (var i=0;i<pts;i++){ var x=0, ph=2*Math.PI*i/pts; for (var k=1;k<=40;k++) x+=Math.pow(k,-sl)*Math.sin(k*ph); pk=Math.max(pk,Math.abs(x)); sq+=x*x; }
-  var rmsN = Math.sqrt(sq/pts)/pk;     /* 最大値で正規化したときの実効値 */
-  return clamp(.3/rmsN, .3, 2.2) * clamp(1 + .5*(sl-1.2), .8, 1.8);
-}
-function applyParams(ctx, N, pr, instant){
-  var t=ctx.currentTime, tc = instant?0.001:0.03;
-  N.osc.frequency.setTargetAtTime(pr.f0, t, tc);
-  var n=40, re=new Float32Array(n+1), im=new Float32Array(n+1);
-  for (var k=1;k<=n;k++) im[k]=Math.pow(k,-pr.s);
-  N.osc.setPeriodicWave(ctx.createPeriodicWave(re,im));
-  N.srcG.gain.setTargetAtTime(pr.g*waveGain(pr.s), t, tc);
-  N.bodyG.gain.setTargetAtTime(pr.body, t, tc);
-  N.nG.gain.setTargetAtTime(1.2*pr.b, t, tc);
-  for (var k2=0;k2<3;k2++){
-    N.fs[k2].frequency.setTargetAtTime(pr.F[k2], t, tc);
-  }
-  N.fg[2].gain.setTargetAtTime(pr.f3, t, tc);
-}
-function labStart(){
-  if (!lab.ctx){
-    var AC = window.AudioContext||window.webkitAudioContext; if (!AC) return false;
-    lab.ctx = new AC();
-  }
-  if (lab.ctx.state==='suspended') lab.ctx.resume();
-  lab.nodes = buildGraph(lab.ctx);
-  var N=lab.nodes; applyParams(lab.ctx, N, labParams(state.pull, lab.vowel, PITCHES[lab.pitch]), true);
-  N.osc.start(); N.noise.start(); N.lfo.start();
-  N.master.gain.setTargetAtTime(.55, lab.ctx.currentTime, .05);
-  lab.playing=true; return true;
-}
-function labStop(){
-  if (!lab.nodes) { lab.playing=false; return; }
-  var N=lab.nodes, c=lab.ctx;
-  N.master.gain.setTargetAtTime(0, c.currentTime, .04);
-  setTimeout(function(){ try{ N.osc.stop(); N.noise.stop(); N.lfo.stop(); }catch(e){} try{ N.master.disconnect(); }catch(e){} }, 220);
-  lab.nodes=null; lab.playing=false;
-}
-function labUpdate(){
-  if (lab.dirty) return; lab.dirty=true;
-  requestAnimationFrame(function(){
-    lab.dirty=false;
-    if (lab.playing && lab.nodes) applyParams(lab.ctx, lab.nodes, labParams(state.pull, lab.vowel, PITCHES[lab.pitch]), false);
-    renderRead();
-  });
-}
-var NOTE_N=['ド','ド#','レ','レ#','ミ','ファ','ファ#','ソ','ソ#','ラ','ラ#','シ'];
-function noteName(f){ var m=Math.round(12*Math.log(f/440)/Math.LN2+69); return NOTE_N[((m%12)+12)%12]+(Math.floor(m/12)-1); }
-function renderRead(){
-  var pr=labParams(state.pull, lab.vowel, PITCHES[lab.pitch]), T=state.pull.ta, C=state.pull.ct;
-  var breath = pr.b<.2?'ほとんどなし':(pr.b<.5?'少し混ざる':'多い（かすれ・息もれ）');
-  var tight = pr.c<.3?'弱い（ゆるい）':(pr.p<.15?'ふつう':(pr.p<.5?'やや強い':'強い（押し込み）'));
-  var thick = (T-C)>.2?'厚い（地声寄り）':((T-C)<-.2?'薄い（裏声寄り）':'ふつう');
-  var lar = pr.h>.2?'高め（上がっている）':(pr.h<-.2?'低め（下がっている）':'ふつう');
-  $('readout').innerHTML = '<dt>声の高さ</dt><dd>'+noteName(pr.f0)+'（約'+Math.round(pr.f0)+'Hz）</dd>'
-    +'<dt>息の混ざり</dt><dd>'+breath+'</dd><dt>声帯の閉じ具合</dt><dd>'+tight+'</dd>'
-    +'<dt>声の厚み</dt><dd>'+thick+'</dd><dt>喉頭の高さ</dt><dd>'+lar+'</dd>';
-}
-function renderLab(){
-  var box=$('sliders'); box.innerHTML='<h3 class="sl-h" style="margin-top:16px">筋肉ごとの引っぱり具合</h3>';
-  LAB.forEach(function(L){
-    var d=document.createElement('div'); d.className='sl'; d.id='sl_'+L.id;
-    d.innerHTML='<div class="sl-top"><span class="sl-name">'+L.name+'<small>'+L.tag+'</small></span><span class="sl-val" id="sv_'+L.id+'"></span></div>'
-      +'<input type="range" min="0" max="100" step="1" aria-label="'+L.name+'の引っぱり具合" id="si_'+L.id+'">'
-      +'<div class="sl-ends"><span>'+L.lo+'</span><span>'+L.hi+'</span></div>';
-    box.appendChild(d);
-    var inp=d.querySelector('input'); inp.value=Math.round(state.pull[L.id]*100);
-    function sync(){ $('sv_'+L.id).textContent=Math.round(state.pull[L.id]*100)+'%'; }
-    sync();
-    inp.addEventListener('input', function(){
-      state.pull[L.id]=inp.value/100; sync(); markCur(L.id);
-      if (state.sel!==L.id) select(L.id,false); else renderFig();
-      labUpdate();
-    });
-    inp.addEventListener('change', function(){ track('lab_slider',{muscle:L.id}); });
-    inp.addEventListener('focus', function(){ markCur(L.id); });
-  });
-  renderRead();
-}
-function markCur(id){ LAB.forEach(function(L){ var e=$('sl_'+L.id); if (e) e.classList.toggle('cur', L.id===id); }); }
-function syncSliders(){ LAB.forEach(function(L){ var i=$('si_'+L.id); if (i){ i.value=Math.round(state.pull[L.id]*100); $('sv_'+L.id).textContent=i.value+'%'; } }); }
-(function initLab(){
-  var vb=$('vowels'); Object.keys(VOWELS).forEach(function(k){
-    var b=document.createElement('button'); b.type='button'; b.textContent=k; b.setAttribute('aria-pressed', k===lab.vowel?'true':'false');
-    b.addEventListener('click', function(){ lab.vowel=k; vb.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); }); labUpdate(); track('lab_vowel',{v:k}); });
-    vb.appendChild(b);
-  });
-  var pb=$('pitches'); Object.keys(PITCHES).forEach(function(k){
-    var b=document.createElement('button'); b.type='button'; b.textContent=k; b.setAttribute('aria-pressed', k===lab.pitch?'true':'false');
-    b.addEventListener('click', function(){ lab.pitch=k; pb.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', x===b?'true':'false'); }); labUpdate(); });
-    pb.appendChild(b);
-  });
-  var pr=$('presets'); PRESETS.forEach(function(P){
-    var b=document.createElement('button'); b.type='button'; b.textContent=P.name;
-    b.addEventListener('click', function(){
-      for (var k in P.v) state.pull[k]=P.v[k]; syncSliders(); renderFig(); labUpdate(); track('lab_preset',{preset:P.name});
-    });
-    pr.appendChild(b);
-  });
-  $('play').addEventListener('click', function(){
-    var btn=this;
-    if (lab.playing){ labStop(); btn.setAttribute('aria-pressed','false'); btn.textContent='▶ 音を鳴らす'; }
-    else if (labStart()){ btn.setAttribute('aria-pressed','true'); btn.textContent='■ 音を止める'; track('lab_play'); }
-    else { btn.textContent='このブラウザでは音が出せません'; }
-  });
-  function stopAll(){ if (lab.playing){ labStop(); var b=$('play'); b.setAttribute('aria-pressed','false'); b.textContent='▶ 音を鳴らす'; } }
-  document.addEventListener('visibilitychange', function(){ if (document.hidden) stopAll(); });
-  window.addEventListener('pagehide', stopAll);
-})();
 
 /* ===== イベント ===== */
 document.querySelectorAll('.tab').forEach(function(t){
@@ -679,7 +430,6 @@ $('q').addEventListener('input', function(e){ state.q=e.target.value; renderChip
 document.querySelector('.cta a').addEventListener('click', function(){ track('larynx_cta_click'); });
 
 /* リンク先指定（#pca など）で直接開く */
-renderLab();
 (function(){
   var id = location.hash.replace('#','');
   if (id && byId(id)) { select(id,false); } else { render(); }
