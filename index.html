@@ -657,7 +657,7 @@
         <span class="mark2">自分の課題を知り、正しい練習を積み重ねてきただけ。</span><br><br>
         あなたもまずは「自分の声を知ること」から始めてみませんか？
       </p>
-      <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform?usp=publish-editor" target="_blank" rel="noopener" id="contact">
+      <a class="btn-cta" href="consult/" data-consult="cta_closing" id="contact">
         <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
         <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
       </a>
@@ -698,7 +698,7 @@
 <section class="final-bar">
   <div class="wrap">
     <p>あなたの「歌いたい」をサポートします。まずはお気軽にご相談ください！</p>
-    <a class="btn-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+    <a class="btn-cta" href="consult/" data-consult="cta_final">
       <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
       <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
     </a>
@@ -715,6 +715,13 @@
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
   }, {threshold:0.12});
   document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // 無料相談フォーム(consult/)へ。流入元のutmがあれば引き継ぎ、なければLPからの導線として記録する
+  const consultQs = /[?&]utm_/.test(location.search) ? location.search : '?utm_source=voice_training&utm_medium=cta';
+  document.querySelectorAll('a[data-consult]').forEach(a=>{
+    a.href = 'consult/' + consultQs;
+    a.addEventListener('click', ()=>{ if(window.gtag) gtag('event','consult_cta_click',{position:a.dataset.consult}); });
+  });
 </script>
 
 </body>
