@@ -58,6 +58,8 @@
   .slot-in .n{width:56px; min-width:0; padding:10px 4px; text-align:center; font-size:18px; font-weight:700; font-variant-numeric:tabular-nums;}
   .slot-in .n::placeholder{color:#B4C1CF; font-weight:500;}
   .slot-in .u{font-size:14px; font-weight:700; color:var(--text-dim);}
+  .ng{font-size:13px; font-weight:700; color:var(--bad-ink);}
+  .slot.busy{border-color:var(--bad);}
   .q.invalid .slot.first .slot-in .n{border-color:var(--bad);}
   .opts{display:flex; flex-direction:column; gap:8px;}
   .opt-card{display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; background:#fff; cursor:pointer; min-height:48px; font-size:15px;}
@@ -211,6 +213,7 @@
           <input class="n" type="text" inputmode="numeric" maxlength="2" id="mi1" placeholder="00" aria-label="第1希望の分"><span class="u">分</span>
           </span>
         </div>
+        <div class="ng" hidden>この日時は受付できません。別の日時を入れてください。</div>
       </div>
       <div class="slot"><span class="sl">第2希望<span class="opt">任意</span></span>
         <div class="slot-in">
@@ -223,6 +226,7 @@
           <input class="n" type="text" inputmode="numeric" maxlength="2" id="mi2" placeholder="00" aria-label="第2希望の分"><span class="u">分</span>
           </span>
         </div>
+        <div class="ng" hidden>この日時は受付できません。別の日時を入れてください。</div>
       </div>
       <div class="slot"><span class="sl">第3希望<span class="opt">任意</span></span>
         <div class="slot-in">
@@ -235,6 +239,7 @@
           <input class="n" type="text" inputmode="numeric" maxlength="2" id="mi3" placeholder="30" aria-label="第3希望の分"><span class="u">分</span>
           </span>
         </div>
+        <div class="ng" hidden>この日時は受付できません。別の日時を入れてください。</div>
       </div>
       <label class="opt-card" style="min-height:44px"><input type="checkbox" id="slotTbd" name="slotTbd"><span>まだ決められないので、ご連絡のあとに相談したい</span></label>
       <div class="hint">希望の日時で調整します。合わない場合は、こちらから別の日時をご提案します。</div>
@@ -300,11 +305,10 @@
 (() => {
   'use strict';
   /* ===== 設定 =====
-     送信先: 既存のGoogleフォームに、この画面から裏で送ります。
-       GF.action  : フォームの送信先URL(…/formResponse で終わるもの)
-       GF.entries : このページの項目 → Googleフォームの entry.数字（まとめ項目は 'summary'）
-     GF.action が空のあいだは「内容をコピーして、フォームに貼る」画面になります。 */
-  const GF = { action: '', entries: {} };
+     送信先: 回答をまとめるスプレッドシート用のウェブアプリURL（Apps Scriptで公開したもの）。
+     ENDPOINT が空のあいだは「内容をコピーして、フォームに貼る」画面になります。 */
+  const ENDPOINT = '';
+  const FORM_ID = 'consult';
   const OLD_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform?usp=publish-editor';
   const REPLY_TEXT = '内容を読んで、こちらから日程のご連絡をします。';
 
@@ -354,7 +358,14 @@
     $$('.q[data-req]').forEach((q) => {
       let ok = true;
       const radios = $$('input[type="radio"]', q), boxes = $$('input[type="checkbox"]', q), text = $('input[type="text"]', q), sel = $('select', q);
-      if (q.id === 'q-slot') ok = $('#slotTbd').checked || ([1, 2, 3].every((n) => n === 1 ? !!slot(1) && slot(1).ok : (!slot(n) || slot(n).ok)) && !!slot(1));
+      if (q.id === 'q-slot') {
+        const tbd = $('#slotTbd').checked;
+        const full = [1, 2, 3].every((n) => n === 1 ? !!slot(1) && slot(1).ok : (!slot(n) || slot(n).ok)) && !!slot(1);
+        const busy = !tbd && [1, 2, 3].some((n) => conflict(n));
+        ok = tbd || (full && !busy);
+        $('.err', q).textContent = busy ? '受付できない日時が入っています。赤くなっている希望を、別の日時に変えてください。'
+          : '第1希望の月・日・時を数字で入れてください。入力した希望は、日にちや時間が正しいかも確かめてください。決められないときは、下のチェックでもOKです。';
+      }
       else if (radios.length) ok = radios.some((r) => r.checked);
       else if (boxes.length) ok = boxes.some((b) => b.checked);
       else if (sel) ok = sel.value !== '';
@@ -383,8 +394,60 @@
     if (dt.getMonth() !== M - 1) return { ok: false };    // 2/30 など
     const W = ['日', '月', '火', '水', '木', '金', '土'];
     const t = String(H).padStart(2, '0') + ':' + String(MI).padStart(2, '0');
-    return { ok: true, text: '第' + n + '希望：' + M + '/' + D + '（' + W[dt.getDay()] + '）' + t };
+    return { ok: true, start: new Date(y, M - 1, D, H, MI), text: '第' + n + '希望：' + M + '/' + D + '（' + W[dt.getDay()] + '）' + t };
   }
+  // ---- 受付できない日時（スプレッドシート「受付不可」タブ。前後1時間もあけます） ----
+  const BUSY_CSV = 'https://docs.google.com/spreadsheets/d/1eiZaXxZ5tjReIJGOMoWcFT_HDeXB0zMFhTVOfnIEm38/gviz/tq?tqx=out:csv&gid=3';
+  const BUFFER_MIN = 60;
+  let BUSY = [];
+  function parseCsv(text) {
+    text = text.replace(/^\uFEFF/, '');
+    const rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+      else if (c === '"') q = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); cell = ''; rows.push(row); row = []; }
+      else cell += c;
+    }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+  function toBusy(rows) {
+    const out = [];
+    rows.slice(1).forEach((r) => {
+      const d = String(r[0] || '').trim().match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/);
+      const a = String(r[1] || '').trim().match(/^(\d{1,2}):(\d{2})/), b = String(r[2] || '').trim().match(/^(\d{1,2}):(\d{2})/);
+      if (!d || !a || !b) return;
+      const s0 = new Date(+d[1], +d[2] - 1, +d[3], +a[1], +a[2]), e0 = new Date(+d[1], +d[2] - 1, +d[3], +b[1], +b[2]);
+      out.push({ s: s0.getTime() - BUFFER_MIN * 60000, e: e0.getTime() + BUFFER_MIN * 60000 });
+    });
+    return out;
+  }
+  // n番目の希望が、受付できない時間と重なるか（レッスンの長さ分で判定）
+  function conflict(n) {
+    const r = slot(n);
+    if (!r || !r.ok) return false;
+    const len = (val('kind').startsWith('体験') ? 30 : 60) * 60000;
+    const s0 = r.start.getTime(), e0 = s0 + len;
+    return BUSY.some((b) => s0 < b.e && e0 > b.s);
+  }
+  function checkBusy() {
+    const on = !$('#slotTbd').checked;
+    [1, 2, 3].forEach((n) => {
+      const bad = on && conflict(n);
+      const box = $('#m' + n).closest('.slot');
+      $('.ng', box).hidden = !bad; box.classList.toggle('busy', bad);
+    });
+  }
+  fetch(BUSY_CSV, { cache: 'no-cache' })
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then((t) => { BUSY = toBusy(parseCsv(t)); checkBusy(); })
+    .catch((e) => { try { console.warn('busy load failed', e); } catch (x) {} });
+  $('#f').addEventListener('input', checkBusy);
+  $('#f').addEventListener('change', checkBusy);
+
   function slots() {
     if ($('#slotTbd').checked) return 'ご連絡のあとに相談したい';
     return [1, 2, 3].map((n) => { const r = slot(n); return r && r.ok ? r.text : ''; }).filter(Boolean).join(' ／ ');
@@ -438,14 +501,14 @@
     const d = collect();
     track('consult_submit', { kind: d.kind, way: d.way });
 
-    if (!GF.action) { showDone(summary(d)); return; }
+    if (!ENDPOINT) { showDone(summary(d)); return; }
 
     const btn = $('#go'); btn.disabled = true; btn.textContent = '送信しています…';
-    const fd = new FormData();
-    const E = GF.entries, text = summary(d);
-    Object.keys(E).forEach((k) => { fd.append(E[k], k === 'summary' ? text : (d[k] || '')); });
+    const fd = new URLSearchParams();
+    Object.keys(d).forEach((k) => fd.append(k, d[k] || ''));
+    fd.append('summary', summary(d)); fd.append('form', FORM_ID);
     try {
-      await fetch(GF.action, { method: 'POST', mode: 'no-cors', body: fd });
+      await fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', body: fd });
       showDone('');
     } catch (e) {
       btn.disabled = false; btn.textContent = 'この内容で申し込む';
