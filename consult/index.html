@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ボイトレ無料相談｜RHOボイトレ</title>
+<meta name="description" content="ボイトレ無料相談のお申し込みフォームです。2分ほどで入力できます。">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<!-- Google tag (GA4): ボイトレLPと同じ計測ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME8HE69PX8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME8HE69PX8');
+</script>
+<style>
+  :root{
+    --navy:#173A5E; --navy-2:#0F2A46; --blue:#2E76B6; --sky:#EAF2FB; --bg:#F5F8FC; --paper:#FFFFFF;
+    --text:#2B3A4A; --text-dim:#66788C; --line:#D5DFEA;
+    --amber:#F5B84E; --amber-bg:#FDF3E1; --amber-ink:#8A5A00;
+    --data:#17A98D; --data-2:#0E7F69; --data-bg:#E7F7F3;
+    --bad:#E0685C; --bad-ink:#B23F33; --bad-bg:#FBEAE8;
+    --sans:"Zen Kaku Gothic New", sans-serif; --shadow:0 16px 40px rgba(23,58,94,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.8; -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent; padding-bottom:40px;}
+  a{color:inherit; text-decoration:none;}
+  [hidden]{display:none !important;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 16px;}
+  header.nav{background:var(--paper); border-bottom:1px solid var(--line);}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px; max-width:640px; margin:0 auto;}
+  .brand{font-weight:900; color:var(--navy); font-size:15px;}
+  .back{font-size:13px; font-weight:700; color:var(--blue);}
+  .hero{background:linear-gradient(160deg,var(--navy),var(--navy-2)); color:#fff; padding:30px 0 28px;}
+  .hero h1{font-size:26px; font-weight:900; line-height:1.4;}
+  .hero p{margin-top:6px; font-size:14px; color:#D6E2EE;}
+  .hero .time{display:inline-block; margin-top:12px; font-size:12px; font-weight:700; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:99px; padding:2px 12px;}
+
+  form{display:flex; flex-direction:column; gap:16px; padding-block:20px;}
+  fieldset{border:1px solid var(--line); border-radius:16px; background:var(--paper); padding:16px 16px 18px; display:flex; flex-direction:column; gap:16px; min-width:0;}
+  legend{font-size:13px; font-weight:900; color:var(--blue); letter-spacing:.08em; padding:0 8px;}
+  .q{display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .q > label, .q > .lb{font-size:15px; font-weight:700; color:var(--navy);}
+  .req{font-size:11px; font-weight:900; color:#fff; background:var(--navy); border-radius:99px; padding:0 8px; margin-left:6px; vertical-align:middle;}
+  .opt{font-size:11px; font-weight:700; color:var(--text-dim); background:var(--sky); border-radius:99px; padding:0 8px; margin-left:6px; vertical-align:middle;}
+  .hint{font-size:12.5px; color:var(--text-dim);}
+  input[type="text"],input[type="date"],input[type="time"],select,textarea{width:100%; font-family:inherit; font-size:16px; color:var(--text); background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; min-height:48px;}
+  textarea{min-height:96px; resize:vertical;}
+  input:focus-visible,select:focus-visible,textarea:focus-visible,.opt-card:has(input:focus-visible),button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--blue); outline-offset:2px;}
+  .slot{display:flex; flex-direction:column; gap:6px; padding:12px; border:1.5px solid var(--line); border-radius:12px; background:#fff;}
+  .slot .sl{font-size:14px; font-weight:900; color:var(--navy);}
+  .slot-in{display:flex; flex-wrap:wrap; align-items:center; gap:8px 20px;}
+  .grp{display:inline-flex; align-items:center; gap:6px; white-space:nowrap;}
+  .slot-in .n{width:56px; min-width:0; padding:10px 4px; text-align:center; font-size:18px; font-weight:700; font-variant-numeric:tabular-nums;}
+  .slot-in .n::placeholder{color:#B4C1CF; font-weight:500;}
+  .slot-in .u{font-size:14px; font-weight:700; color:var(--text-dim);}
+  .q.invalid .slot.first .slot-in .n{border-color:var(--bad);}
+  .opts{display:flex; flex-direction:column; gap:8px;}
+  .opt-card{display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; background:#fff; cursor:pointer; min-height:48px; font-size:15px;}
+  .opt-card input{width:22px; height:22px; margin-top:2px; flex:none; accent-color:var(--navy);}
+  .opt-card:has(input:checked){border-color:var(--navy); background:var(--sky);}
+  .opt-card small{display:block; font-size:12.5px; color:var(--text-dim);}
+  .notice{border-radius:12px; padding:12px 14px; font-size:14px; line-height:1.7;}
+  .notice.bad{background:var(--bad-bg); color:var(--bad-ink); border:1.5px solid var(--bad);}
+  .notice.info{background:var(--amber-bg); color:var(--amber-ink); border:1.5px solid var(--amber);}
+  .notice b{font-weight:900;}
+  .err{font-size:13px; font-weight:700; color:var(--bad-ink); display:none;}
+  .q.invalid .err{display:block;}
+  .q.invalid input[type="text"],.q.invalid select,.q.invalid textarea{border-color:var(--bad);}
+  .estimate{background:var(--paper); border:2px solid var(--navy); border-radius:16px; padding:14px 16px; display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .estimate .k{font-size:13px; font-weight:700; color:var(--text-dim);}
+  .estimate .v{font-size:30px; font-weight:900; color:var(--navy); font-variant-numeric:tabular-nums;}
+  .estimate .v small{font-size:13px; font-weight:700; margin-left:3px;}
+  .estimate .d{flex-basis:100%; font-size:12.5px; color:var(--text-dim);}
+  details.terms{border:1px solid var(--line); border-radius:12px; background:var(--bg);}
+  details.terms summary{cursor:pointer; padding:12px 14px; font-weight:700; font-size:14px; color:var(--navy); min-height:48px; display:flex; align-items:center;}
+  details.terms .tb{padding:0 14px 14px; font-size:13.5px;}
+  details.terms ul{margin:0; padding-left:1.2em; display:flex; flex-direction:column; gap:3px;}
+  .submit{width:100%; border:0; border-radius:14px; background:var(--amber); color:var(--navy-2); font-family:inherit; font-weight:900; font-size:17px; padding:16px 20px; min-height:56px; cursor:pointer; box-shadow:0 8px 20px rgba(245,184,78,.35);}
+  .submit:disabled{opacity:.55; cursor:default; box-shadow:none;}
+  .done{background:var(--data-bg); border:2px solid var(--data); border-radius:16px; padding:20px 18px; margin-block:20px; color:var(--data-2);}
+  .done h2{font-size:20px; font-weight:900; color:var(--data-2);}
+  .done p{margin-top:8px; font-size:14.5px; color:var(--text);}
+  .done .btn2{display:inline-flex; align-items:center; margin-top:12px; min-height:48px; padding:8px 18px; border-radius:12px; border:1.5px solid var(--navy); color:var(--navy); font-weight:900; background:#fff; font-family:inherit; font-size:15px; cursor:pointer;}
+  .copybox{margin-top:12px; width:100%; min-height:160px; font-size:14px;}
+  .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  footer{text-align:center; font-size:12px; color:var(--text-dim); padding-block:10px 24px;}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important; scroll-behavior:auto !important;}}
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="nav-inner">
+  <a class="brand" href="../">RHOボイトレ</a>
+  <a class="back" href="../" data-track="con_back">← LPにもどる</a>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <h1>ボイトレ無料相談</h1>
+  <p>歌の悩みを聞いて、体験レッスン（30分）の内容を決めます。相談だけでもOKです。</p>
+  <span class="time">入力は2分ほど</span>
+</div></div>
+
+<main class="wrap">
+<form id="f" novalidate autocomplete="off">
+
+  <div class="notice info">喉に強い痛みや違和感があるときは、無理に歌わずに、医療機関をご利用ください。</div>
+
+  <fieldset>
+    <legend>ご相談の内容</legend>
+
+    <div class="q" id="q-topic" data-req>
+      <div class="lb" id="lb-topic">相談したいこと（いくつでも）<span class="req">必須</span></div>
+      <div class="opts" role="group" aria-labelledby="lb-topic">
+        <label class="opt-card"><input type="checkbox" name="topic" value="高音が出ない"><span>高音が出ない</span></label>
+        <label class="opt-card"><input type="checkbox" name="topic" value="ミックスボイスができない"><span>ミックスボイスができない</span></label>
+        <label class="opt-card"><input type="checkbox" name="topic" value="地声を張り上げてしまう"><span>地声を張り上げてしまう</span></label>
+        <label class="opt-card"><input type="checkbox" name="topic" value="喉が締まる感じがする"><span>喉が締まる感じがする</span></label>
+        <label class="opt-card"><input type="checkbox" name="topic" value="ライブ・録音前の不安"><span>ライブ・録音前の不安</span></label>
+        <label class="opt-card"><input type="checkbox" name="topic" value="その他"><span>その他</span></label>
+      </div>
+      <div class="err">1つ以上選んでください</div>
+    </div>
+
+    <div class="q">
+      <label for="song">困っている曲と、どこで詰まるか<span class="opt">任意</span></label>
+      <textarea id="song" name="song" maxlength="600" placeholder="例）曲名 / サビの〇〇の音で声が裏返る"></textarea>
+    </div>
+
+    <div class="q" id="q-scene" data-req>
+      <div class="lb" id="lb-scene">歌う場面（いくつでも）<span class="req">必須</span></div>
+      <div class="opts" role="group" aria-labelledby="lb-scene">
+        <label class="opt-card"><input type="checkbox" name="scene" value="カラオケ"><span>カラオケ</span></label>
+        <label class="opt-card"><input type="checkbox" name="scene" value="歌ってみた"><span>歌ってみた</span></label>
+        <label class="opt-card"><input type="checkbox" name="scene" value="ライブ"><span>ライブ</span></label>
+        <label class="opt-card"><input type="checkbox" name="scene" value="その他"><span>その他</span></label>
+      </div>
+      <div class="err">1つ以上選んでください</div>
+    </div>
+
+    <div class="q">
+      <label for="date">直近の予定（ライブや録音の日）<span class="opt">任意</span></label>
+      <input type="date" id="date" name="date">
+      <label class="opt-card" style="min-height:44px"><input type="checkbox" id="dateTbd" name="dateTbd"><span>予定は未定です</span></label>
+    </div>
+
+    <div class="q" id="q-exp" data-req>
+      <div class="lb" id="lb-exp">ボイトレの経験<span class="req">必須</span></div>
+      <div class="opts" role="radiogroup" aria-labelledby="lb-exp">
+        <label class="opt-card"><input type="radio" name="exp" value="なし"><span>なし</span></label>
+        <label class="opt-card"><input type="radio" name="exp" value="独学"><span>独学</span></label>
+        <label class="opt-card"><input type="radio" name="exp" value="受講中"><span>受講中</span></label>
+        <label class="opt-card"><input type="radio" name="exp" value="受講したことがある"><span>受講したことがある</span></label>
+      </div>
+      <div class="err">どれか1つ選んでください</div>
+    </div>
+
+    <div class="q">
+      <label for="url">歌っている音源のURL<span class="opt">任意</span></label>
+      <input type="text" id="url" name="url" maxlength="300" inputmode="url" placeholder="https://...">
+      <div class="hint">あれば、事前に聴いておきます。</div>
+    </div>
+
+    <div class="q">
+      <label for="goal">一番知りたいこと<span class="opt">任意</span></label>
+      <textarea id="goal" name="goal" maxlength="800"></textarea>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>ご希望のレッスン</legend>
+
+    <div class="q" id="q-kind" data-req>
+      <div class="lb" id="lb-kind">レッスンの種類<span class="req">必須</span></div>
+      <div class="opts" role="radiogroup" aria-labelledby="lb-kind">
+        <label class="opt-card"><input type="radio" name="kind" value="体験レッスン（30分）"><span>体験レッスン（30分）<small>オンライン 0円／対面 スタジオ代など1,500円</small></span></label>
+        <label class="opt-card"><input type="radio" name="kind" value="通常レッスン（60分）"><span>通常レッスン（60分）<small>5,000円（オンライン・対面どちらも同じ料金）</small></span></label>
+      </div>
+      <div class="err">レッスンの種類を選んでください</div>
+    </div>
+
+    <div class="q" id="q-way" data-req>
+      <div class="lb" id="lb-way">希望の形式<span class="req">必須</span></div>
+      <div class="opts" role="radiogroup" aria-labelledby="lb-way">
+        <label class="opt-card"><input type="radio" name="way" value="オンライン"><span>オンライン</span></label>
+        <label class="opt-card"><input type="radio" name="way" value="対面"><span>対面</span></label>
+      </div>
+      <div class="err">オンラインか対面かを選んでください</div>
+    </div>
+
+    <div class="q" id="q-area" hidden>
+      <label for="area">対面の希望エリア<span class="opt">任意</span></label>
+      <input type="text" id="area" name="area" maxlength="80" placeholder="例）名古屋駅の近く">
+    </div>
+
+    <div class="q" id="q-slot" data-req>
+      <div class="lb">希望の日にちと時間<span class="req">必須</span></div>
+      <div class="hint">薄い数字は入力例です。数字だけ入れてください（時間は24時間表記）。</div>
+      <div class="slot first"><span class="sl">第1希望</span>
+        <div class="slot-in">
+          <span class="grp">
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="m1" placeholder="10" aria-label="第1希望の月"><span class="u">月</span>
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="dd1" placeholder="22" aria-label="第1希望の日"><span class="u">日</span>
+          </span>
+          <span class="grp">
+                    <input class="n" type="text" inputmode="numeric" maxlength="2" id="h1" placeholder="19" aria-label="第1希望の時"><span class="u">時</span>
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="mi1" placeholder="00" aria-label="第1希望の分"><span class="u">分</span>
+          </span>
+        </div>
+      </div>
+      <div class="slot"><span class="sl">第2希望<span class="opt">任意</span></span>
+        <div class="slot-in">
+          <span class="grp">
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="m2" placeholder="10" aria-label="第2希望の月"><span class="u">月</span>
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="dd2" placeholder="24" aria-label="第2希望の日"><span class="u">日</span>
+          </span>
+          <span class="grp">
+                    <input class="n" type="text" inputmode="numeric" maxlength="2" id="h2" placeholder="10" aria-label="第2希望の時"><span class="u">時</span>
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="mi2" placeholder="00" aria-label="第2希望の分"><span class="u">分</span>
+          </span>
+        </div>
+      </div>
+      <div class="slot"><span class="sl">第3希望<span class="opt">任意</span></span>
+        <div class="slot-in">
+          <span class="grp">
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="m3" placeholder="10" aria-label="第3希望の月"><span class="u">月</span>
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="dd3" placeholder="25" aria-label="第3希望の日"><span class="u">日</span>
+          </span>
+          <span class="grp">
+                    <input class="n" type="text" inputmode="numeric" maxlength="2" id="h3" placeholder="14" aria-label="第3希望の時"><span class="u">時</span>
+          <input class="n" type="text" inputmode="numeric" maxlength="2" id="mi3" placeholder="30" aria-label="第3希望の分"><span class="u">分</span>
+          </span>
+        </div>
+      </div>
+      <label class="opt-card" style="min-height:44px"><input type="checkbox" id="slotTbd" name="slotTbd"><span>まだ決められないので、ご連絡のあとに相談したい</span></label>
+      <div class="hint">希望の日時で調整します。合わない場合は、こちらから別の日時をご提案します。</div>
+      <div class="err">第1希望の月・日・時を数字で入れてください。入力した希望は、日にちや時間が正しいかも確かめてください。決められないときは、下のチェックでもOKです。</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>ご連絡先</legend>
+    <div class="q" id="q-name" data-req>
+      <label for="name">呼ばれたい名前<span class="req">必須</span></label>
+      <input type="text" id="name" name="name" maxlength="60" placeholder="例）〇〇" autocomplete="nickname">
+      <div class="hint">ニックネームで大丈夫です。</div>
+      <div class="err">名前を入力してください</div>
+    </div>
+    <div class="q" id="q-contact" data-req>
+      <label for="contact">連絡先（XのIDかメールアドレス）<span class="req">必須</span></label>
+      <input type="text" id="contact" name="contact" maxlength="120" placeholder="例）@xxxxx / xxxx@example.com" autocomplete="off">
+      <div class="err">連絡先を入力してください</div>
+    </div>
+    <div class="q" id="q-how" data-req>
+      <label for="how">このページを知った場所<span class="req">必須</span></label>
+      <select id="how" name="how">
+        <option value="">選んでください</option>
+        <option>ボイトレのX</option>
+        <option>歌い手のX</option>
+        <option>note</option>
+        <option>音域チャレンジ</option>
+        <option>知り合いの紹介</option>
+        <option>その他</option>
+      </select>
+      <div class="err">選んでください</div>
+    </div>
+  </fieldset>
+
+  <div class="estimate" aria-live="polite">
+    <span class="k">レッスン料金の目安</span>
+    <span class="v num" id="est">—</span>
+    <span class="d" id="estNote">レッスンの種類と形式を選ぶと表示されます。</span>
+  </div>
+
+  <div class="hp" aria-hidden="true"><label>空欄のままにしてください<input type="text" id="hp" tabindex="-1" autocomplete="off"></label></div>
+
+  <button type="submit" class="submit" id="go">この内容で申し込む</button>
+  <div class="notice bad" id="sendErr" hidden role="alert"></div>
+</form>
+
+<section class="done" id="done" hidden aria-live="polite" tabindex="-1">
+  <h2 id="doneH">送信しました</h2>
+  <p id="doneP"></p>
+  <div id="fallback" hidden>
+    <textarea class="copybox" id="copybox" readonly></textarea>
+    <button type="button" class="btn2" id="copyBtn">内容をコピー</button>
+    <a class="btn2" id="openForm" target="_blank" rel="noopener" style="margin-left:6px">フォームを開く</a>
+  </div>
+  <a class="btn2" href="../" data-track="con_done_back" style="margin-top:14px">LPにもどる</a>
+</section>
+</main>
+
+<footer>© RHOボイトレ</footer>
+
+<script>
+(() => {
+  'use strict';
+  /* ===== 設定 =====
+     送信先: 既存のGoogleフォームに、この画面から裏で送ります。
+       GF.action  : フォームの送信先URL(…/formResponse で終わるもの)
+       GF.entries : このページの項目 → Googleフォームの entry.数字（まとめ項目は 'summary'）
+     GF.action が空のあいだは「内容をコピーして、フォームに貼る」画面になります。 */
+  const GF = { action: '', entries: {} };
+  const OLD_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform?usp=publish-editor';
+  const REPLY_TEXT = '内容を読んで、こちらから日程のご連絡をします。';
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const track = (name, p) => { try { if (typeof gtag === 'function') gtag('event', name, p || {}); } catch (e) {} };
+  const val = (name) => { const x = $(`[name="${name}"]:checked`); return x ? x.value : ''; };
+  const vals = (name) => $$(`[name="${name}"]:checked`).map((x) => x.value);
+
+  $$('a[data-track]').forEach((a) => a.addEventListener('click', () => track(a.dataset.track)));
+
+  let started = false;
+  $('#f').addEventListener('input', () => { if (!started) { started = true; track('consult_start'); } });
+
+  // ---- 形式による表示と料金 ----
+  function update() {
+    const kind = val('kind'), way = val('way');
+    $('#q-area').hidden = way !== '対面';
+    const trial = kind.startsWith('体験');
+    let price = '', note = '';
+    if (kind && !trial) { price = '5,000円'; note = '60分の料金です。オンライン・対面どちらも同じです。'; }
+    else if (trial && way === 'オンライン') { price = '0円'; note = 'オンラインの体験（30分）は無料です。'; }
+    else if (trial && way === '対面') { price = '1,500円'; note = '対面の体験（30分）は、スタジオ代などをいただきます。'; }
+    $('#est').innerHTML = price || '—';
+    $('#estNote').textContent = note || 'レッスンの種類と形式を選ぶと表示されます。';
+  }
+  $('#f').addEventListener('change', update);
+  $('#dateTbd').addEventListener('change', (e) => { if (e.target.checked) $('#date').value = ''; });
+  const SF = [1, 2, 3].flatMap((n) => ['m' + n, 'dd' + n, 'h' + n, 'mi' + n]);
+  $('#slotTbd').addEventListener('change', (e) => { if (e.target.checked) SF.forEach((k) => { $('#' + k).value = ''; }); });
+  SF.forEach((k) => $('#' + k).addEventListener('input', (e) => { e.target.value = e.target.value.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 65248)).replace(/\D/g, ''); if (e.target.value) $('#slotTbd').checked = false; }));
+  $('#date').addEventListener('input', () => { if ($('#date').value) $('#dateTbd').checked = false; });
+  update();
+  (() => { const t = new Date(); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); const m = t.toISOString().slice(0, 10); $('#date').min = m; })();
+
+  function source() {
+    const q = new URLSearchParams(location.search);
+    const parts = ['utm_source', 'utm_medium', 'utm_campaign'].map((k) => q.get(k)).filter(Boolean);
+    if (parts.length) return parts.join(' / ');
+    try { if (document.referrer) return new URL(document.referrer).hostname; } catch (e) {}
+    return '';
+  }
+
+  // ---- 入力チェック ----
+  function validate() {
+    let first = null;
+    $$('.q[data-req]').forEach((q) => {
+      let ok = true;
+      const radios = $$('input[type="radio"]', q), boxes = $$('input[type="checkbox"]', q), text = $('input[type="text"]', q), sel = $('select', q);
+      if (q.id === 'q-slot') ok = $('#slotTbd').checked || ([1, 2, 3].every((n) => n === 1 ? !!slot(1) && slot(1).ok : (!slot(n) || slot(n).ok)) && !!slot(1));
+      else if (radios.length) ok = radios.some((r) => r.checked);
+      else if (boxes.length) ok = boxes.some((b) => b.checked);
+      else if (sel) ok = sel.value !== '';
+      else if (text) ok = text.value.trim() !== '';
+      q.classList.toggle('invalid', !ok);
+      if (!ok && !first) first = q;
+    });
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return !first;
+  }
+  const clear = (e) => { const q = e.target.closest('.q'); if (q) q.classList.remove('invalid'); };
+  $('#f').addEventListener('input', clear); $('#f').addEventListener('change', clear);
+
+  // ---- 送る内容 ----
+  // n番目の希望 → 何も入っていなければ null、入っていれば { ok, text }
+  function slot(n) {
+    const g = (k) => $('#' + k + n).value.trim();
+    const [m, d, h, mi] = [g('m'), g('dd'), g('h'), g('mi')];
+    if (!m && !d && !h && !mi) return null;
+    const M = +m, D = +d, H = +h, MI = mi === '' ? 0 : +mi;
+    if (!m || !d || h === '' || M < 1 || M > 12 || D < 1 || D > 31 || H > 23 || MI > 59) return { ok: false };
+    // 年は「今日以降でいちばん近い日」とする
+    const now = new Date(); now.setHours(0, 0, 0, 0);
+    let y = now.getFullYear(), dt = new Date(y, M - 1, D);
+    if (dt < now) { y++; dt = new Date(y, M - 1, D); }
+    if (dt.getMonth() !== M - 1) return { ok: false };    // 2/30 など
+    const W = ['日', '月', '火', '水', '木', '金', '土'];
+    const t = String(H).padStart(2, '0') + ':' + String(MI).padStart(2, '0');
+    return { ok: true, text: '第' + n + '希望：' + M + '/' + D + '（' + W[dt.getDay()] + '）' + t };
+  }
+  function slots() {
+    if ($('#slotTbd').checked) return 'ご連絡のあとに相談したい';
+    return [1, 2, 3].map((n) => { const r = slot(n); return r && r.ok ? r.text : ''; }).filter(Boolean).join(' ／ ');
+  }
+    function collect() {
+    return {
+      topic: vals('topic').join('、'), song: $('#song').value.trim(), scene: vals('scene').join('、'),
+      date: $('#dateTbd').checked ? '未定' : $('#date').value, exp: val('exp'), url: $('#url').value.trim(),
+      goal: $('#goal').value.trim(), kind: val('kind'), way: val('way'), area: val('way') === '対面' ? $('#area').value.trim() : '',
+      slot: slots(), name: $('#name').value.trim(), contact: $('#contact').value.trim(),
+      how: $('#how').value, source: source()
+    };
+  }
+  function summary(d) {
+    const L = [];
+    const add = (k, v) => { if (v) L.push('【' + k + '】' + v); };
+    add('相談したいこと', d.topic); add('困っている曲・詰まるところ', d.song); add('歌う場面', d.scene);
+    add('直近の予定', d.date); add('ボイトレの経験', d.exp); add('歌っている音源', d.url);
+    add('一番知りたいこと', d.goal); add('レッスンの種類', d.kind); add('希望の形式', d.way); add('対面の希望エリア', d.area);
+    add('希望の日にちと時間', d.slot); add('呼ばれたい名前', d.name); add('連絡先', d.contact);
+    add('知った場所', d.how); add('流入元', d.source);
+    return L.join('\n');
+  }
+
+  function showDone(fallbackText) {
+    $('#f').hidden = true;
+    const done = $('#done'); done.hidden = false;
+    if (fallbackText) {
+      $('#doneH').textContent = '相談内容をまとめました';
+      $('#doneP').textContent = '内容をコピーして、フォームの記入欄に貼って送信してください。';
+      $('#copybox').value = fallbackText; $('#openForm').href = OLD_FORM_URL; $('#fallback').hidden = false;
+    } else {
+      $('#doneH').textContent = '送信しました';
+      $('#doneP').textContent = REPLY_TEXT;
+    }
+    done.focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  $('#copyBtn').addEventListener('click', async () => {
+    const box = $('#copybox'); box.select();
+    try { await navigator.clipboard.writeText(box.value); } catch (e) { document.execCommand && document.execCommand('copy'); }
+    $('#copyBtn').textContent = 'コピーしました';
+  });
+
+  $('#f').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    $('#sendErr').hidden = true;
+    if ($('#hp').value) return;
+    if (!validate()) return;
+
+    const d = collect();
+    track('consult_submit', { kind: d.kind, way: d.way });
+
+    if (!GF.action) { showDone(summary(d)); return; }
+
+    const btn = $('#go'); btn.disabled = true; btn.textContent = '送信しています…';
+    const fd = new FormData();
+    const E = GF.entries, text = summary(d);
+    Object.keys(E).forEach((k) => { fd.append(E[k], k === 'summary' ? text : (d[k] || '')); });
+    try {
+      await fetch(GF.action, { method: 'POST', mode: 'no-cors', body: fd });
+      showDone('');
+    } catch (e) {
+      btn.disabled = false; btn.textContent = 'この内容で申し込む';
+      const err = $('#sendErr');
+      err.hidden = false;
+      err.textContent = '送信できませんでした。通信を確かめて、もう一度押してください。うまくいかないときは、X（@row_row_rho）のメッセージで連絡してください。';
+      track('consult_error');
+    }
+  });
+})();
+</script>
+</body>
+</html>
