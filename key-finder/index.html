@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME8HE69PX8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME8HE69PX8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最適キー探し｜この曲、何キーで歌うと楽？ - RHOボイトレ</title>
+<meta name="description" content="自分の音域と曲の音域を入れるだけ。おすすめのキー（半音いくつ上げ下げ）がわかります。使うほど曲のデータが増えていきます。">
+<meta property="og:title" content="最適キー探し｜この曲、何キーで歌うと楽？ - RHOボイトレ">
+<meta property="og:description" content="自分の音域と曲の音域から、おすすめのキーを計算。無料・登録なし。">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#173A5E; --navy-2:#0F2A46; --blue:#2E76B6; --sky:#EAF2FB; --bg:#F5F8FC; --paper:#FFFFFF;
+    --text:#2B3A4A; --text-dim:#66788C; --line:#E1E8F0; --amber:#F5B84E; --amber-bg:#FDF1DA;
+    --sans:"Zen Kaku Gothic New", sans-serif; --shadow:0 16px 40px rgba(23,58,94,0.10);
+    --data:#17A98D; --data-2:#0E7F69; --data-bg:#E7F7F3; --bad:#C2483C; --bad-bg:#FBEAE8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.8; -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column; -webkit-tap-highlight-color:transparent;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:var(--sans); cursor:pointer; border:none;}
+  button,a{-webkit-touch-callout:none;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 20px; width:100%;}
+  header.nav{position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.92); backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; padding:12px 20px; max-width:640px; margin:0 auto;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:900; color:var(--navy); font-size:15px;}
+  .brand-tag{font-size:10.5px; font-weight:700; color:var(--data-2); background:var(--data-bg); padding:4px 9px; border-radius:100px; white-space:nowrap;}
+  main{flex:1; padding:28px 0 56px; display:flex; flex-direction:column; gap:18px;}
+  .card{background:var(--paper); border-radius:22px; box-shadow:var(--shadow); border:1px solid var(--line); padding:28px 22px;}
+  .card[hidden]{display:none;}
+  .eyebrow-pill{display:inline-block; background:var(--navy); color:#fff; font-size:12px; font-weight:700; padding:6px 15px; border-radius:100px; margin-bottom:14px;}
+  h1{font-size:clamp(22px,5.5vw,28px); color:var(--navy); font-weight:900; line-height:1.5; margin-bottom:12px;}
+  h2{font-size:18px; color:var(--navy); font-weight:900; margin-bottom:6px; display:flex; align-items:center; gap:10px;}
+  h2 .num{flex:none; width:26px; height:26px; border-radius:50%; background:var(--navy); color:#fff; font-size:13px; display:flex; align-items:center; justify-content:center;}
+  p{font-size:14.5px; color:var(--text-dim);}
+  .lead{margin-bottom:6px;}
+  .sub{font-size:13px; color:var(--text-dim); margin-bottom:14px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media (max-width:420px){.grid2{grid-template-columns:1fr;}}
+  .f{display:flex; flex-direction:column; gap:5px; min-width:0; margin-top:12px;}
+  .f > span{font-size:13px; font-weight:700; color:var(--navy);}
+  .f small{font-size:11.5px; color:var(--text-dim); font-weight:500;}
+  .tag{display:inline-block; font-size:10.5px; font-weight:700; padding:1px 8px; border-radius:100px; margin-left:6px; vertical-align:middle;}
+  .tag.req{background:var(--navy); color:#fff;}
+  .tag.opt{background:var(--sky); color:var(--text-dim);}
+  input[type=text], select{width:100%; font-family:var(--sans); font-size:16px; color:var(--text); background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; min-height:48px;}
+  input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible, a:focus-visible{outline:3px solid var(--blue); outline-offset:2px;}
+  .group-title{font-size:12px; font-weight:900; color:var(--data-2); margin-top:18px; letter-spacing:.02em;}
+  .group-title:first-of-type{margin-top:6px;}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--navy); color:#fff; font-weight:700; font-size:16px; padding:15px 24px; border-radius:12px; width:100%; margin-top:20px; min-height:52px;}
+  .btn:active{transform:scale(0.98);}
+  .btn.ghost{background:var(--sky); color:var(--navy);}
+  .btn.small{width:auto; font-size:13.5px; padding:10px 16px; margin-top:0; min-height:44px;}
+  .btn[hidden]{display:none;}
+  .err{display:none; margin-top:12px; background:var(--bad-bg); color:var(--bad); font-weight:700; font-size:13px; padding:10px 12px; border-radius:10px;}
+  .err.on{display:block;}
+  .tool-link{display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--blue); text-decoration:underline; text-underline-offset:3px;}
+  details{margin-top:14px; border:1px solid var(--line); border-radius:12px; padding:10px 14px; background:#fff;}
+  summary{font-size:13.5px; font-weight:700; color:var(--navy); cursor:pointer; min-height:28px;}
+  details p, details li{font-size:13px; margin-top:8px;}
+  /* 曲名の候補 */
+  .sugg{display:none; margin-top:6px; border:1.5px solid var(--line); border-radius:12px; overflow:hidden; background:#fff;}
+  .sugg.on{display:block;}
+  .sugg button{display:flex; width:100%; justify-content:space-between; gap:10px; align-items:center; text-align:left; background:#fff; padding:11px 12px; border-bottom:1px solid var(--line); font-size:14px; color:var(--text); min-height:48px;}
+  .sugg button:last-child{border-bottom:0;}
+  .sugg button:hover{background:var(--sky);}
+  .sugg .m{font-size:11.5px; color:var(--text-dim); white-space:nowrap;}
+  .sugg .t{min-width:0; overflow-wrap:anywhere;}
+  .note{margin-top:10px; font-size:12.5px; padding:8px 12px; border-radius:10px; background:var(--data-bg); color:var(--data-2); font-weight:700; display:none;}
+  .note.on{display:block;}
+  .agree{display:flex; gap:10px; align-items:flex-start; margin-top:16px; font-size:12.5px; color:var(--text-dim); line-height:1.7; cursor:pointer;}
+  .agree input{width:22px; height:22px; flex:none; margin-top:2px; accent-color:var(--navy);}
+  .hp{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+  /* 結果 */
+  .verdict{border-radius:16px; padding:18px 16px; text-align:center;}
+  .verdict.ok{background:var(--data-bg);}
+  .verdict.edge{background:var(--amber-bg);}
+  .verdict.ng{background:var(--bad-bg);}
+  .v-label{display:inline-block; font-size:12px; font-weight:900; padding:3px 12px; border-radius:100px; background:#fff; color:var(--navy); margin-bottom:6px;}
+  .v-big{font-size:38px; font-weight:900; color:var(--navy-2); line-height:1.3;}
+  .v-sub{font-size:13.5px; color:var(--text); margin-top:4px;}
+  .v-sub2{font-size:12.5px; color:var(--text-dim); margin-top:4px;}
+  .kbscroll{overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:4px;}
+  .kbscroll svg{display:block; margin:0 auto; max-width:none;}
+  .kbhint{font-size:11.5px; color:var(--text-dim); text-align:center; margin-top:2px; display:none;}
+  .legend{list-style:none; display:flex; flex-direction:column; gap:6px; margin-top:12px;}
+  .legend li{display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--text);}
+  .legend .sw{flex:none; width:26px; height:16px; border-radius:4px; border:1.5px solid #0F2A46; display:inline-block;}
+  .legend b{font-weight:900; color:var(--navy);}
+  .chart{margin-top:18px;}
+  .stepper{display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px;}
+  .stepper button{width:52px; height:48px; border-radius:12px; background:var(--sky); color:var(--navy); font-size:20px; font-weight:900;}
+  .stepper .now{min-width:150px; text-align:center; font-size:15px; font-weight:900; color:var(--navy);}
+  .kstatus{text-align:center; font-size:13.5px; font-weight:700; margin-top:6px; min-height:24px;}
+  .kstatus.ok{color:var(--data-2);} .kstatus.edge{color:#9A6A10;} .kstatus.ng{color:var(--bad);}
+  table.all{width:100%; border-collapse:collapse; font-size:13px; margin-top:8px;}
+  table.all th, table.all td{padding:7px 6px; border-bottom:1px solid var(--line); text-align:left; font-variant-numeric:tabular-nums;}
+  table.all th{color:var(--text-dim); font-size:12px;}
+  table.all tr.rec td{background:var(--data-bg); font-weight:700;}
+  .vote{margin-top:16px; display:none; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; color:var(--text); background:var(--sky); border-radius:12px; padding:10px 12px;}
+  .vote.on{display:flex;}
+  .vote .vq{flex:1; min-width:180px; font-weight:700;}
+  .share-box{margin-top:22px;}
+  .share-label{font-size:12px; color:var(--text-dim); font-weight:700; margin-bottom:10px;}
+  .share-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .share-btn{display:inline-flex; align-items:center; gap:7px; padding:11px 16px; border-radius:100px; font-size:13px; font-weight:700; color:#fff; min-height:44px;}
+  .share-btn svg{width:14px; height:14px; flex-shrink:0;}
+  .share-btn.x{background:#000;} .share-btn.line{background:#06C755;} .share-btn.copy{background:var(--sky); color:var(--navy);}
+  .share-toast{margin-top:8px; font-size:12px; color:var(--data-2); min-height:16px;}
+  .cta{background:var(--navy-2); color:#fff; border-radius:22px; padding:26px 22px;}
+  .cta h2{color:#fff; margin-bottom:8px;}
+  .cta p{color:#D2DEEC;}
+  .cta .btn{background:var(--amber); color:var(--navy-2); margin-top:16px;}
+  footer{padding:20px; text-align:center; font-size:11.5px; color:var(--text-dim);}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="https://rowrowrho.github.io/voice-training-lp/">RHOボイトレ <span class="brand-tag">最適キー探し</span></a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap" style="display:flex;flex-direction:column;gap:18px;">
+
+    <section class="card" id="hero">
+      <div class="eyebrow-pill">無料・登録なし</div>
+      <h1>この曲、何キーで<br>歌うと楽？</h1>
+      <p class="lead">自分の音域と、曲の音域を入れるだけ。<strong>半音いくつ上げ下げするといいか</strong>を計算します。</p>
+      <p>入力された曲は、みんなのデータとして貯まります。使う人が増えるほど、曲の候補が出てくるようになります。</p>
+      <details>
+        <summary>音名（hiA・mid2F# など）の読み方</summary>
+        <p>1オクターブは A から G# まで。低い方から low・mid1・mid2・hi・hihi と並びます。hiA は、ピアノの A4（440Hz）にあたります。選ぶ欄には、ピアノの音名と周波数も一緒に出ます。</p>
+      </details>
+    </section>
+
+    <section class="card" id="step1">
+      <h2><span class="num">1</span>あなたの音域</h2>
+      <p class="sub">出せる音の、いちばん低い音と高い音を入れてください。換声点（地声と裏声が切り替わるあたり）の範囲がわかれば、地声域・換声点・裏声域に色分けして表示します。</p>
+      <div class="grid2">
+        <label class="f"><span>いちばん低い音<span class="tag req">必須</span></span><select id="ulo"></select></label>
+        <label class="f"><span>いちばん高い音<span class="tag req">必須</span></span><select id="uhi"></select></label>
+      </div>
+      <div class="group-title">換声点の範囲（任意）</div>
+      <div class="grid2">
+        <label class="f"><span>低い方の端<span class="tag opt">任意</span></span><select id="pll"></select></label>
+        <label class="f"><span>高い方の端<span class="tag opt">任意</span></span><select id="plh"></select></label>
+      </div>
+      <p class="sub" style="margin-top:8px;">低い方より下が地声域、高い方より上が裏声域として表示されます。どちらか片方だけは入れられません。</p>
+      <a class="tool-link" href="../pitch-mvp/">音域がわからないときは、音域チャレンジで測る</a>
+    </section>
+
+    <section class="card" id="step2">
+      <h2><span class="num">2</span>歌いたい曲</h2>
+      <p class="sub">曲名を入れると、登録済みの曲が出ます。ない曲は、原曲キーの音域を入れてください。</p>
+      <label class="f"><span>曲名<span class="tag opt">任意</span></span><input type="text" id="song" maxlength="80" autocomplete="off" placeholder="例）曲名を入れると候補が出ます"></label>
+      <div class="sugg" id="sugg" role="listbox" aria-label="曲の候補"></div>
+      <label class="f"><span>作者・アーティスト<span class="tag opt">任意</span></span><input type="text" id="artist" maxlength="80" autocomplete="off"></label>
+      <div class="grid2">
+        <label class="f"><span>曲のいちばん低い音<span class="tag req">必須</span></span><select id="slo"></select></label>
+        <label class="f"><span>曲のいちばん高い音<span class="tag req">必須</span></span><select id="shi"></select></label>
+      </div>
+      <label class="f"><span>地声で歌う、いちばん高い音<span class="tag opt">任意</span></span><select id="sch"></select><small>これより上は裏声で歌う、という音です。わからなければ空欄でOKです。</small></label>
+      <div class="note" id="songNote" role="status"></div>
+      <label class="agree"><input type="checkbox" id="agree" checked><span>この曲の音域を、ほかの人のおすすめにも使う（送るのは、曲名・作者・曲の音域だけです。あなたの音域は送りません）。自分で確かめた音域を入れてください。</span></label>
+      <div class="hp" aria-hidden="true"><label>空欄のままにしてください<input type="text" id="hp" tabindex="-1" autocomplete="off"></label></div>
+      <div class="err" id="err" role="alert"></div>
+      <button class="btn" id="go" type="button">おすすめのキーを調べる</button>
+    </section>
+
+    <section class="card" id="result" hidden aria-live="polite">
+      <div class="verdict" id="verdict"></div>
+      <div class="chart"><div class="kbscroll" id="kbscroll"><div id="chart"></div></div><div class="kbhint" id="kbhint">鍵盤は横にスクロールできます</div><ul class="legend" id="legend"></ul></div>
+      <div class="stepper">
+        <button type="button" id="kMinus" aria-label="キーを半音下げる">−</button>
+        <div class="now" id="kNow"></div>
+        <button type="button" id="kPlus" aria-label="キーを半音上げる">＋</button>
+      </div>
+      <div class="kstatus" id="kStatus"></div>
+      <details>
+        <summary>すべてのキーを見る</summary>
+        <table class="all"><thead><tr><th>キー</th><th>判定</th><th>くわしく</th></tr></thead><tbody id="allBody"></tbody></table>
+      </details>
+      <div class="vote" id="vote"><span class="vq">この曲の音域は、合っていましたか？</span><button class="btn ghost small" id="voteYes" type="button">合っている</button><button class="btn ghost small" id="voteNo" type="button">ちがう</button></div>
+      <div class="share-box">
+        <div class="share-label">結果をシェアする</div>
+        <div class="share-row">
+          <a class="share-btn x" id="shareX" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M18.9 2H22l-7.6 8.7L23.3 22H16.6l-5.2-6.8L5.4 22H2.3l8.1-9.3L1.4 2h6.9l4.7 6.2L18.9 2Zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20Z"/></svg>
+            Xでシェア
+          </a>
+          <a class="share-btn line" id="shareLine" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.3 7.9.3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.6 1.1-.4 5.9-3.5 8.1-6C21.6 12.8 22 11.4 22 10c0-4.4-4.5-8-10-8Z"/></svg>
+            LINEで送る
+          </a>
+          <button class="share-btn copy" id="shareCopy" type="button">🔗 リンクをコピー</button>
+        </div>
+        <div class="share-toast" id="shareToast"></div>
+      </div>
+    </section>
+
+    <section class="cta" id="cta">
+      <h2>キーを変えても、しんどいときは</h2>
+      <p>高い音が出ても、「使える音」になっていないことがあります。どこで声が切り替わるかを一緒に見て、使える範囲を広げる練習をします。相談だけでもOKです。</p>
+      <a class="btn" href="../consult/?utm_source=key_finder&utm_medium=tool" id="ctaBtn">無料で相談する</a>
+    </section>
+
+  </div>
+</main>
+<footer>© RHOボイトレ</footer>
+
+<script>
+(function(){
+  'use strict';
+  var PAGE_URL='https://rowrowrho.github.io/voice-training-lp/key-finder/';
+  /* 曲データを貯める・読むためのApps Script（ウェブアプリのURL）。空のあいだは、この端末の履歴だけで動きます。 */
+  var ENDPOINT='https://script.google.com/macros/s/AKfycbxM8iiuUSdfGseBU8NW2V8dX6jmaKylu4olwg60P-jUvMWyiLL1gTdHM8nldlH-PrUmVQ/exec';
+
+  /* ---- 音名 ----
+     1オクターブ = A〜G#。hiA = A4(MIDI 69, 440Hz)。ここを変えれば表記全体が動きます。 */
+  var HI_A=69;
+  var NAMES=['A','A#','B','C','C#','D','D#','E','F','F#','G','G#'];
+  var GROUPS=['lowlow','low','mid1','mid2','hi','hihi','hihihi'];   // 添字 = グループ番号 + 4
+  var PN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var WHITE={0:1,2:1,4:1,5:1,7:1,9:1,11:1};
+  var MIN_N=HI_A-36, MAX_N=HI_A+35;                                  // lowA 〜 hihihiG#
+  function label(n){var d=n-HI_A,g=Math.floor(d/12),i=((d%12)+12)%12;return GROUPS[g+4]+NAMES[i];}
+  function piano(n){return PN[n%12]+(Math.floor(n/12)-1);}
+  function hz(n){return Math.round(440*Math.pow(2,(n-69)/12));}
+  function isWhite(n){return !!WHITE[n%12];}
+  function parseNote(str){
+    var m=/^(lowlow|low|mid1|mid2|hihihi|hihi|hi)([A-G]#?)$/i.exec(String(str||'').trim());
+    if(!m)return null;
+    var g=GROUPS.indexOf(m[1].toLowerCase())-4, i=NAMES.indexOf(m[2].toUpperCase());
+    if(i<0)return null;
+    var n=HI_A+g*12+i; return (n>=MIN_N&&n<=MAX_N)?n:null;
+  }
+
+  function $(s){return document.querySelector(s);}
+  var SEL={ulo:$('#ulo'),uhi:$('#uhi'),pll:$('#pll'),plh:$('#plh'),slo:$('#slo'),shi:$('#shi'),sch:$('#sch')};
+  Object.keys(SEL).forEach(function(k){
+    var s=SEL[k],o=document.createElement('option');o.value='';o.textContent=(k==='pll'||k==='plh'||k==='sch')?'選ばない':'選んでください';s.appendChild(o);
+    var cur=null,og=null;
+    for(var n=MIN_N;n<=MAX_N;n++){
+      var g=Math.floor((n-HI_A)/12);
+      if(g!==cur){cur=g;og=document.createElement('optgroup');og.label=GROUPS[g+4];s.appendChild(og);}
+      var op=document.createElement('option');op.value=String(n);op.textContent=label(n)+'（'+piano(n)+'・'+hz(n)+'Hz）';og.appendChild(op);
+    }
+  });
+  function val(k){var v=SEL[k].value;return v===''?null:+v;}
+  function setVal(k,n){SEL[k].value=(n==null)?'':String(n);}
+
+  /* ---- 記憶（この端末だけ） ---- */
+  var LSR='kf-range-v2', LSH='kf-history-v2', LSV='kf-voted-v2';
+  function lsGet(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+  function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  var saved=lsGet(LSR,{});
+  ['ulo','uhi','pll','plh'].forEach(function(k){if(saved[k]!=null)setVal(k,saved[k]);});
+  // 他のツールからのリンク例: ?ulo=mid2A&uhi=hihiC&pll=hiA&plh=hiD
+  (function(){var q=new URLSearchParams(location.search);['ulo','uhi','pll','plh'].forEach(function(k){var n=parseNote(q.get(k));if(n!=null)setVal(k,n);});})();
+
+  /* ---- 曲データ ---- */
+  function norm(s){
+    return String(s||'').normalize('NFKC').toLowerCase()
+      .replace(/[ァ-ヶ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0x60);})
+      .replace(/[\s　・\-_!?'"“”‘’()\[\]「」『』.,、。~〜♪☆★]/g,'');
+  }
+  var DB=[];                       // {s,a,lo,hi,c,n,ok}  みんなのデータ
+  var HIST=lsGet(LSH,[]);          // {s,a,lo,hi,c}      この端末の履歴
+  var picked=null, lastSent='';
+  if(ENDPOINT){
+    fetch(ENDPOINT+'?action=songs').then(function(r){return r.json();}).then(function(j){if(j&&j.songs)DB=j.songs;}).catch(function(){});
+  }
+  function candidates(q){
+    var nq=norm(q); if(!nq)return [];
+    var out=[],seen={};
+    DB.forEach(function(x){if(norm(x.s).indexOf(nq)>=0){out.push({s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,n:x.n,ok:x.ok,src:'db'});seen[norm(x.s)+'|'+norm(x.a)]=1;}});
+    HIST.forEach(function(x){var key=norm(x.s)+'|'+norm(x.a);if(!seen[key]&&norm(x.s).indexOf(nq)>=0){out.push({s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,src:'me'});seen[key]=1;}});
+    return out.slice(0,6);
+  }
+  var sugg=$('#sugg'), songEl=$('#song'), artistEl=$('#artist'), noteEl=$('#songNote');
+  function showNote(t){noteEl.textContent=t||'';noteEl.classList.toggle('on',!!t);}
+  function renderSugg(){
+    var list=candidates(songEl.value);
+    sugg.innerHTML='';
+    if(!list.length){sugg.classList.remove('on');return;}
+    list.forEach(function(c){
+      var b=document.createElement('button');b.type='button';b.setAttribute('role','option');
+      var t=document.createElement('span');t.className='t';t.textContent=c.s+(c.a?'／'+c.a:'');
+      var m=document.createElement('span');m.className='m';
+      m.textContent=c.src==='db'?(c.ok?'確認済み':'みんなの入力 '+c.n+'件'):'あなたの履歴';
+      b.appendChild(t);b.appendChild(m);
+      b.addEventListener('click',function(){pick(c);});
+      sugg.appendChild(b);
+    });
+    sugg.classList.add('on');
+  }
+  function pick(c){
+    picked=c;songEl.value=c.s;artistEl.value=c.a||'';setVal('slo',c.lo);setVal('shi',c.hi);setVal('sch',c.c);
+    sugg.classList.remove('on');
+    showNote(c.src==='db'?('登録済みの音域を入れました（'+(c.ok?'確認済み':'みんなの入力 '+c.n+'件・まだ仮')+'）。違っていたら直してください。'):'この端末の履歴から入れました。');
+  }
+  songEl.addEventListener('input',function(){picked=null;showNote('');renderSugg();});
+  songEl.addEventListener('blur',function(){setTimeout(function(){sugg.classList.remove('on');},180);});
+
+  /* ---- 判定 ----
+     U: あなたの音域 {lo,hi} / P: 換声点の範囲 {lo,hi} または null / S: 曲 {lo,hi,c}
+     ・全部の音が U に入る → 収まる
+     ・曲の「地声で歌う最高音」が換声点にかかる → 換声点にかかる
+     ・U から出る／地声で歌う最高音が裏声域に入る → 届かない */
+  function evalShift(k,S,U,P){
+    var lo=S.lo+k, hi=S.hi+k, ct=(S.c!=null)?S.c+k:null;
+    var overTop=Math.max(0,hi-U.hi), underBot=Math.max(0,U.lo-lo);
+    var chest=null;
+    if(P&&ct!=null)chest=ct<P.lo?'ok':(ct<=P.hi?'edge':'ng');
+    var lv=(overTop||underBot||chest==='ng')?'ng':(chest==='edge'?'edge':'ok');
+    return {k:k,lv:lv,overTop:overTop,underBot:underBot,chest:chest,ct:ct,hiN:hi,margin:Math.min(U.hi-hi,lo-U.lo),
+            chestOver:(chest==='ng')?ct-P.hi:0};
+  }
+  function zoneOf(n,U,P){
+    if(!P)return '';
+    return n<P.lo?'地声域':(n<=P.hi?'換声点':'裏声域');
+  }
+  function kText(k){return k===0?'原曲キーのまま':(k>0?'+'+k:'−'+Math.abs(k));}
+  function kLong(k){return k===0?'原曲キーのまま':(k>0?'半音'+k+'つ上げる（+'+k+'）':'半音'+Math.abs(k)+'つ下げる（−'+Math.abs(k)+'）');}
+  var LV={ok:'収まる',edge:'換声点にかかる',ng:'届かない'};
+  function detail(r){
+    if(r.lv==='ok')return '全部の音が、あなたの音域に収まる';
+    var a=[];
+    if(r.overTop)a.push('最高音があなたの最高音を'+r.overTop+'半音こえる');
+    if(r.underBot)a.push('最低音があなたの最低音を'+r.underBot+'半音下回る');
+    if(r.chest==='ng')a.push('地声で歌う最高音（'+label(r.ct)+'）が裏声域に入る');
+    if(r.chest==='edge')a.push('地声で歌う最高音（'+label(r.ct)+'）が換声点にかかる');
+    return a.join('／');
+  }
+
+  var ST=null, curK=0;
+  function runCalc(){
+    var U={lo:val('ulo'),hi:val('uhi')}, S={lo:val('slo'),hi:val('shi'),c:val('sch')};
+    var P={lo:val('pll'),hi:val('plh')};
+    var err=$('#err');
+    function bad(m){err.textContent=m;err.classList.add('on');return false;}
+    err.classList.remove('on');
+    if($('#hp').value)return false;
+    if(U.lo==null||U.hi==null)return bad('あなたの、いちばん低い音と高い音を選んでください。');
+    if(U.lo>=U.hi)return bad('あなたの音域は、低い音より高い音が上になるように選んでください。');
+    if((P.lo==null)!==(P.hi==null))return bad('換声点の範囲は、低い方と高い方の両方を選ぶか、両方とも選ばないでください。');
+    if(P.lo==null)P=null;
+    else{
+      if(P.lo>P.hi)return bad('換声点の範囲は、低い方より高い方が上になるように選んでください。');
+      if(P.lo<U.lo||P.hi>U.hi)return bad('換声点の範囲は、あなたの音域の中に入るように選んでください。');
+    }
+    if(S.lo==null||S.hi==null)return bad('曲の、いちばん低い音と高い音を選んでください。');
+    if(S.lo>S.hi)return bad('曲の音域は、低い音より高い音が上になるように選んでください。');
+    if(S.c!=null&&(S.c<S.lo||S.c>S.hi))return bad('地声で歌う最高音は、曲の音域の中に入るように選んでください。');
+    lsSet(LSR,{ulo:U.lo,uhi:U.hi,pll:P?P.lo:null,plh:P?P.hi:null});
+
+    var rows=[];
+    for(var k=-12;k<=12;k++)rows.push(evalShift(k,S,U,P));
+    var oks=rows.filter(function(r){return r.lv==='ok';});
+    var edges=rows.filter(function(r){return r.lv==='edge';});
+    function pickBest(list){return list.slice().sort(function(a,b){return Math.abs(a.k)-Math.abs(b.k)||((b.margin||0)-(a.margin||0))||a.k-b.k;})[0];}
+    function viol(r){return Math.max(r.overTop,r.underBot,r.chestOver);}
+    var best,mode;
+    if(oks.length){best=pickBest(oks);mode='ok';}
+    else if(edges.length){best=pickBest(edges);mode='edge';}
+    else{best=rows.slice().sort(function(a,b){return viol(a)-viol(b)||Math.abs(a.k)-Math.abs(b.k);})[0];mode='ng';}
+    ST={U:U,P:P,S:S,rows:rows,oks:oks,edges:edges,best:best,mode:mode};
+    curK=best.k;
+    renderResult();
+    try{typeof gtag==='function'&&gtag('event','key_finder_calc',{mode:mode,k:best.k,passage:P?1:0,chest:S.c!=null?1:0});}catch(e){}
+    afterCalc();
+    return true;
+  }
+
+  function rangeText(list){
+    if(!list.length)return '';
+    var ks=list.map(function(r){return r.k;}).sort(function(a,b){return a-b;});
+    var runs=[],s=ks[0],p=ks[0];
+    for(var i=1;i<=ks.length;i++){
+      if(ks[i]===p+1){p=ks[i];continue;}
+      runs.push(s===p?kText(s):kText(s)+'〜'+kText(p));
+      s=ks[i];p=ks[i];
+    }
+    return runs.join('、');
+  }
+  function topInfo(r){
+    var z=zoneOf(r.hiN,ST.U,ST.P);
+    return '曲の最高音は '+label(r.hiN)+(z?'（'+z+'）':'')+' になります。';
+  }
+  function renderResult(){
+    var R=ST, v=$('#verdict');
+    v.className='verdict '+R.mode;
+    var b=R.best, rk=b.k, html='';
+    if(R.mode==='ok'){
+      html='<span class="v-label">おすすめ</span><div class="v-big">'+kText(rk)+'</div>'
+        +'<div class="v-sub">'+kLong(rk)+'。全部の音が、あなたの音域に収まります。</div>'
+        +'<div class="v-sub2">収まるキーは '+rangeText(R.oks)+'。いちばん原曲に近いのが '+kText(rk)+' です。'
+        +(b.ct!=null&&R.P?'地声で歌う最高音は '+label(b.ct)+'（地声域）。':'')+topInfo(b)+'</div>';
+    }else if(R.mode==='edge'){
+      html='<span class="v-label">換声点にかかるけど</span><div class="v-big">'+kText(rk)+'</div>'
+        +'<div class="v-sub">'+kLong(rk)+'。音域には収まりますが、地声で歌う最高音（'+label(b.ct)+'）が換声点にかかります。</div>'
+        +'<div class="v-sub2">ここで声の切り替え（換声点のまたぎ方）が必要になります。'+topInfo(b)+'</div>';
+    }else{
+      html='<span class="v-label">全部は届きません</span><div class="v-big">'+kText(rk)+'</div>'
+        +'<div class="v-sub">いちばん近いのは '+kLong(rk)+'。'+detail(b)+'。</div>'
+        +'<div class="v-sub2">曲の音域の幅は'+(R.S.hi-R.S.lo)+'半音、あなたの音域の幅は'+(R.U.hi-R.U.lo)+'半音です。どのキーでも届かない部分があります。</div>';
+    }
+    v.innerHTML=html;
+    var body=$('#allBody');body.innerHTML='';
+    R.rows.slice().sort(function(a,c){return a.k-c.k;}).forEach(function(r){
+      var tr=document.createElement('tr');if(r.k===rk)tr.className='rec';
+      [kText(r.k)+(r.k===rk?'（おすすめ）':''),LV[r.lv],detail(r)].forEach(function(t){var td=document.createElement('td');td.textContent=t;tr.appendChild(td);});
+      body.appendChild(tr);
+    });
+    draw();
+    $('#result').hidden=false;
+    shareUpdate();
+  }
+
+  /* ---- 鍵盤 ----
+     鍵の色 = あなたの音域（地声域・換声点・裏声域）。曲の音域は、鍵の下の●○と帯で別に表示。 */
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  var COL={chest:{w:'#A9CCEE',b:'#4F8FC9'},pass:{w:'#F8D48A',b:'#D9962B'},fals:{w:'#9FE0CF',b:'#2FAE93'},all:{w:'#BFE3DA',b:'#2FAE93'}};
+  function regionOf(n,U,P){
+    if(n<U.lo||n>U.hi)return null;
+    if(!P)return 'all';
+    return n<P.lo?'chest':(n<=P.hi?'pass':'fals');
+  }
+  function draw(){
+    var R=ST,k=curK,r=R.rows[k+12],U=R.U,P=R.P;
+    var sLo=R.S.lo+k,sHi=R.S.hi+k,sC=(R.S.c!=null)?R.S.c+k:null;
+    var minN=Math.max(MIN_N,Math.min(U.lo,sLo)-2), maxN=Math.min(MAX_N,Math.max(U.hi,sHi)+2);
+    while(!isWhite(minN))minN--; while(!isWhite(maxN))maxN++;
+    var whites=[];for(var n=minN;n<=maxN;n++)if(isWhite(n))whites.push(n);
+    var avail=($('#kbscroll').clientWidth||344), kw=Math.max(13,Math.min(26,Math.floor((avail-20)/whites.length))), PAD=10;
+    var W=whites.length*kw+PAD*2, widx={};whites.forEach(function(w,i){widx[w]=i;});
+    var KT=40,KH=104,BH=64,BW=Math.round(kw*0.62);
+    function xL(n){ // 鍵の左端
+      if(isWhite(n))return PAD+widx[n]*kw;
+      return PAD+(widx[n-1]+1)*kw-BW/2;
+    }
+    function xR(n){return xL(n)+(isWhite(n)?kw:BW);}
+    function xC(n){return (xL(n)+xR(n))/2;}
+    var out='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="256" viewBox="0 0 '+W+' 256" role="img" aria-label="鍵盤の上に、あなたの音域と曲の音域を表示した図">';
+    out+='<defs><pattern id="stp" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><rect width="3" height="6" fill="#0F2A46"/></pattern>'
+       +'<pattern id="stp2" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#F8D48A"/><rect width="2.5" height="6" fill="#D9962B"/></pattern></defs>';
+    // 領域ラベル（鍵盤の上）
+    function band(lo,hi,name,fill,pat){
+      if(lo>hi)return '';
+      var x1=xL(lo),x2=xR(hi);
+      return '<rect x="'+x1.toFixed(1)+'" y="6" width="'+(x2-x1).toFixed(1)+'" height="26" rx="6" fill="'+(pat?'url(#stp2)':fill)+'" stroke="#0F2A46" stroke-width="1.2"/>'
+        +'<text x="'+((x1+x2)/2).toFixed(1)+'" y="24" font-size="11" font-weight="900" fill="#0F2A46" text-anchor="middle" paint-order="stroke" stroke="#fff" stroke-width="3">'+name+'</text>';
+    }
+    if(P){
+      out+=band(U.lo,P.lo-1,'地声域',COL.chest.w)+band(P.lo,P.hi,'換声点',COL.pass.w,true)+band(P.hi+1,U.hi,'裏声域',COL.fals.w);
+    }else{
+      out+=band(U.lo,U.hi,'あなたの音域',COL.all.w);
+    }
+    // 白鍵 → 黒鍵
+    for(var i=0;i<whites.length;i++){
+      var wn=whites[i],rg=regionOf(wn,U,P);
+      out+='<rect x="'+xL(wn).toFixed(1)+'" y="'+KT+'" width="'+kw+'" height="'+KH+'" fill="'+(rg?COL[rg].w:'#fff')+'" stroke="#0F2A46" stroke-width="1"/>';
+    }
+    for(var bn=minN;bn<=maxN;bn++){
+      if(isWhite(bn))continue;
+      var rb=regionOf(bn,U,P);
+      out+='<rect x="'+xL(bn).toFixed(1)+'" y="'+KT+'" width="'+BW+'" height="'+BH+'" rx="2" fill="'+(rb?COL[rb].b:'#2B3A4A')+'" stroke="#0F2A46" stroke-width="1"/>';
+    }
+    // 曲の音域：鍵の下端の●（地声パート）／○（裏声パート）
+    for(var m=sLo;m<=sHi;m++){
+      if(m<minN||m>maxN)continue;
+      var solid=(sC==null)||(m<=sC);
+      var cy=isWhite(m)?(KT+KH-11):(KT+BH-11);
+      out+='<circle cx="'+xC(m).toFixed(1)+'" cy="'+cy+'" r="'+Math.max(3.5,Math.min(5.5,kw*0.26)).toFixed(1)+'" fill="'+(solid?'#0F2A46':'#fff')+'" stroke="#0F2A46" stroke-width="1.6"/>';
+    }
+    // A鍵の音名（hiA など）
+    whites.forEach(function(wn){
+      if(((wn-HI_A)%12+12)%12===0)out+='<text x="'+(xL(wn)+kw/2).toFixed(1)+'" y="'+(KT+KH+13)+'" font-size="9.5" font-weight="700" fill="#66788C" text-anchor="middle">'+label(wn)+'</text>';
+    });
+    // 曲の帯
+    var by=186, bx1=xL(Math.max(sLo,minN)), bx2=xR(Math.min(sHi,maxN));
+    out+='<text x="'+PAD+'" y="'+(by-8)+'" font-size="11" font-weight="900" fill="#0F2A46">曲の音域（キー '+esc(kText(k))+'）</text>';
+    if(sC!=null&&sC<sHi){
+      var bm=xR(Math.min(sC,maxN));
+      out+='<rect x="'+bx1.toFixed(1)+'" y="'+by+'" width="'+(bm-bx1).toFixed(1)+'" height="24" rx="12" fill="#0F2A46"/>'
+        +'<text x="'+((bx1+bm)/2).toFixed(1)+'" y="'+(by+16)+'" font-size="10.5" font-weight="900" fill="#fff" text-anchor="middle">地声</text>'
+        +'<rect x="'+bm.toFixed(1)+'" y="'+by+'" width="'+(bx2-bm).toFixed(1)+'" height="24" rx="12" fill="url(#stp)" stroke="#0F2A46" stroke-width="1.6"/>'
+        +'<text x="'+((bm+bx2)/2).toFixed(1)+'" y="'+(by+16)+'" font-size="10.5" font-weight="900" fill="#0F2A46" text-anchor="middle" paint-order="stroke" stroke="#fff" stroke-width="3.5">裏声</text>';
+    }else{
+      out+='<rect x="'+bx1.toFixed(1)+'" y="'+by+'" width="'+Math.max(10,bx2-bx1).toFixed(1)+'" height="24" rx="12" fill="#0F2A46"/>'
+        +'<text x="'+((bx1+bx2)/2).toFixed(1)+'" y="'+(by+16)+'" font-size="10.5" font-weight="900" fill="#fff" text-anchor="middle">'+(sC!=null?'地声':'曲')+'</text>';
+    }
+    out+='<text x="'+bx1.toFixed(1)+'" y="'+(by+40)+'" font-size="10" font-weight="700" fill="#2B3A4A" text-anchor="start">▲ '+label(sLo)+'</text>'
+      +'<text x="'+bx2.toFixed(1)+'" y="'+(by+40)+'" font-size="10" font-weight="700" fill="#2B3A4A" text-anchor="end">'+label(sHi)+' ▲</text>';
+    out+='</svg>';
+    $('#chart').innerHTML=out;
+    // 凡例（文字でも区別できるように）
+    var lg=[];
+    function sw(style){return '<span class="sw" style="'+style+'"></span>';}
+    if(P){
+      if(P.lo>U.lo)lg.push(sw('background:'+COL.chest.w)+'<span><b>地声域</b>　'+label(U.lo)+'〜'+label(P.lo-1)+'</span>');
+      lg.push(sw('background:repeating-linear-gradient(45deg,#F8D48A 0 4px,#D9962B 4px 6px)')+'<span><b>換声点</b>　'+label(P.lo)+'〜'+label(P.hi)+'</span>');
+      if(U.hi>P.hi)lg.push(sw('background:'+COL.fals.w)+'<span><b>裏声域</b>　'+label(P.hi+1)+'〜'+label(U.hi)+'</span>');
+    }else{
+      lg.push(sw('background:'+COL.all.w)+'<span><b>あなたの音域</b>　'+label(U.lo)+'〜'+label(U.hi)+'</span>');
+    }
+    if(sC!=null&&sC<sHi){
+      lg.push(sw('background:#0F2A46')+'<span><b>曲：地声で歌う部分</b>（●）　'+label(sLo)+'〜'+label(sC)+'</span>');
+      lg.push(sw('background:repeating-linear-gradient(45deg,#fff 0 3px,#0F2A46 3px 6px)')+'<span><b>曲：裏声で歌う部分</b>（○）　'+label(sC+1)+'〜'+label(sHi)+'</span>');
+    }else{
+      lg.push(sw('background:#0F2A46')+'<span><b>曲の音域</b>（●）　'+label(sLo)+'〜'+label(sHi)+'</span>');
+    }
+    var items=lg.map(function(x){return '<li>'+x+'</li>';});
+    $('#legend').innerHTML=items.join('');
+    $('#kNow').textContent='キー '+kText(k);
+    var ks=$('#kStatus');ks.className='kstatus '+r.lv;
+    ks.textContent=LV[r.lv]+(r.lv==='ok'?'':'：'+detail(r));
+    $('#kMinus').disabled=(k<=-12);$('#kPlus').disabled=(k>=12);
+    var sc=$('#kbscroll'),over=W>sc.clientWidth+2;
+    $('#kbhint').style.display=over?'block':'none';
+    if(over)sc.scrollLeft=Math.max(0,(bx1+bx2)/2-sc.clientWidth/2);
+  }
+  $('#kMinus').addEventListener('click',function(){if(curK>-12){curK--;draw();shareUpdate();}});
+  $('#kPlus').addEventListener('click',function(){if(curK<12){curK++;draw();shareUpdate();}});
+
+  /* ---- データを貯める ---- */
+  function send(song,artist,S,kind){
+    if(!ENDPOINT)return;
+    try{
+      var fd=new URLSearchParams();
+      fd.append('form','song');fd.append('song',song||'');fd.append('artist',artist||'');
+      fd.append('lo',String(S.lo));fd.append('hi',String(S.hi));fd.append('lo_label',label(S.lo));fd.append('hi_label',label(S.hi));
+      if(S.c!=null){fd.append('chest',String(S.c));fd.append('chest_label',label(S.c));}
+      fd.append('kind',kind||'new');fd.append('source','key_finder');
+      fetch(ENDPOINT,{method:'POST',mode:'no-cors',body:fd}).catch(function(){});
+    }catch(e){}
+  }
+  function afterCalc(){
+    var name=songEl.value.trim(), art=artistEl.value.trim(), S=ST.S;
+    $('#vote').classList.remove('on');
+    if(!name)return;
+    var key=norm(name)+'|'+norm(art);
+    HIST=HIST.filter(function(x){return norm(x.s)+'|'+norm(x.a)!==key;});
+    HIST.unshift({s:name,a:art,lo:S.lo,hi:S.hi,c:S.c});HIST=HIST.slice(0,40);lsSet(LSH,HIST);
+    var same=picked&&picked.src==='db'&&picked.lo===S.lo&&picked.hi===S.hi&&((picked.c==null?null:picked.c)===(S.c==null?null:S.c));
+    if(same){
+      var voted=lsGet(LSV,{});
+      if(!voted[key]&&$('#agree').checked)$('#vote').classList.add('on');
+    }else if($('#agree').checked){
+      var sig=key+'|'+S.lo+'|'+S.hi+'|'+S.c;
+      if(sig!==lastSent){lastSent=sig;send(name,art,S,'new');}
+    }
+  }
+  function vote(yes){
+    var name=songEl.value.trim(), art=artistEl.value.trim();
+    var key=norm(name)+'|'+norm(art), voted=lsGet(LSV,{});
+    $('#vote').classList.remove('on');
+    if(yes){
+      voted[key]=1;lsSet(LSV,voted);
+      send(name,art,ST.S,'confirm');
+      showNote('ありがとうございます。この曲のデータが、少し確かになりました。');
+    }else{
+      showNote('正しい音域を選んで、もう一度「おすすめのキーを調べる」を押してください。');
+      $('#step2').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  }
+  $('#voteYes').addEventListener('click',function(){vote(true);});
+  $('#voteNo').addEventListener('click',function(){vote(false);});
+
+  /* ---- シェア ---- */
+  function shareText(){
+    var name=songEl.value.trim(), k=ST?curK:0;
+    var head=name?('「'+name+'」の最適キーを調べたら '+kText(k)+' でした🎤'):('最適キーを調べてみました（'+kText(k)+'）🎤');
+    return head+'\n\n#RHOボイトレ #最適キー探し';
+  }
+  function shareUpdate(){
+    if(!ST)return;
+    var t=shareText();
+    $('#shareX').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(t+'\n\n'+PAGE_URL);
+    $('#shareLine').href='https://line.me/R/msg/text/?'+encodeURIComponent(t+'\n\n'+PAGE_URL);
+  }
+  $('#shareCopy').addEventListener('click',function(){
+    var toast=$('#shareToast');
+    function ok(){toast.textContent='リンクをコピーしました';setTimeout(function(){toast.textContent='';},2000);}
+    function fb(){var ta=document.createElement('textarea');ta.value=PAGE_URL;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok();}catch(e){}document.body.removeChild(ta);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(PAGE_URL).then(ok,fb);}else fb();
+  });
+
+  $('#go').addEventListener('click',function(){
+    if(runCalc()){$('#result').scrollIntoView({behavior:'smooth',block:'start'});}
+  });
+})();
+</script>
+</body>
+</html>
