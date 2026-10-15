@@ -685,11 +685,10 @@
     var key=norm(name)+'|'+norm(art);
     HIST=HIST.filter(function(x){return norm(x.s)+'|'+norm(x.a)!==key;});
     HIST.unshift({s:name,a:art,lo:S.lo,hi:S.hi,c:S.c});HIST=HIST.slice(0,40);lsSet(LSH,HIST);
-    var same=picked&&picked.src==='db'&&picked.lo===S.lo&&picked.hi===S.hi&&((picked.c==null?null:picked.c)===(S.c==null?null:S.c));
-    if(same){
-      var voted=lsGet(LSV,{});
-      if(!voted[key]&&$('#agree').checked)$('#vote').classList.add('on');
-    }else if($('#agree').checked){
+    /* すでにシートにある曲は、送らない（同じ曲は1行だけ。値の確認は、ρくんがシートで行います） */
+    var inDB=DB.some(function(x){return norm(x.s)+'|'+norm(x.a)===key;});
+    if(inDB)return;
+    if($('#agree').checked){
       var sig=key+'|'+S.lo+'|'+S.hi+'|'+S.c;
       if(sig!==lastSent){lastSent=sig;send(name,art,S,'new');}
     }
