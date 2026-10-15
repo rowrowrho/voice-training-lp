@@ -78,6 +78,12 @@
   .sugg button:hover{background:var(--sky);}
   .sugg .m{font-size:11.5px; color:var(--text-dim); white-space:nowrap;}
   .sugg .t{min-width:0; overflow-wrap:anywhere;}
+  .sugg .t small{display:block; font-size:12px; color:var(--text-dim); font-weight:400;}
+  .sugg .t mark{background:var(--amber-bg,#FDF0D2); color:inherit; font-weight:900; border-radius:3px;}
+  .sugg .sh{padding:7px 12px; font-size:11.5px; font-weight:700; color:var(--text-dim); background:var(--sky); border-bottom:1px solid var(--line);}
+  .sugg button.act{background:var(--sky); outline:2px solid var(--blue); outline-offset:-2px;}
+  .sugg.a{margin-top:6px;}
+  .dbcount{font-weight:700; color:var(--data-2);}
   .note{margin-top:10px; font-size:12.5px; padding:8px 12px; border-radius:10px; background:var(--data-bg); color:var(--data-2); font-weight:700; display:none;}
   .note.on{display:block;}
   .agree{display:flex; gap:10px; align-items:flex-start; margin-top:16px; font-size:12.5px; color:var(--text-dim); line-height:1.7; cursor:pointer;}
@@ -166,10 +172,11 @@
 
     <section class="card" id="step2">
       <h2><span class="num">2</span>歌いたい曲</h2>
-      <p class="sub">曲名を入れると、登録済みの曲が出ます。ない曲は、原曲キーの音域を入れてください。</p>
-      <label class="f"><span>曲名<span class="tag opt">任意</span></span><input type="text" id="song" maxlength="80" autocomplete="off" placeholder="例）曲名を入れると候補が出ます"></label>
+      <p class="sub">曲名や作者を入れると、登録済みの曲が候補に出ます。選ぶと、作者と音域が自動で入ります。ない曲は、原曲キーの音域を入れてください。<span class="dbcount" id="dbCount"></span></p>
+      <label class="f"><span>曲名<span class="tag opt">任意</span></span><input type="text" id="song" maxlength="80" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sugg" aria-autocomplete="list" placeholder="例）曲名を入れると候補が出ます"></label>
       <div class="sugg" id="sugg" role="listbox" aria-label="曲の候補"></div>
-      <label class="f"><span>作者・アーティスト<span class="tag opt">任意</span></span><input type="text" id="artist" maxlength="80" autocomplete="off"></label>
+      <label class="f"><span>作者・アーティスト<span class="tag opt">任意</span></span><input type="text" id="artist" maxlength="80" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="suggA" aria-autocomplete="list" placeholder="例）作者を入れると、その人の曲も探せます"></label>
+      <div class="sugg a" id="suggA" role="listbox" aria-label="作者の候補"></div>
       <div class="grid2">
         <label class="f"><span>曲のいちばん低い音<span class="tag req">必須</span></span><select id="slo"></select></label>
         <label class="f"><span>曲のいちばん高い音<span class="tag req">必須</span></span><select id="shi"></select></label>
@@ -280,42 +287,162 @@
       .replace(/[\s　・\-_!?'"“”‘’()\[\]「」『』.,、。~〜♪☆★]/g,'');
   }
   var DB=[];                       // {s,a,lo,hi,c,n,ok}  みんなのデータ
+  var dbState='loading', dbAt=0;
   var HIST=lsGet(LSH,[]);          // {s,a,lo,hi,c}      この端末の履歴
   var picked=null, lastSent='';
-  if(ENDPOINT){
-    fetch(ENDPOINT+'?action=songs').then(function(r){return r.json();}).then(function(j){if(j&&j.songs)DB=j.songs;}).catch(function(){});
+  function loadDB(){
+    if(!ENDPOINT){dbState='err';return;}
+    dbAt=Date.now();
+    fetch(ENDPOINT+'?action=songs').then(function(r){return r.json();}).then(function(j){
+      if(j&&j.songs){DB=j.songs;dbState='ok';var n=$('#dbCount');if(n&&DB.length)n.textContent='（いま登録されている曲：'+DB.length+'曲）';}
+      else dbState='err';
+      if(document.activeElement===songEl||document.activeElement===artistEl)renderAll();
+    }).catch(function(){dbState='err';});
   }
-  function candidates(q){
-    var nq=norm(q); if(!nq)return [];
-    var out=[],seen={};
-    DB.forEach(function(x){if(norm(x.s).indexOf(nq)>=0){out.push({s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,n:x.n,ok:x.ok,src:'db'});seen[norm(x.s)+'|'+norm(x.a)]=1;}});
-    HIST.forEach(function(x){var key=norm(x.s)+'|'+norm(x.a);if(!seen[key]&&norm(x.s).indexOf(nq)>=0){out.push({s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,src:'me'});seen[key]=1;}});
-    return out.slice(0,6);
-  }
-  var sugg=$('#sugg'), songEl=$('#song'), artistEl=$('#artist'), noteEl=$('#songNote');
+  var sugg=$('#sugg'), suggA=$('#suggA'), songEl=$('#song'), artistEl=$('#artist'), noteEl=$('#songNote');
+  loadDB();
   function showNote(t){noteEl.textContent=t||'';noteEl.classList.toggle('on',!!t);}
-  function renderSugg(){
-    var list=candidates(songEl.value);
-    sugg.innerHTML='';
-    if(!list.length){sugg.classList.remove('on');return;}
-    list.forEach(function(c){
-      var b=document.createElement('button');b.type='button';b.setAttribute('role','option');
-      var t=document.createElement('span');t.className='t';t.textContent=c.s+(c.a?'／'+c.a:'');
-      var m=document.createElement('span');m.className='m';
-      m.textContent=c.src==='db'?(c.ok?'確認済み':'みんなの入力 '+c.n+'件'):'あなたの履歴';
-      b.appendChild(t);b.appendChild(m);
-      b.addEventListener('click',function(){pick(c);});
-      sugg.appendChild(b);
+
+  /* 曲の候補：曲名・作者のどちらでも探せる（ひらがな／カタカナ、全角／半角、大文字／小文字は区別しない） */
+  function songList(q,aq){
+    var nq=norm(q), na=norm(aq), out=[], seen={};
+    function add(x,src){
+      var ns=norm(x.s), nA=norm(x.a), key=ns+'|'+nA;
+      if(seen[key])return;
+      var sc=0;
+      if(nq){
+        if(ns===nq)sc=100;else if(ns.indexOf(nq)===0)sc=80;else if(ns.indexOf(nq)>0)sc=60;else if(nA.indexOf(nq)>=0&&!na)sc=40;else return;
+      }else if(!na)return;
+      if(na){if(nA===na)sc+=30;else if(nA.indexOf(na)>=0)sc+=15;else return;}
+      seen[key]=1;
+      out.push({s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,n:x.n||0,ok:!!x.ok,src:src,sc:sc+(x.ok?3:0)});
+    }
+    DB.forEach(function(x){add(x,'db');});
+    HIST.forEach(function(x){add(x,'me');});
+    out.sort(function(a,b){return b.sc-a.sc||b.n-a.n;});
+    return out;
+  }
+  function emptyList(){
+    var out=[];
+    var h=HIST.slice(0,3).map(function(x){return {s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,src:'me',n:0,ok:false};});
+    var seen={};h.forEach(function(x){seen[norm(x.s)+'|'+norm(x.a)]=1;});
+    var d=DB.slice().sort(function(a,b){return (b.n||0)-(a.n||0);}).filter(function(x){return !seen[norm(x.s)+'|'+norm(x.a)];}).slice(0,5)
+      .map(function(x){return {s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,src:'db',n:x.n||0,ok:!!x.ok};});
+    if(h.length){out.push({head:'最近調べた曲'});h.forEach(function(x){out.push(x);});}
+    if(d.length){out.push({head:'みんなが入力している曲'});d.forEach(function(x){out.push(x);});}
+    return out;
+  }
+  function artistList(q){
+    var nq=norm(q), map={}, order=[];
+    function add(x){
+      var a=String(x.a||'').trim();if(!a)return;
+      var k=norm(a);if(!k)return;
+      if(nq&&k.indexOf(nq)<0)return;
+      if(!map[k]){map[k]={a:a,n:0,pre:k.indexOf(nq)===0};order.push(k);}
+      map[k].n++;
+    }
+    DB.forEach(add);HIST.forEach(add);
+    return order.map(function(k){return map[k];}).sort(function(a,b){return (b.pre-a.pre)||(b.n-a.n);}).slice(0,6);
+  }
+  function hl(el,text,q){
+    var i=q?String(text).toLowerCase().indexOf(String(q).trim().toLowerCase()):-1;
+    if(i<0||!String(q).trim()){el.appendChild(document.createTextNode(text));return;}
+    var L=String(q).trim().length;
+    el.appendChild(document.createTextNode(text.slice(0,i)));
+    var m=document.createElement('mark');m.textContent=text.slice(i,i+L);el.appendChild(m);
+    el.appendChild(document.createTextNode(text.slice(i+L)));
+  }
+
+  /* 候補ボックス（↑↓で選び、Enterで決める。Escで閉じる） */
+  function makeSuggest(inp,box,getItems,drawItem,onPick){
+    var items=[],act=-1,opts=[];
+    function close(){box.classList.remove('on');inp.setAttribute('aria-expanded','false');inp.removeAttribute('aria-activedescendant');act=-1;}
+    function setAct(i){
+      act=i;
+      opts.forEach(function(o,k){o.el.classList.toggle('act',k===i);o.el.setAttribute('aria-selected',k===i?'true':'false');});
+      if(i>=0){inp.setAttribute('aria-activedescendant',opts[i].el.id);opts[i].el.scrollIntoView({block:'nearest'});}else inp.removeAttribute('aria-activedescendant');
+    }
+    function render(){
+      items=getItems();box.innerHTML='';opts=[];
+      if(!items.length){close();return;}
+      items.forEach(function(it){
+        if(it.head){var h=document.createElement('div');h.className='sh';h.textContent=it.head;box.appendChild(h);return;}
+        var b=document.createElement('button');b.type='button';b.setAttribute('role','option');b.id=box.id+'-o'+opts.length;b.setAttribute('aria-selected','false');
+        drawItem(b,it);
+        b.addEventListener('mousedown',function(e){e.preventDefault();});
+        b.addEventListener('click',function(){onPick(it);close();});
+        box.appendChild(b);opts.push({el:b,it:it});
+      });
+      if(!opts.length){close();return;}
+      box.classList.add('on');inp.setAttribute('aria-expanded','true');act=-1;
+    }
+    inp.addEventListener('keydown',function(e){
+      if(!box.classList.contains('on')){if(e.key==='ArrowDown'){render();e.preventDefault();}return;}
+      if(e.key==='ArrowDown'){setAct((act+1)%opts.length);e.preventDefault();}
+      else if(e.key==='ArrowUp'){setAct(act<=0?opts.length-1:act-1);e.preventDefault();}
+      else if(e.key==='Enter'&&act>=0){onPick(opts[act].it);close();e.preventDefault();}
+      else if(e.key==='Escape'){close();}
     });
-    sugg.classList.add('on');
+    return {render:render,close:close};
   }
-  function pick(c){
+  function drawSong(b,c){
+    var t=document.createElement('span');t.className='t';
+    var main=document.createElement('span');hl(main,c.s,songEl.value);t.appendChild(main);
+    if(c.a){var sm=document.createElement('small');hl(sm,c.a,songEl.value||artistEl.value);t.appendChild(sm);}
+    var m=document.createElement('span');m.className='m';
+    m.textContent=c.src==='db'?(c.ok?'確認済み':'みんなの入力 '+c.n+'件'):'あなたの履歴';
+    b.appendChild(t);b.appendChild(m);
+  }
+  function drawArtist(b,x){
+    var t=document.createElement('span');t.className='t';hl(t,x.a,artistEl.value);
+    var m=document.createElement('span');m.className='m';m.textContent=x.n+'曲';
+    b.appendChild(t);b.appendChild(m);
+  }
+  var SS=makeSuggest(songEl,sugg,function(){
+    var q=songEl.value.trim(),aq=artistEl.value.trim();
+    var l=(q||aq)?songList(q,aq):emptyList();
+    if(!l.length&&q&&dbState==='loading')return [{head:'みんなのデータを読み込み中…'}];
+    return l.slice(0,8);
+  },drawSong,function(c){pick(c);});
+  var SA=makeSuggest(artistEl,suggA,function(){
+    var q=artistEl.value.trim();
+    if(!q)return [];
+    return artistList(q);
+  },drawArtist,function(x){
+    artistEl.value=x.a;picked=null;showNote('');
+    if(!songEl.value.trim()){SS.render();songEl.focus();}
+    else autoFill();
+  });
+  function renderAll(){SS.render();}
+  function pick(c,auto){
     picked=c;songEl.value=c.s;artistEl.value=c.a||'';setVal('slo',c.lo);setVal('shi',c.hi);setVal('sch',c.c);
-    sugg.classList.remove('on');
-    showNote(c.src==='db'?('登録済みの音域を入れました（'+(c.ok?'確認済み':'みんなの入力 '+c.n+'件・まだ仮')+'）。違っていたら直してください。'):'この端末の履歴から入れました。');
+    SS.close();SA.close();
+    var st=c.src==='db'?(c.ok?'確認済み':'みんなの入力 '+c.n+'件・まだ仮'):'';
+    showNote(c.src==='db'
+      ?((auto?'登録済みの曲なので、作者と音域を自動で入れました':'登録済みの音域を入れました')+'（'+st+'）。違っていたら直してください。')
+      :(auto?'この端末の履歴から、作者と音域を自動で入れました。':'この端末の履歴から入れました。'));
   }
-  songEl.addEventListener('input',function(){picked=null;showNote('');renderSugg();});
-  songEl.addEventListener('blur',function(){setTimeout(function(){sugg.classList.remove('on');},180);});
+  /* 登録済みの曲を、曲名がぴったり合うときに自動で入れる（同じ曲名が複数あるときは選んでもらう） */
+  function exactMatches(){
+    var nq=norm(songEl.value),na=norm(artistEl.value);
+    if(!nq)return [];
+    return songList(songEl.value,artistEl.value).filter(function(c){return norm(c.s)===nq&&(!na||norm(c.a)===na);});
+  }
+  function rangeEmpty(){return val('slo')==null&&val('shi')==null;}
+  function autoFill(){
+    if(picked||!rangeEmpty())return false;
+    var m=exactMatches();
+    if(m.length===1){pick(m[0],true);return true;}
+    if(m.length>1){showNote('同じ曲名が'+m.length+'件あります。候補から選んでください。');SS.render();}
+    return false;
+  }
+  songEl.addEventListener('input',function(){picked=null;showNote('');SS.render();});
+  songEl.addEventListener('focus',function(){if(Date.now()-dbAt>120000)loadDB();SS.render();});
+  songEl.addEventListener('blur',function(){setTimeout(function(){SS.close();autoFill();},180);});
+  songEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!sugg.querySelector('.act')){if(autoFill())e.preventDefault();}});
+  artistEl.addEventListener('input',function(){picked=null;showNote('');SA.render();if(songEl.value.trim()===''&&artistEl.value.trim()!=='')SS.render();});
+  artistEl.addEventListener('focus',function(){if(artistEl.value.trim())SA.render();});
+  artistEl.addEventListener('blur',function(){setTimeout(function(){SA.close();autoFill();},180);});
 
   /* ---- 判定 ----
      U: あなたの音域 {lo,hi} / P: 換声点の範囲 {lo,hi} または null / S: 曲 {lo,hi,c}
@@ -356,6 +483,7 @@
     function bad(m){err.textContent=m;err.classList.add('on');return false;}
     err.classList.remove('on');
     if($('#hp').value)return false;
+    if(S.lo==null&&S.hi==null&&autoFill()){S={lo:val('slo'),hi:val('shi'),c:val('sch')};}
     if(U.lo==null||U.hi==null)return bad('あなたの、いちばん低い音と高い音を選んでください。');
     if(U.lo>=U.hi)return bad('あなたの音域は、低い音より高い音が上になるように選んでください。');
     if((P.lo==null)!==(P.hi==null))return bad('換声点の範囲は、低い方と高い方の両方を選ぶか、両方とも選ばないでください。');
