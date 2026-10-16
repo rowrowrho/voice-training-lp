@@ -161,6 +161,7 @@
         <label class="f"><span>いちばん低い音<span class="tag req">必須</span></span><select id="ulo"></select></label>
         <label class="f"><span>いちばん高い音<span class="tag req">必須</span></span><select id="uhi"></select></label>
       </div>
+      <div class="note" id="rangeNote" role="status"></div>
       <div class="group-title">換声点の範囲（任意）</div>
       <div class="grid2">
         <label class="f"><span>低い方の端<span class="tag opt">任意</span></span><select id="pll"></select></label>
@@ -277,8 +278,33 @@
   function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
   var saved=lsGet(LSR,{});
   ['ulo','uhi','pll','plh'].forEach(function(k){if(saved[k]!=null)setVal(k,saved[k]);});
+  /* 音域チャレンジの結果（同じサイトの、この端末のブラウザに保存されているもの）を、いちばん低い音・高い音に自動で入れる。
+     チャレンジを新しくやり直したときだけ入れ直し、そのあと自分で変えた値は、次回も残す。 */
+  var CH_PROGRESS='rhoPitchChallengeProgress_v1', CH_RANGE='rhoMyRange_v1', LSC='kf-chal-v1';
+  function challengeRange(){
+    var lo=null,hi=null;
+    var p=lsGet(CH_PROGRESS,null), r=p&&p.directionResultMidi;
+    if(r&&r.LOW!=null&&r.HIGH!=null){lo=+r.LOW;hi=+r.HIGH;}
+    else{var m=lsGet(CH_RANGE,null);if(m&&m.lo!=null&&m.hi!=null){lo=+m.lo;hi=+m.hi;}}
+    if(lo==null||hi==null||!isFinite(lo)||!isFinite(hi)||lo>hi||lo<MIN_N||hi>MAX_N)return null;
+    return {lo:Math.round(lo),hi:Math.round(hi)};
+  }
+  var CH=challengeRange();
+  if(CH){
+    var chSig=CH.lo+'-'+CH.hi;
+    if(lsGet(LSC,'')!==chSig||val('ulo')==null||val('uhi')==null){setVal('ulo',CH.lo);setVal('uhi',CH.hi);lsSet(LSC,chSig);}
+  }
   // 他のツールからのリンク例: ?ulo=mid2A&uhi=hihiC&pll=hiA&plh=hiD
   (function(){var q=new URLSearchParams(location.search);['ulo','uhi','pll','plh'].forEach(function(k){var n=parseNote(q.get(k));if(n!=null)setVal(k,n);});})();
+  (function(){
+    var n=$('#rangeNote');
+    function upd(){
+      var on=CH&&val('ulo')===CH.lo&&val('uhi')===CH.hi;
+      n.textContent=on?'音域チャレンジの結果（'+label(CH.lo)+'〜'+label(CH.hi)+'）を入れました。違うときは選び直せます。':'';
+      n.classList.toggle('on',!!on);
+    }
+    SEL.ulo.addEventListener('change',upd);SEL.uhi.addEventListener('change',upd);upd();
+  })();
 
   /* ---- 曲データ ---- */
   function norm(s){
@@ -324,12 +350,9 @@
   }
   function emptyList(){
     var out=[];
+    /* 入力前に出すのは、この端末で最近調べた曲だけ（みんなの新着曲は出さない） */
     var h=HIST.slice(0,3).map(function(x){return {s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,src:'me',n:0,ok:false};});
-    var seen={};h.forEach(function(x){seen[norm(x.s)+'|'+norm(x.a)]=1;});
-    var d=DB.slice().sort(function(a,b){return (b.n||0)-(a.n||0);}).filter(function(x){return !seen[norm(x.s)+'|'+norm(x.a)];}).slice(0,5)
-      .map(function(x){return {s:x.s,a:x.a,lo:x.lo,hi:x.hi,c:x.c==null?null:x.c,src:'db',n:x.n||0,ok:!!x.ok};});
     if(h.length){out.push({head:'最近調べた曲'});h.forEach(function(x){out.push(x);});}
-    if(d.length){out.push({head:'みんなが入力している曲'});d.forEach(function(x){out.push(x);});}
     return out;
   }
   function artistList(q){
