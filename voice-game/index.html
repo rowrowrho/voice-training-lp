@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ボイスランナー（試作）｜RHOボイトレ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ME8HE69PX8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ME8HE69PX8');
+</script>
+<style>
+  :root{
+    --navy:#173A5E; --navy-2:#0F2A46; --blue:#2E76B6; --sky:#EAF2FB; --bg:#F5F8FC;
+    --text:#2B3A4A; --text-dim:#66788C; --line:#E1E8F0; --amber:#F5B84E;
+    --shadow:0 12px 30px rgba(23,58,94,0.10);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:"Zen Kaku Gothic New",sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px; margin:0 auto; padding:16px;}
+  h1{font-size:20px; color:var(--navy); font-weight:900;}
+  .sub{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
+  .badge{display:inline-block; background:var(--amber); color:var(--navy-2); font-size:11px; font-weight:900; border-radius:100px; padding:2px 10px; margin-left:6px; vertical-align:middle;}
+  .stage{position:relative; margin-top:12px; border-radius:18px; overflow:hidden; box-shadow:var(--shadow); background:#cfe5f7;}
+  canvas{display:block; width:100%; height:auto; touch-action:none;}
+  .overlay{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:18px; background:rgba(15,42,70,0.88); color:#fff;}
+  .overlay.hide{display:none;}
+  .overlay h2{font-size:19px; font-weight:900; margin-bottom:8px;}
+  .overlay p{font-size:13.5px; line-height:1.8; margin-bottom:10px;}
+  .overlay .big{font-size:34px; font-weight:900; color:var(--amber); margin:4px 0 10px;}
+  .btn{display:inline-block; border:0; cursor:pointer; font-family:inherit; font-weight:900; font-size:15px; border-radius:14px; padding:13px 22px; margin:5px; background:var(--amber); color:var(--navy-2);}
+  .btn.sub2{background:#fff; color:var(--navy);}
+  .btn.line{background:transparent; color:#fff; border:2px solid #fff;}
+  a.btn{text-decoration:none;}
+  .panel{margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px 16px; box-shadow:var(--shadow);}
+  .panel h3{font-size:13px; color:var(--navy); font-weight:900; margin-bottom:8px;}
+  .row{display:flex; align-items:center; gap:10px; font-size:13px; margin:6px 0;}
+  .row .lab{width:74px; color:var(--text-dim); font-weight:700; flex:none;}
+  .bar{flex:1; height:12px; background:var(--sky); border-radius:100px; overflow:hidden;}
+  .bar i{display:block; height:100%; width:0%; background:var(--blue);}
+  .val{font-weight:900; color:var(--navy); min-width:96px; text-align:right;}
+  .reg{display:inline-block; font-weight:900; border-radius:8px; padding:1px 10px; font-size:13px;}
+  .reg.chest{background:var(--amber); color:var(--navy-2);}
+  .reg.head{background:var(--blue); color:#fff;}
+  .reg.none{background:var(--sky); color:var(--text-dim);}
+  input[type=range]{flex:1;}
+  .note{font-size:11.5px; color:var(--text-dim); line-height:1.7; margin-top:6px;}
+  label.chk{font-size:13px; font-weight:700; color:var(--navy); display:flex; gap:8px; align-items:center; margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎤 ボイスランナー<span class="badge">試作</span></h1>
+  <p class="sub">声の「大きさ・高さ・地声/裏声」で動くゲーム。動作確認用の最小版です。</p>
+
+  <div class="stage">
+    <canvas id="cv" width="480" height="420"></canvas>
+    <div class="overlay" id="ov"></div>
+  </div>
+
+  <div class="panel">
+    <h3>🔍 いまの声の測定値（動作確認用）</h3>
+    <div class="row"><span class="lab">大きさ</span><span class="bar"><i id="bVol"></i></span><span class="val" id="vVol">-</span></div>
+    <div class="row"><span class="lab">高さ</span><span class="bar"><i id="bPit"></i></span><span class="val" id="vPit">-</span></div>
+    <div class="row"><span class="lab">声の種類</span><span id="vReg" class="reg none">声なし</span><span class="val" id="vFeat" style="margin-left:auto;">-</span></div>
+    <div class="row"><span class="lab">境目</span><input type="range" id="sl" min="-30" max="10" step="0.5" value="-8"><span class="val" id="vSl">-8 dB</span></div>
+    <label class="chk"><input type="checkbox" id="chkReg" checked>コインの「地／裏」も判定する（オフ→高さだけで取れる）</label>
+    <p class="note">「境目」より倍音が強ければ地声、弱ければ裏声と判定します。判定が逆・不安定なときはスライダーで調整してください。</p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ===== 切り替え設定（true/false の1行で変更） ===== */
+var REQUIRE_REGISTER = true;   // コインの地声/裏声まで判定する
+var GAME_SECONDS = 60;
+var CONSULT_URL = 'https://rowrowrho.github.io/voice-training-lp/consult/?utm_source=voice_game&utm_medium=result_cta';
+
+/* ===== 状態 ===== */
+var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+var ov = document.getElementById('ov');
+var W = 480, H = 420;
+var AC=null, an1=null, an2=null, stream=null;
+var tbuf=null, fbuf=null;
+var S = {db:-100, level:0, f0:-1, midi:0, feat:0, reg:'none', active:false};
+var cal = {gateDb:-48, loudRange:28, midiLo:48, midiHi:76, thr:-8};
+var mode = 'intro';     // intro | calib | play | result
+var hist=[], lastVoiceT=0, featSm=null, regNow='none';
+var game=null;
+
+function clamp(v,a,b){return v<a?a:(v>b?b:v);}
+function median(a){var b=a.slice().sort(function(x,y){return x-y;});return b[Math.floor(b.length/2)];}
+function pct(a,p){if(!a.length)return 0;var b=a.slice().sort(function(x,y){return x-y;});return b[clamp(Math.floor(b.length*p),0,b.length-1)];}
+var NOTE=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function noteName(m){var r=Math.round(m);return NOTE[((r%12)+12)%12]+(Math.floor(r/12)-1);}
+
+/* ===== マイク ===== */
+function startMic(){
+  var Ctor = window.AudioContext || window.webkitAudioContext;
+  AC = new Ctor();
+  return navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})
+  .then(function(s){
+    stream=s;
+    var src=AC.createMediaStreamSource(s);
+    an1=AC.createAnalyser(); an1.fftSize=2048; an1.smoothingTimeConstant=0;
+    an2=AC.createAnalyser(); an2.fftSize=8192; an2.smoothingTimeConstant=0.2;
+    src.connect(an1); src.connect(an2);
+    tbuf=new Float32Array(an1.fftSize);
+    fbuf=new Float32Array(an2.frequencyBinCount);
+    return AC.resume();
+  });
+}
+
+/* ===== 音程検出（YIN） ===== */
+function yin(buf, sr){
+  var Wn=1024;
+  var tauMax=Math.min(1024, Math.floor(sr/70));
+  var tauMin=Math.floor(sr/1100);
+  var d=new Float32Array(tauMax+1), cm=new Float32Array(tauMax+1);
+  var t,j,diff,sum=0;
+  for(t=1;t<=tauMax;t++){
+    var s=0;
+    for(j=0;j<Wn;j++){diff=buf[j]-buf[j+t]; s+=diff*diff;}
+    d[t]=s; sum+=s; cm[t]=sum>0? d[t]*t/sum : 1;
+  }
+  cm[0]=1;
+  var tau=-1;
+  for(t=tauMin;t<tauMax;t++){
+    if(cm[t]<0.15){
+      while(t+1<tauMax && cm[t+1]<cm[t]) t++;
+      tau=t; break;
+    }
+  }
+  if(tau<0) return -1;
+  var x0=tau>1?cm[tau-1]:cm[tau], x2=cm[tau+1], x1=cm[tau];
+  var den=(x0+x2-2*x1);
+  var shift=den!==0? (x0-x2)/(2*den):0;
+  var tauF=tau+clamp(shift,-1,1);
+  return sr/tauF;
+}
+
+/* ===== 地声/裏声の特徴量（倍音の強さ：dB） ===== */
+function harmFeature(f0){
+  an2.getFloatFrequencyData(fbuf);
+  var sr=AC.sampleRate, binHz=sr/an2.fftSize;
+  function peak(k){
+    var c=Math.round(k*f0/binHz); if(c+2>=fbuf.length) return null;
+    var m=-200; for(var i=c-2;i<=c+2;i++){ if(fbuf[i]>m) m=fbuf[i]; }
+    return m;
+  }
+  var h1=peak(1), h2=peak(2), h3=peak(3);
+  if(h1===null||h2===null||h3===null) return null;
+  var p=Math.pow(10,h2/10)+Math.pow(10,h3/10);
+  return 10*Math.log10(p+1e-20)-h1;
+}
+
+/* ===== 毎フレームの解析 ===== */
+function analyze(now){
+  if(!an1) return;
+  an1.getFloatTimeDomainData(tbuf);
+  var i,sum=0; for(i=0;i<tbuf.length;i++) sum+=tbuf[i]*tbuf[i];
+  var rms=Math.sqrt(sum/tbuf.length);
+  var db=20*Math.log10(rms+1e-9);
+  S.db=db;
+  S.level=clamp((db-cal.gateDb)/cal.loudRange,0,1);
+  var voiced = db>cal.gateDb;
+  var f0 = voiced? yin(tbuf, AC.sampleRate) : -1;
+  if(f0>0){
+    var m=69+12*Math.log2(f0/440);
+    hist.push(m); if(hist.length>5) hist.shift();
+    S.midi=median(hist); S.f0=440*Math.pow(2,(S.midi-69)/12);
+    lastVoiceT=now;
+    var f=harmFeature(S.f0);
+    if(f!==null){ featSm=(featSm===null)?f:(featSm*0.65+f*0.35); S.feat=featSm; }
+    var th=cal.thr;
+    if(regNow==='none') regNow = featSm>th?'chest':'head';
+    else if(regNow==='chest' && featSm<th-1.5) regNow='head';
+    else if(regNow==='head' && featSm>th+1.5) regNow='chest';
+  }
+  S.active = voiced && (now-lastVoiceT)<180;
+  if(!S.active){ hist=[]; featSm=null; regNow='none'; S.f0=-1; }
+  S.reg = S.active? regNow : 'none';
+}
+
+/* ===== 測定値パネル ===== */
+var el={bVol:document.getElementById('bVol'),vVol:document.getElementById('vVol'),bPit:document.getElementById('bPit'),vPit:document.getElementById('vPit'),
+  vReg:document.getElementById('vReg'),vFeat:document.getElementById('vFeat'),sl:document.getElementById('sl'),vSl:document.getElementById('vSl'),chk:document.getElementById('chkReg')};
+function updatePanel(){
+  el.bVol.style.width=Math.round(S.level*100)+'%';
+  el.vVol.textContent=S.db>-99? S.db.toFixed(0)+' dB':'-';
+  if(S.active){
+    var t=clamp((S.midi-cal.midiLo)/(cal.midiHi-cal.midiLo),0,1);
+    el.bPit.style.width=Math.round(t*100)+'%';
+    el.vPit.textContent=S.f0.toFixed(0)+'Hz '+noteName(S.midi);
+    el.vFeat.textContent='倍音 '+S.feat.toFixed(1)+' dB';
+  }else{ el.bPit.style.width='0%'; el.vPit.textContent='-'; el.vFeat.textContent='-'; }
+  var r=S.reg;
+  el.vReg.className='reg '+(r==='chest'?'chest':(r==='head'?'head':'none'));
+  el.vReg.textContent=r==='chest'?'地声':(r==='head'?'裏声':'声なし');
+}
+el.sl.addEventListener('input',function(){cal.thr=parseFloat(el.sl.value); el.vSl.textContent=cal.thr+' dB';});
+el.chk.addEventListener('change',function(){REQUIRE_REGISTER=el.chk.checked;});
+
+/* ===== 画面（オーバーレイ） ===== */
+function showOv(html){ov.innerHTML=html; ov.className='overlay';}
+function hideOv(){ov.className='overlay hide';}
+
+function screenIntro(){
+  mode='intro';
+  showOv('<h2>声で走る・声でジャンプ</h2>'+
+   '<p>声の<b>高さ</b>でキャラが上下、<b>大きさ</b>で前に進みます。<br>コインの「地」は地声、「裏」は裏声で取ろう。</p>'+
+   '<p style="font-size:12px;opacity:.85;">イヤホン推奨／静かな場所で。マイクの許可が必要です。</p>'+
+   '<button class="btn" id="bStart">🎤 マイクをオンにして始める</button>');
+  document.getElementById('bStart').onclick=function(){
+    gtag('event','voice_game_start',{step:'mic'});
+    startMic().then(function(){ screenMenu(); }).catch(function(e){
+      showOv('<h2>マイクが使えませんでした</h2><p>ブラウザの設定でマイクを許可して、ページを開き直してください。</p><button class="btn" id="bRe">もう一度</button>');
+      document.getElementById('bRe').onclick=screenIntro;
+    });
+  };
+}
+function screenMenu(){
+  mode='intro';
+  showOv('<h2>最初に声を登録する？</h2>'+
+   '<p>約15秒で、あなたの音域と地声/裏声の境目を測ります（おすすめ）。</p>'+
+   '<button class="btn" id="bCal">🎯 声を登録する（おすすめ）</button>'+
+   '<button class="btn sub2" id="bSkip">かんたんに始める</button>');
+  document.getElementById('bCal').onclick=startCalib;
+  document.getElementById('bSkip').onclick=startGame;
+}
+
+/* ===== 声の登録 ===== */
+var C=null;
+function startCalib(){
+  mode='calib';
+  C={step:0,t0:performance.now(),noise:[],chestP:[],chestF:[],headP:[],headF:[]};
+  var steps=[
+    {name:'静かにしてね',dur:1500},
+    {name:'地声で「あー」と、低い音→高い音へ',dur:5000},
+    {name:'裏声で「あー」と、高めの声で',dur:5000}
+  ];
+  C.steps=steps;
+  renderCalib(steps[0].name,'');
+}
+function renderCalib(msg,left){
+  showOv('<h2>声の登録</h2><div class="big">'+left+'</div><p>'+msg+'</p><p style="font-size:12px;opacity:.8;">'+(C.step+1)+' / 3</p>');
+}
+function calibTick(now){
+  var st=C.steps[C.step], el2=now-C.t0;
+  renderCalib(st.name, Math.max(0,Math.ceil((st.dur-el2)/1000)));
+  if(C.step===0){ C.noise.push(S.db); }
+  else if(S.active){
+    if(C.step===1){ C.chestP.push(S.midi); C.chestF.push(S.feat); }
+    else { C.headP.push(S.midi); C.headF.push(S.feat); }
+  }
+  if(el2>=st.dur){
+    C.step++; C.t0=now;
+    if(C.step>=3){ finishCalib(); }
+  }
+}
+function finishCalib(){
+  var msg=[];
+  var noiseDb=pct(C.noise,0.9);
+  cal.gateDb=clamp(noiseDb+10,-55,-34);
+  if(C.chestP.length>20){ cal.midiLo=pct(C.chestP,0.1); }
+  if(C.headP.length>20){ cal.midiHi=pct(C.headP,0.9); }
+  if(cal.midiHi-cal.midiLo<10){ cal.midiHi=cal.midiLo+12; }
+  if(C.chestF.length>20 && C.headF.length>20){
+    var cf=median(C.chestF), hf=median(C.headF);
+    cal.thr=(cf+hf)/2;
+    el.sl.value=cal.thr.toFixed(1); el.vSl.textContent=cal.thr.toFixed(1)+' dB';
+    if(cf-hf<3) msg.push('地声と裏声の差が小さく、判定が不安定かもしれません。');
+  }else{
+    msg.push('声が十分に取れなかったので、初期設定のまま始めます。');
+  }
+  var txt='音域：'+noteName(cal.midiLo)+' 〜 '+noteName(cal.midiHi);
+  showOv('<h2>登録できました ✅</h2><p>'+txt+'<br>'+msg.join('<br>')+'</p><button class="btn" id="bGo">ゲームスタート</button><button class="btn line" id="bRecal">やり直す</button>');
+  mode='intro';
+  document.getElementById('bGo').onclick=startGame;
+  document.getElementById('bRecal').onclick=startCalib;
+}
+
+/* ===== ゲーム ===== */
+var GROUND_PAD=46, TOP_PAD=48, R=17, CHAR_X=90;
+function yOf(t){ return (H-GROUND_PAD-R) - t*((H-GROUND_PAD-R)-TOP_PAD); }
+
+function startGame(){
+  hideOv();
+  game={t0:performance.now(), worldX:0, nextSpawn:420, coins:[], score:0, combo:0, maxCombo:0,
+        got:{chest:0,head:0}, passed:0, y:yOf(0), lastType:'chest', particles:[], msg:'', msgT:0};
+  mode='play';
+  gtag('event','voice_game_start',{step:'play'});
+}
+function spawnCoins(){
+  while(game.nextSpawn < game.worldX + W + 200){
+    var type = Math.random()<0.55 ? (game.lastType==='chest'?'head':'chest') : game.lastType;
+    game.lastType=type;
+    var t = type==='chest' ? 0.05+Math.random()*0.5 : 0.45+Math.random()*0.5;
+    game.coins.push({x:game.nextSpawn, t:t, type:type, got:false, missed:false});
+    game.nextSpawn += 230 + Math.random()*120;
+  }
+}
+function playTick(now,dt){
+  var el2=(now-game.t0)/1000, left=GAME_SECONDS-el2;
+  if(left<=0){ endGame(); return; }
+  var speed = S.active ? 50+S.level*260 : 0;
+  game.worldX += speed*dt;
+  var targetY = S.active ? yOf(clamp((S.midi-cal.midiLo)/(cal.midiHi-cal.midiLo),0,1)) : yOf(0);
+  game.y += (targetY-game.y)*Math.min(1,dt*14);
+  spawnCoins();
+  var i,c;
+  for(i=0;i<game.coins.length;i++){
+    c=game.coins[i];
+    var dx=c.x-game.worldX;
+    if(!c.got && !c.missed){
+      var cy=yOf(c.t);
+      var okReg = !REQUIRE_REGISTER || (S.reg===c.type);
+      if(Math.abs(dx)<26 && Math.abs(cy-game.y)<30 && okReg && S.active){
+        c.got=true; game.score+=10+Math.min(game.combo,10)*2; game.combo++; game.maxCombo=Math.max(game.maxCombo,game.combo);
+        game.got[c.type]++; game.msg='+'+(10+Math.min(game.combo-1,10)*2); game.msgT=now;
+        for(var k=0;k<8;k++) game.particles.push({x:CHAR_X,y:cy,vx:(Math.random()-.5)*220,vy:(Math.random()-.5)*220,life:0.5,type:c.type});
+      }else if(dx<-40){ c.missed=true; game.passed++; game.combo=0; }
+    }
+  }
+  game.coins=game.coins.filter(function(c){return c.x-game.worldX>-80;});
+  game.particles.forEach(function(p){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;});
+  game.particles=game.particles.filter(function(p){return p.life>0;});
+}
+function endGame(){
+  mode='result';
+  var total=game.got.chest+game.got.head+game.passed;
+  var acc= total? Math.round((game.got.chest+game.got.head)/total*100):0;
+  gtag('event','voice_game_finish',{score:game.score,coins:game.got.chest+game.got.head});
+  showOv('<h2>おつかれさま！</h2><div class="big">'+game.score+' 点</div>'+
+    '<p>取れたコイン：地声 '+game.got.chest+' 個／裏声 '+game.got.head+' 個<br>最大コンボ：'+game.maxCombo+'　成功率：'+acc+'%</p>'+
+    '<button class="btn" id="bAgain">もう一度</button>'+
+    '<a class="btn sub2" id="bConsult" href="'+CONSULT_URL+'" target="_blank" rel="noopener">💬 声の悩みを無料相談する</a>');
+  document.getElementById('bAgain').onclick=startGame;
+  document.getElementById('bConsult').onclick=function(){gtag('event','consult_cta_click',{position:'voice_game_result'});};
+}
+
+/* ===== 描画 ===== */
+function draw(now){
+  var g=ctx;
+  var wx = game? game.worldX : (now/20);
+  var grd=g.createLinearGradient(0,0,0,H); grd.addColorStop(0,'#cfe5f7'); grd.addColorStop(1,'#eaf4fb');
+  g.fillStyle=grd; g.fillRect(0,0,W,H);
+  // 雲・山（流れる）
+  g.fillStyle='rgba(255,255,255,0.8)';
+  for(var i=0;i<5;i++){var cx=((i*260-wx*0.15)%(W+200)+(W+200))%(W+200)-100; g.beginPath(); g.ellipse(cx,70+(i%3)*34,46,16,0,0,7); g.fill();}
+  g.fillStyle='#b9d4ea';
+  for(var j=0;j<6;j++){var mx=((j*230-wx*0.35)%(W+300)+(W+300))%(W+300)-150; g.beginPath(); g.moveTo(mx-110,H-GROUND_PAD); g.lineTo(mx,H-GROUND_PAD-90-(j%2)*30); g.lineTo(mx+110,H-GROUND_PAD); g.fill();}
+  // 地面
+  g.fillStyle='#173A5E'; g.fillRect(0,H-GROUND_PAD,W,GROUND_PAD);
+  g.fillStyle='#2E76B6'; for(var k=0;k<14;k++){var gx=((k*60-wx)%(W+60)+(W+60))%(W+60)-30; g.fillRect(gx,H-GROUND_PAD+14,28,4);}
+  if(!game) return;
+  // コイン
+  var coins=game.coins;
+  for(var n=0;n<coins.length;n++){
+    var c=coins[n]; if(c.got) continue;
+    var sx=CHAR_X+(c.x-game.worldX), sy=yOf(c.t);
+    if(sx<-30||sx>W+30) continue;
+    g.globalAlpha=c.missed?0.35:1;
+    g.beginPath(); g.arc(sx,sy,18,0,7);
+    g.fillStyle=c.type==='chest'?'#F5B84E':'#2E76B6'; g.fill();
+    g.lineWidth=3; g.strokeStyle='#fff'; g.stroke();
+    g.fillStyle=c.type==='chest'?'#0F2A46':'#fff'; g.font='900 17px "Zen Kaku Gothic New",sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+    g.fillText(c.type==='chest'?'地':'裏',sx,sy+1);
+    g.globalAlpha=1;
+  }
+  // パーティクル
+  game.particles.forEach(function(p){g.globalAlpha=clamp(p.life*2,0,1); g.fillStyle=p.type==='chest'?'#F5B84E':'#2E76B6'; g.beginPath(); g.arc(p.x,p.y,4,0,7); g.fill();}); g.globalAlpha=1;
+  // キャラ
+  var cy2=game.y, col = S.reg==='head' ? '#2E76B6' : (S.reg==='chest' ? '#F5B84E' : '#9db3c7');
+  g.beginPath(); g.arc(CHAR_X,cy2,R,0,7); g.fillStyle=col; g.fill(); g.lineWidth=3; g.strokeStyle='#0F2A46'; g.stroke();
+  g.fillStyle='#0F2A46'; g.beginPath(); g.arc(CHAR_X-5,cy2-3,2.4,0,7); g.arc(CHAR_X+5,cy2-3,2.4,0,7); g.fill();
+  g.beginPath(); if(S.active){g.arc(CHAR_X,cy2+4,4+S.level*4,0,7); g.fill();} else {g.moveTo(CHAR_X-4,cy2+6); g.lineTo(CHAR_X+4,cy2+6); g.lineWidth=2; g.stroke();}
+  g.font='900 12px "Zen Kaku Gothic New",sans-serif'; g.textAlign='center'; g.textBaseline='alphabetic';
+  g.fillStyle='#0F2A46'; g.fillText(S.reg==='chest'?'地声':(S.reg==='head'?'裏声':'声なし'),CHAR_X,cy2-R-8);
+  // HUD
+  var left=Math.max(0,GAME_SECONDS-(now-game.t0)/1000);
+  g.fillStyle='rgba(15,42,70,0.85)'; g.fillRect(0,0,W,34);
+  g.fillStyle='#fff'; g.font='900 15px "Zen Kaku Gothic New",sans-serif'; g.textAlign='left'; g.textBaseline='middle';
+  g.fillText('スコア '+game.score,12,17);
+  g.textAlign='center'; g.fillText('コンボ '+game.combo,W/2,17);
+  g.textAlign='right'; g.fillText('のこり '+Math.ceil(left)+' 秒',W-12,17);
+  if(now-game.msgT<500){ g.fillStyle='#F5B84E'; g.font='900 20px "Zen Kaku Gothic New",sans-serif'; g.textAlign='center'; g.fillText(game.msg,CHAR_X+40,game.y-34-(now-game.msgT)/20); }
+  if(!S.active && mode==='play'){ g.fillStyle='rgba(15,42,70,0.7)'; g.font='900 15px "Zen Kaku Gothic New",sans-serif'; g.textAlign='center'; g.fillText('声を出すと進むよ',W/2,H/2); }
+}
+
+/* ===== メインループ ===== */
+var last=performance.now();
+function loop(now){
+  var dt=Math.min(0.05,(now-last)/1000); last=now;
+  analyze(now);
+  if(mode==='calib' && C) calibTick(now);
+  if(mode==='play' && game) playTick(now,dt);
+  draw(now);
+  updatePanel();
+  window.requestAnimationFrame(loop);
+}
+
+/* ===== canvas サイズ（高解像度） ===== */
+function fit(){
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var cssW=cv.clientWidth||W;
+  W=480; H=420;
+  cv.width=W*dpr; cv.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize',fit);
+fit();
+screenIntro();
+window.requestAnimationFrame(loop);
+window.__S=S; window.__cal=cal; window.__dbg=function(){return {mode:mode,game:game};};
+})();
+</script>
+</body>
+</html>
