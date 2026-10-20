@@ -105,6 +105,60 @@
   .placeholder{margin-top:20px; padding:26px 20px; text-align:center; color:var(--text-dim); font-size:14px; background:#fff; border:1px dashed #C9D3DE; border-radius:20px;}
 
 
+  /* sound lab */
+  .lab{margin-top:22px; background:#fff; border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:22px 16px 20px;}
+  .lab h2{font-size:19px; color:var(--navy); font-weight:900; line-height:1.5;}
+  .lab .beta{display:inline-block; font-size:11px; font-weight:900; color:#8A5C0A; background:var(--amber-bg); padding:3px 9px; border-radius:100px; vertical-align:middle; margin-left:6px;}
+  .lab > p{font-size:13.5px; margin-top:8px;}
+  .stick{position:sticky; top:52px; z-index:20; background:#fff; padding:10px 0 6px; margin-top:12px; border-bottom:1px solid var(--line);}
+  .stick .fig{max-width:300px; margin:0 auto;}
+  .stick .fig-note{margin-top:6px;}
+  .ctl{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:14px;}
+  .play{flex:1 1 100%; padding:15px; border-radius:12px; background:var(--data); color:#fff; font-weight:900; font-size:16px;}
+  .play[aria-pressed="true"]{background:var(--navy-2);}
+  .seg{display:flex; gap:5px; flex-wrap:wrap; align-items:center;}
+  .seg b{font-size:12px; color:var(--text-dim); margin-right:2px;}
+  .seg button{padding:7px 12px; border-radius:100px; background:var(--sky); color:var(--navy); font-weight:700; font-size:13px;}
+  .seg button[aria-pressed="true"]{background:var(--blue); color:#fff;}
+  .presets{margin-top:14px;}
+  .presets h3,.sl-h{font-size:12.5px; font-weight:900; color:var(--blue); letter-spacing:.04em; margin-bottom:6px;}
+  .presets .seg button{background:#fff; border:1.5px solid var(--line);}
+  .sl{margin-top:16px; padding:12px 12px 8px; border-radius:14px; border:1.5px solid var(--line); background:#FAFCFE;}
+  .sl.cur{border-color:var(--blue); background:#F1F7FD;}
+  .sl-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .sl-name{font-weight:900; color:var(--navy); font-size:14.5px;}
+  .sl-name small{font-size:11.5px; font-weight:700; color:#8A5C0A; background:var(--amber-bg); padding:2px 8px; border-radius:100px; margin-left:6px; white-space:nowrap;}
+  .sl-val{font-weight:900; color:var(--navy); font-size:13.5px; min-width:3.2em; text-align:right;}
+  .sl input[type=range]{width:100%; margin:8px 0 2px; accent-color:var(--blue); height:30px;}
+  .sl-ends{display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim);}
+
+  .bar{display:inline-block; vertical-align:middle; width:70px; height:8px; border-radius:100px; background:#DCE6F0; margin-left:8px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--blue);}
+  .read .top1{font-size:15px; font-weight:900; color:var(--navy); margin-bottom:8px;}
+  .read .far{margin-top:8px; font-size:12.5px; color:#7A520A; background:var(--amber-bg); padding:8px 10px; border-radius:10px; line-height:1.7;}
+  .extra{margin-top:18px; padding-top:14px; border-top:1px dashed var(--line);}
+  .extra h3{font-size:12.5px; font-weight:900; color:var(--blue); letter-spacing:.04em; margin-bottom:4px;}
+  .extra p{font-size:12.5px; color:var(--text-dim); line-height:1.7; margin-bottom:8px;}
+  .extra .seg button{background:#fff; border:1.5px solid var(--line);}
+  .extra .seg button[aria-pressed="true"]{background:var(--blue); color:#fff; border-color:var(--blue);}
+  .stick{position:static; top:auto; z-index:auto; border-bottom:none; padding:0;}   /* 図は画面に固定しない */
+  .presets select{width:100%; padding:11px 12px; border-radius:14px; border:1.5px solid var(--line); background:#fff; color:var(--navy); font-family:inherit; font-size:16px; font-weight:700;}
+  .sl{margin-top:8px !important; padding:8px 12px 6px !important;}   /* フェーダー1本ぶんの縦の幅をつめる */
+  .sl-row{display:flex; align-items:center; gap:8px; margin-top:2px;}
+  .sl-end{font-size:10.5px; color:var(--text-dim); white-space:nowrap; min-width:3.6em;}
+  .sl-end:last-child{text-align:right;}
+  .sl .sl-row input[type=range]{flex:1; width:auto; min-width:0; margin:0; height:28px;}
+  .notes{margin-top:14px; border:1.5px solid var(--line); border-radius:14px; padding:10px 12px; background:#fff;}
+  .notes summary{font-weight:900; color:var(--blue); font-size:13px; cursor:pointer;}
+  .notes p{font-size:12.5px; color:var(--text-dim); line-height:1.75; margin-top:8px;}
+  .notes a{color:var(--blue);}
+  .linkx{margin-top:6px; font-size:12.5px; color:var(--text-dim); line-height:1.7; min-height:1.7em;}
+  .lmsg{margin-top:8px; font-size:12.5px; color:#7A520A; min-height:1em;}
+  .read{margin-top:16px; padding:14px; border-radius:14px; background:var(--sky);}
+  .read dl{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:13.5px;}
+  .read dt{font-weight:700; color:var(--text-dim);}
+  .read dd{font-weight:900; color:var(--navy);}
+  .warn-s{margin-top:12px; font-size:11.5px; color:var(--text-dim); line-height:1.7;}
   .cta{margin-top:28px; background:linear-gradient(135deg,var(--navy-2),var(--navy)); color:#fff; border-radius:22px; padding:26px 22px; text-align:center;}
   .cta h2{font-size:17px; font-weight:900; line-height:1.6; margin-bottom:8px;}
   .cta p{font-size:13.5px; color:#CFE0F2; line-height:1.8;}
@@ -145,6 +199,43 @@
 
   <section id="infoWrap"></section>
 
+  <section class="lab" id="lab" aria-label="筋肉を引っ張ると声がどう変わるかを聞く">
+    <h2>筋肉を引っ張ってみよう<span class="beta">ρ本人の声をなめらかに変形</span></h2>
+    <p>フェーダーで筋肉の「引っぱり具合」を動かすと、ρの声の高さと音色が、筋肉の組み合わせに合わせてなめらかに変わります。上の図もいっしょに動きます。</p>
+    <div class="stick">
+      <div class="fig" id="fig2"></div>
+      <p class="fig-note" id="figNote2"></p>
+    </div>
+    <div class="ctl">
+      <button type="button" class="play" id="play" aria-pressed="false">▶ 音を鳴らす</button>
+    </div>
+    <p class="lmsg" id="lmsg" role="status"></p>
+    <p class="linkx" id="linkmsg" role="status"></p>
+    <div class="presets"><h3>お手本の声（選ぶと、録音そのままが鳴ります）</h3><select id="presets" aria-label="お手本の声を選ぶ"></select></div>
+    <div id="sliders"></div>
+    <div class="read"><div id="readout"></div></div>
+    <details class="notes">
+      <summary>この図鑑の読み方（連動の考え方・注意・出典）</summary>
+      <p><b>連動のしかた</b><br>合計が100%になるのは、軟骨や舌骨の位置関係で決まるペアだけです。（後輪状披裂筋⇔外側輪状披裂筋・披裂筋、舌骨上筋群⇔舌骨下筋群）</p>
+      <p><b>甲状披裂筋と輪状甲状筋</b><br>実際の発声では、この2つは同時に働く（共収縮）のが普通なので、別々に動かせるようにしています（連動しません）。ただし、画面の声の高さと音色は、わかりやすさのために「輪状甲状筋 − 甲状披裂筋」の差で決めています（簡略化）。両方を同じだけ強めたときの「全体の張りの強さ」までは再現していません。「地声＝甲状披裂筋、裏声＝輪状甲状筋」とは言い切れません。</p>
+      <p><b>後輪状披裂筋</b><br>声帯を開く筋肉です。発声中はほぼ静かで、重い声区の高音ではある程度働きます。甲状披裂筋の拮抗筋ではありません。</p>
+      <p><b>舌骨上筋群・舌骨下筋群</b><br>喉頭の位置は、頸椎のカーブなどでも変わります。舌骨下筋群のすべてが喉頭を下げるわけではありません。</p>
+      <p><b>数字について</b><br>筋肉の割合や声の高さの数字は、画面表示用の目安です。実測ではありません。</p>
+      <p><b>声の高さと筋肉の目安</b><br>約300Hz（D4付近）より低い音では、甲状披裂筋が優位な音も出てきます。約300Hzを超えると、声区に関係なく、輪状甲状筋が優位か、ほぼ同程度と報告されています（被験者7名・ほぼ女性の報告に基づく目安。一般論として断言はできません）。</p>
+      <p><b>参考にした文献</b><br>
+      ・<a href="https://pubs.aip.org/asa/jasa/article/58/S1/S95/681311/Function-of-the-laryngeal-muscles-in-singing" target="_blank" rel="noopener">Hirano 1975（歌唱時の喉頭筋の働き）</a><br>
+      ・<a href="https://www.thevoicecollege.co.uk/uploads/7/8/4/2/7842626/ct_and_ta_muscle_dominance_in_register_control_(kochis-jennings_et_al)_lc.pdf" target="_blank" rel="noopener">Kochis-Jennings et al. 2014（CTとTAの優位と声区）</a><br>
+      ・<a href="https://iro.uiowa.edu/esploro/outputs/graduate/Thyroarytenoid-and-cricothyroid-muscular-activity-in/9983776804102771" target="_blank" rel="noopener">Hull 2013（Univ. of Iowa）</a><br>
+      ・<a href="https://www.surgery.medsch.ucla.edu/spl/papers/2013JASA05.pdf" target="_blank" rel="noopener">Yin &amp; Zhang 2013</a></p>
+    </details>
+    <div class="extra">
+      <h3>本物の録音を聴いてみる（聴き比べ用）</h3>
+      <p>フェーダーの音は「ふつうの声」の音色を変えたものです。本物の録音と聴き比べてみてください。最後の5つは、フェーダーでは動かせない「音の高さ」や「地声から裏声へのつながり」の録音です。</p>
+      <div class="seg" id="extras"></div>
+    </div>
+    <p class="warn-s">※ 音量に注意してください。最初は小さめの音量から聞いてね。音が出ないときは、iPhoneの消音スイッチも確認してください。<br>※ 声の高さと音色は、筋肉の値に合わせて変わります。声の高さは画面表示用の目安として、輪状甲状筋を引くほど高く、甲状披裂筋を引くほど低くなるようにしています（実際は両方が同時に働きます）。<br>※ 声帯の閉じ具合・声の厚み・喉の開き具合は、それぞれ別の軸として、ρ本人の録音の間を連続でつないでいます（息もれ―ふつう―押し込み／地声―ふつう―裏声／喉頭が下がる―ふつう―上がる）。3つの変化は足し合わせています。<br>※ 土台の声は2つ。ふつうの声の録音と、C5で録音した裏声の録音です。地声から裏声に変わるあたり（声が裏返る換声点のイメージ）で、同じ高さにそろえて短くなめらかに切り替えます。押し込みのザラつきなどの質感までは再現しきれません。<br>※ 各声に割り当てた筋肉の値は、発声の仕組みから考えた「目安のイメージ」で、実測ではありません。喉の中は見えないので、「この声のとき、この筋肉が主に働いていると考えられる」という位置づけです。実際の発声は、これらの筋肉が同時にからみ合って決まります。</p>
+  </section>
+
   <section class="cta">
     <h2>「自分の喉の使い方、どうなってる？」<br>気になったら声を聴かせてください</h2>
     <p>筋肉の名前がわかっても、実際に声でどう使えているかは別の話。無料相談で、あなたの声のクセを一緒に見ていきます。</p>
@@ -165,7 +256,7 @@ var MUSCLES = [
   { id:'pca', grp:'in', name:'後輪状披裂筋', yomi:'こうりんじょうひれつきん', eng:'Posterior cricoarytenoid', abbr:'PCA',
     aliases:['声帯を開く','声門を開く','外転','開く筋','息を吸う','ひらく','ひらくきん','あける'], tags:[['開く','amber']],
     action:'披裂軟骨を外側に回して、声帯を開く筋肉。声帯を開ける役目をもつ唯一の内喉頭筋です。',
-    voice:'息を吸うときに働きます。声を出している間は「閉じる」筋肉と綱引きをして、声門の開き具合（息の混ざり方）を調整します。',
+    voice:'息を吸うときに働きます。声を出している間はほぼ静かで、「閉じる」筋肉（外側輪状披裂筋・披裂筋）との綱引きで、声門の開き具合（息の混ざり方）に関わります。重い声区の高音では、ある程度働くことがあります。',
     where:'輪状軟骨の後ろの板（輪状軟骨板）から、披裂軟骨の筋突起へ。', nerve:'反回神経',
     shapes:['pca'] },
   { id:'lca', grp:'in', name:'外側輪状披裂筋', yomi:'がいそくりんじょうひれつきん', eng:'Lateral cricoarytenoid', abbr:'LCA',
@@ -193,13 +284,13 @@ var MUSCLES = [
   { id:'ta', grp:'in', name:'甲状披裂筋', yomi:'こうじょうひれつきん', eng:'Thyroarytenoid', abbr:'TA',
     aliases:['声帯筋','vocalis','声帯そのもの','地声','チェスト','緩める','ゆるめる','とじる','せいたいきん'], tags:[['閉じる',''],['声帯をゆるめる','gray']],
     action:'声帯の本体をつくる筋肉。縮んで声帯を短く・厚くし、声帯を閉じる方向にも働きます。',
-    voice:'地声（チェストボイス）の厚みや芯に関わります。輪状甲状筋の「伸ばす」力との綱引きのバランスが、地声⇄裏声のつながりに影響します。',
+    voice:'声帯の厚みや芯に関わる筋肉です。輪状甲状筋と同時に働く（共収縮）ことが多く、「地声＝甲状披裂筋、裏声＝輪状甲状筋」と単純には分けられません。声区よりも、声の高さのほうが影響が大きいと報告されています。',
     where:'甲状軟骨の内側（前）から、披裂軟骨へ。', nerve:'反回神経',
     shapes:['ta'], note:'後ろからは、甲状軟骨の内側に向かう部分だけが見えます。横から・上からの図で全体を確認できます。' },
   { id:'ct', grp:'in', name:'輪状甲状筋', yomi:'りんじょうこうじょうきん', eng:'Cricothyroid', abbr:'CT',
     aliases:['声帯を伸ばす','高音','裏声','ファルセット','伸ばす筋','のばす','のばすきん','こうおん'], tags:[['伸ばす','amber']],
     action:'甲状軟骨を前下方に傾けて、声帯を前後に引き伸ばして薄く張る筋肉。',
-    voice:'高い音程を出すときの主役です。伸ばす（輪状甲状筋）と縮める（甲状披裂筋）の綱引きが、地声と裏声のバランスをつくります。',
+    voice:'高い音程を出すときによく働く筋肉です。甲状披裂筋と同時に働くことが多く、どちらが優位かは声区よりも声の高さに左右されます（約300Hzを超えるあたりから、輪状甲状筋が優位か、ほぼ同程度という報告があります）。',
     where:'輪状軟骨の前外側から、甲状軟骨の下縁へ。', nerve:'上喉頭神経（外枝）。ほかの内喉頭筋は反回神経',
     shapes:['ct'] },
 
@@ -212,7 +303,7 @@ var MUSCLES = [
   { id:'o_down', grp:'out', pullKey:'o_down', name:'舌骨下筋群', yomi:'ぜっこつかきんぐん', eng:'Infrahyoid muscles', abbr:'',
     aliases:['下制筋群','喉頭を下げる','引き下げ','かせい','さげる'], tags:[['下制（下げる）','gray']],
     action:'舌骨より下にある筋肉の集まり（胸骨舌骨筋・肩甲舌骨筋・胸骨甲状筋・甲状舌骨筋）。舌骨と喉頭を引き下げ、安定させます。',
-    voice:'挙上筋群との綱引きで、喉頭の高さが決まります。',
+    voice:'挙上筋群との綱引きで、喉頭の高さが決まります。ただし、舌骨下筋群のすべてが喉頭を下げるわけではなく（甲状舌骨筋は引き上げます）、喉頭の位置は頸椎のカーブなどでも変わります。',
     where:'舌骨・甲状軟骨 ⇄ 胸骨・肩甲骨', nerve:'頸神経ワナ（甲状舌骨筋は舌下神経経由の C1）', shapes:['o_down'] },
   { id:'digastric', grp:'out', via:'o_up', name:'顎二腹筋', yomi:'がくにふくきん', eng:'Digastric', abbr:'', aliases:['舌骨上筋群','挙上筋群'], tags:[['挙上（上げる）','amber']], child:true,
     action:'あごの先と側頭骨の後ろを結ぶ筋肉。舌骨を引き上げ、あごを開く働きもあります。', voice:'', where:'', nerve:'', shapes:[] },
@@ -233,7 +324,7 @@ var MUSCLES = [
 ];
 
 /* ===== 状態 ===== */
-var state = { grp:'in', sel:null, view:'post', q:'' };
+var state = { grp:'in', sel:null, view:'post', q:'', pull:{ pca:.3, lca:.7, ia:.7, ta:.7, ct:.3, o_up:.5, o_down:.5 } };
 function $(id){ return document.getElementById(id); }
 function byId(id){ for (var i=0;i<MUSCLES.length;i++) if (MUSCLES[i].id===id) return MUSCLES[i]; return null; }
 function viewById(id){ for (var i=0;i<VIEWS.length;i++) if (VIEWS[i].id===id) return VIEWS[i]; return null; }
@@ -297,6 +388,7 @@ function renderViews(){
 }
 
 function shp(m){ return m.shapes.length ? m.shapes : (m.via ? byId(m.via).shapes : []); }
+function pullKeyOf(m){ return m.pullKey || m.via || m.id; }
 
 function drawFig(fig, note, mini){
   fig.innerHTML='';
@@ -320,7 +412,8 @@ function drawFig(fig, note, mini){
   svg.appendChild(imgEl);
   var hasOn = !!m && ms.some(function(s){ return v.shapes[s]; });
   var maskId = 'hole_'+fig.id;
-  var fo = '.42';
+  var strength = m && state.pull[pullKeyOf(m)]!=null ? state.pull[pullKeyOf(m)] : .5;
+  var fo = (.2 + .6*strength).toFixed(2);
 
   if (hasOn){
     var defs=el('defs',{}), mask=el('mask',{id:maskId});
@@ -409,13 +502,486 @@ function select(id, fromChip){
   if (vs.length && vs.indexOf(cur)<0) state.view = vs[0].id;
   try{ history.replaceState(null,'','#'+id); }catch(e){}
   track('larynx_select',{muscle:id});
-  render();
+  render(); markCur(pullKeyOf(m));
   if (fromChip){
     var r=$('figCard').getBoundingClientRect();
     if (r.top<60 || r.top>window.innerHeight*0.65) $('figCard').scrollIntoView({behavior:'smooth',block:'start'});
   }
 }
 
+
+/* ===== 録音ラボ（ρの録音をフェーダーで切り替え・なめらかにつなぐ） ===== */
+var LAB_ON = true;
+var SHOW_RAW = false;       /* true にすると「本物の録音を聴く」コーナーを表示（音声14本が必要） */          /* false にするとこのコーナーを丸ごと隠す（1行で戻せる） */
+var LAB_V = 3;              /* 音声ファイルを差し替えたら +1 */
+var AUDIO_BASES = ['atlas_audio/', '../atlas_audio/', ''];   /* 音声フォルダの場所の候補（上から順に探す） */
+var audioIdx = 0;           /* 見つかった場所の番号 */
+var LAB = [
+  { id:'pca',    name:'後輪状披裂筋', tag:'開く',   lo:'ゆるめる', hi:'強く引く' },
+  { id:'lca',    name:'外側輪状披裂筋', tag:'閉じる', lo:'ゆるめる', hi:'強く引く' },
+  { id:'ia',     name:'披裂筋（横・斜）', tag:'閉じる', lo:'ゆるめる', hi:'強く引く' },
+  { id:'ta',     name:'甲状披裂筋', tag:'縮めて厚く', lo:'ゆるめる', hi:'強く引く' },
+  { id:'ct',     name:'輪状甲状筋', tag:'伸ばす', lo:'ゆるめる', hi:'強く引く' },
+  { id:'o_up',   name:'舌骨上筋群', tag:'喉頭を上げる', lo:'ゆるめる', hi:'強く引く' },
+  { id:'o_down', name:'舌骨下筋群', tag:'喉頭を下げる', lo:'ゆるめる', hi:'強く引く' }
+];
+/* 録音ごとの「筋肉の値」の目安（0〜1）。実測ではなく、仕組みから考えたイメージ */
+var LV = [
+  { id:'01', name:'ふつうの声',     v:{ pca:.3,  lca:.7,  ia:.7,  ta:.7, ct:.3, o_up:.5, o_down:.5 } },
+  { id:'02', name:'息もれの声',     v:{ pca:.6,  lca:.4,  ia:.4,  ta:.7, ct:.3, o_up:.5, o_down:.5 } },
+  { id:'03', name:'ささやき',       v:{ pca:.9,  lca:.1,  ia:.1,  ta:.7, ct:.3, o_up:.5, o_down:.5 } },
+  { id:'04', name:'押し込んだ声',   v:{ pca:.05, lca:.95, ia:.95, ta:.7, ct:.3, o_up:.5, o_down:.5 } },
+  { id:'05', name:'弱く緩い声',     v:{ pca:.45, lca:.55, ia:.55, ta:.7, ct:.3, o_up:.5, o_down:.5 } },
+  { id:'06', name:'地声（厚い）',   v:{ pca:.3,  lca:.7,  ia:.7,  ta:.9, ct:.1, o_up:.5, o_down:.5 } },
+  { id:'07', name:'裏声（薄い）',   v:{ pca:.3,  lca:.7,  ia:.7,  ta:.1, ct:.9, o_up:.5, o_down:.5 } },
+  { id:'10', name:'喉が上がった声', v:{ pca:.3,  lca:.7,  ia:.7,  ta:.7, ct:.3, o_up:.9, o_down:.1 } },
+  { id:'11', name:'喉が下がった声', v:{ pca:.3,  lca:.7,  ia:.7,  ta:.7, ct:.3, o_up:.1, o_down:.9 } }
+];
+/* お手本の声：押すと、雑味を取り除いた「本物の録音」がそのまま鳴る（clean○○.wav）。スライダーを動かすと、なめらかな変形に切り替わる */
+var RAW_PRESET_ON = true;    /* false にすると、お手本ボタンも今までどおり「変形した音」で鳴る（1行で戻せる） */
+var PRESETS = LV.concat([
+  { id:'16', name:'息もれ裏声',   v:{ pca:.6,  lca:.4,  ia:.4,  ta:.1, ct:.9, o_up:.5, o_down:.5 } },
+  { id:'18', name:'押し込み裏声', v:{ pca:.05, lca:.95, ia:.95, ta:.1, ct:.9, o_up:.5, o_down:.5 } },
+  { id:'15', name:'喉下げ裏声',   v:{ pca:.3,  lca:.7,  ia:.7,  ta:.1, ct:.9, o_up:.1, o_down:.9 } },
+  { id:'17', name:'喉上げ裏声',   v:{ pca:.3,  lca:.7,  ia:.7,  ta:.1, ct:.9, o_up:.9, o_down:.1 } }
+]);
+var EXTRAS = [
+  { id:'08', name:'低め（ソ#3）' },
+  { id:'09', name:'高め（ミ4）' },
+  { id:'12', name:'フリップ' },
+  { id:'13', name:'ミックス（スライド）' },
+  { id:'14', name:'ミックス（A4キープ）' }
+];
+/* 音色モーフ用のデータ（録音の分析結果）。ふつうの声の録音を、各録音の音色に近づけるEQ値(dB)と息ノイズ量 */
+var MORPH = {"res": {"01": {"n": 0.0, "v": 1.0}, "02": {"n": 0.111, "v": 1.0}, "03": {"n": 1.0, "v": 0.0}, "04": {"n": 0.0, "v": 1.0}, "05": {"n": 0.031, "v": 1.0}, "06": {"n": 0.0, "v": 1.0}, "07": {"n": 0.053, "v": 1.0}, "10": {"n": 0.0, "v": 1.0}, "11": {"n": 0.0, "v": 1.0}}};
+/* 各録音の「声の包絡」：倍音ごとの強さ(dB)を周波数順に並べたもの */
+var ENV = {"01":{"f0":261.1,"f":[261.1,522.2,783.3,1044.4,1305.5,1566.6,1827.7,2088.8,2349.9,2611.0,2872.1,3133.2,3394.3,3655.4,3916.5,4177.6,4438.7,4699.8,4960.9,5222.0,5483.1,5744.2,6005.3,6266.4,6527.5,6788.6,7049.7,7310.8,7571.9,7833.0,8094.1,8355.2,8616.3,8877.4,9138.5,9399.6,9660.7],"d":[34.3,47.4,39.1,33.8,24.9,14.8,1.9,-4.6,-6.3,1.6,7.7,9.9,11.4,9.1,3.9,-2.7,-6.7,-5.8,-1.3,2.5,5.8,1.5,-2.7,-4.0,-5.0,-11.0,-15.8,-18.1,-15.1,-10.0,-7.4,-8.5,-14.2,-19.1,-16.8,-16.5,-15.7]},"02":{"f0":265.0,"f":[265.0,530.0,795.0,1060.0,1325.0,1590.0,1855.0,2120.0,2385.0,2650.0,2915.0,3180.0,3445.0,3710.0,3975.0,4240.0,4505.0,4770.0,5035.0,5300.0,5565.0,5830.0,6095.0,6360.0,6625.0,6890.0,7155.0,7420.0,7685.0,7950.0,8215.0,8480.0,8745.0,9010.0,9275.0,9540.0],"d":[41.0,45.0,26.7,24.3,15.9,4.2,-0.5,-3.7,-5.8,-2.8,3.0,7.4,6.7,1.8,-3.3,-3.9,-0.2,3.8,4.4,2.0,-0.8,-2.8,-1.9,-0.3,-1.3,-6.2,-10.6,-10.7,-9.7,-13.0,-20.9,-27.0,-26.7,-23.8,-18.9,-14.5]},"04":{"f0":268.8,"f":[268.8,537.6,806.4,1075.2,1344.0,1612.8,1881.6,2150.4,2419.2,2688.0,2956.8,3225.6,3494.4,3763.2,4032.0,4300.8,4569.6,4838.4,5107.2,5376.0,5644.8,5913.6,6182.4,6451.2,6720.0,6988.8,7257.6,7526.4,7795.2,8064.0,8332.8,8601.6,8870.4,9139.2,9408.0,9676.8],"d":[31.5,44.8,41.2,32.4,22.1,12.8,7.0,1.9,-2.8,-3.5,0.6,5.0,4.5,8.6,13.5,18.8,13.1,6.0,5.7,8.6,10.5,8.2,6.5,5.4,4.2,5.6,9.9,13.0,14.7,13.9,14.0,12.6,10.9,7.9,2.4,-5.1]},"05":{"f0":267.9,"f":[267.9,535.8,803.7,1071.6,1339.5,1607.4,1875.3,2143.2,2411.1,2679.0,2946.9,3214.8,3482.7,3750.6,4018.5,4286.4,4554.3,4822.2,5090.1,5358.0,5625.9,5893.8,6161.7,6429.6,6697.5,6965.4,7233.3,7501.2,7769.1,8037.0,8304.9,8572.8,8840.7,9108.6,9376.5,9644.4],"d":[42.8,46.0,29.9,23.5,14.5,6.3,-6.3,-9.6,-13.1,-6.2,-1.6,4.3,3.2,-4.7,-14.2,-19.1,-17.0,-12.9,-9.7,-7.9,-6.6,-8.5,-12.0,-14.5,-16.0,-14.2,-12.9,-13.5,-17.0,-20.1,-18.3,-16.2,-14.0,-13.3,-15.1,-19.9]},"06":{"f0":268.8,"f":[268.8,537.6,806.4,1075.2,1344.0,1612.8,1881.6,2150.4,2419.2,2688.0,2956.8,3225.6,3494.4,3763.2,4032.0,4300.8,4569.6,4838.4,5107.2,5376.0,5644.8,5913.6,6182.4,6451.2,6720.0,6988.8,7257.6,7526.4,7795.2,8064.0,8332.8,8601.6,8870.4,9139.2,9408.0,9676.8],"d":[25.8,47.2,20.4,27.8,22.7,9.3,3.9,2.0,6.4,9.0,11.0,11.7,11.6,8.5,3.3,1.1,0.7,0.6,0.7,6.0,7.7,8.5,5.8,3.4,-2.0,-4.2,-2.9,0.4,3.7,-2.4,-8.3,-12.3,-9.3,-5.3,-7.8,-13.8]},"10":{"f0":270.8,"f":[270.8,541.6,812.4,1083.2,1354.0,1624.8,1895.6,2166.4,2437.2,2708.0,2978.8,3249.6,3520.4,3791.2,4062.0,4332.8,4603.6,4874.4,5145.2,5416.0,5686.8,5957.6,6228.4,6499.2,6770.0,7040.8,7311.6,7582.4,7853.2,8124.0,8394.8,8665.6,8936.4,9207.2,9478.0,9748.8],"d":[30.6,47.6,32.6,32.2,28.8,22.3,12.2,5.3,0.7,-2.4,-5.1,-0.8,3.6,8.4,10.7,12.1,14.8,14.0,13.2,3.1,-3.6,-3.3,3.7,5.7,1.8,1.1,2.5,4.3,2.6,0.0,-1.5,-2.0,1.5,3.3,4.7,1.7]},"11":{"f0":263.0,"f":[263.0,526.0,789.0,1052.0,1315.0,1578.0,1841.0,2104.0,2367.0,2630.0,2893.0,3156.0,3419.0,3682.0,3945.0,4208.0,4471.0,4734.0,4997.0,5260.0,5523.0,5786.0,6049.0,6312.0,6575.0,6838.0,7101.0,7364.0,7627.0,7890.0,8153.0,8416.0,8679.0,8942.0,9205.0,9468.0,9731.0],"d":[23.8,48.3,16.5,16.9,12.9,5.3,-0.7,-5.7,-3.9,-0.7,3.6,6.5,6.3,4.1,-2.1,-7.3,-5.3,-3.5,-4.1,-5.2,-6.7,-5.8,-7.0,-8.4,-8.2,-7.9,-3.8,-0.2,-1.3,-4.0,-9.0,-9.0,-11.5,-11.6,-12.0,-14.3,-22.3]},"07":{"f0":545.4,"f":[545.4,1090.8,1636.2,2181.6,2727.0,3272.4,3817.8,4363.2,4908.6,5454.0,5999.4,6544.8,7090.2,7635.6,8181.0,8726.4,9271.8],"d":[47.0,39.1,12.6,2.9,-0.6,-3.5,-5.8,-5.1,-1.1,3.6,3.6,3.0,-0.5,-2.5,-3.3,-6.0,-14.0]},"15":{"f0":553.1,"f":[553.1,1106.2,1659.3,2212.4,2765.5,3318.6,3871.7,4424.8,4977.9,5531.0,6084.1,6637.2,7190.3,7743.4,8296.5,8849.6,9402.7],"d":[48.3,31.4,13.2,10.2,9.1,8.3,3.1,0.9,6.3,8.1,8.7,2.2,1.5,1.6,0.6,-3.2,-8.0]},"16":{"f0":628.3,"f":[628.3,1256.6,1884.9,2513.2,3141.5,3769.8,4398.1,5026.4,5654.7,6283.0,6911.3,7539.6,8167.9,8796.2,9424.5],"d":[47.6,28.9,4.5,3.8,1.7,3.5,-2.4,-1.5,-3.8,-3.8,-5.1,-4.2,-9.8,-14.9,-19.2]},"17":{"f0":625.3,"f":[625.3,1250.6,1875.9,2501.2,3126.5,3751.8,4377.1,5002.4,5627.7,6253.0,6878.3,7503.6,8128.9,8754.2,9379.5],"d":[47.3,32.6,28.5,20.1,19.8,23.0,24.5,19.0,15.9,11.3,9.4,4.4,5.4,6.4,8.6]},"18":{"f0":631.4,"f":[631.4,1262.8,1894.2,2525.6,3157.0,3788.4,4419.8,5051.2,5682.6,6314.0,6945.4,7576.8,8208.2,8839.6,9471.0],"d":[43.9,43.5,7.9,-2.1,2.1,9.9,13.4,8.5,6.5,5.4,5.7,1.8,3.1,-0.6,-4.1]}};
+var lab = { playing:false, ctx:null, bufs:null, loading:false, dirty:false, want:false, g:null };
+
+var PITCH_UP = 10;          /* 輪状甲状筋が優勢（裏声側）：差が1.0あたり半音15ぶん高くなる（裏声のC5付近まで） */
+var PITCH_DN = 8;           /* 甲状披裂筋が優勢（地声側）：差が1.0あたり半音8ぶん低くなる */
+var BASE_HZ = 261.6;        /* ふつう（どちらも50%）のときの声の高さ＝C4 */
+var BREAK_LO = .30, BREAK_HI = .50;   /* 差（輪状甲状筋−甲状披裂筋）がこの間で、土台の声がふつう→裏声の録音へ切り替わる（声の高さはそろえてつなぐ） */
+var NHARM = 4;              /* 低い倍音を個別に調整する数 */
+var BROAD = [500,700,1000,1400,1900,2400,3000,3800,4800,6000,7500,9500];   /* 広い帯域の調整位置(Hz) */
+var BROAD_Q = 2.5;
+var VOICED = ['01','02','04','05','06','07','10','11'];
+function clampv(x,a,b){ return Math.max(a,Math.min(b,x)); }
+/* ピーキングフィルタ1個ぶんの、周波数fでの変化(dB) */
+function peakDb(f, fc, Q, gdb){
+  var fs=44100, A=Math.pow(10,gdb/40), w0=2*Math.PI*fc/fs, al=Math.sin(w0)/(2*Q), c=Math.cos(w0), w=2*Math.PI*f/fs;
+  var b0=1+al*A, b1=-2*c, b2=1-al*A, a0=1+al/A, a1=-2*c, a2=1-al/A;
+  var cw=Math.cos(w), sw=Math.sin(w), c2=Math.cos(2*w), s2=Math.sin(2*w);
+  var nr=b0+b1*cw+b2*c2, ni=-(b1*sw+b2*s2), dr=a0+a1*cw+a2*c2, di=-(a1*sw+a2*s2);
+  return 10*Math.log((nr*nr+ni*ni)/(dr*dr+di*di))/Math.LN10;
+}
+function envAt(id,f){
+  var e=ENV[id], a=e.f, d=e.d, n=a.length;
+  if (f<=a[0]) return d[0]; if (f>=a[n-1]) return d[n-1];
+  var i=0; while (a[i+1]<f) i++;
+  return d[i]+(d[i+1]-d[i])*(f-a[i])/(a[i+1]-a[i]);
+}
+/* ある録音（srcId）を高さf0tで鳴らすときに、狙いの音色Eに近づけるためのフィルタ設定を求める */
+function solveEq(E, srcId, f0t){
+  var src=ENV[srcId], fs0=src.f0, d=src.d, rate=f0t/fs0, k, k2, h, gb=[];
+  var PT=[], DT=[], FQ=[], QQ=[];                       /* 調整する位置(Hz)、そこで欲しい変化(dB)、フィルタの中心と鋭さ */
+  for (h=1;h<=NHARM;h++){ var F=h*f0t; PT.push(F); FQ.push(F); QQ.push(h/0.6); }
+  for (k=0;k<BROAD.length;k++){ PT.push(BROAD[k]); FQ.push(BROAD[k]); QQ.push(BROAD_Q); }
+  for (k=0;k<PT.length;k++) DT.push(clampv(E(PT[k])-envAt(srcId,PT[k]/rate),-30,30));
+  var g=DT.slice();
+  for (var it=0; it<5; it++){                           /* フィルタどうしの重なりぶんを引いて、狙いの変化に近づける */
+    for (k=0;k<PT.length;k++){
+      var R=0; for (k2=0;k2<PT.length;k2++) R+=peakDb(PT[k], FQ[k2], QQ[k2], g[k2]);
+      g[k]=clampv(g[k]+0.8*(DT[k]-R),-30,30);
+    }
+  }
+  var P0=0, P1=0;
+  for (h=1;h<=d.length;h++){
+    var Fh=h*fs0*rate; if (Fh>15000) break;
+    var gg=clampv(E(Fh)-d[h-1],-30,30), p=Math.pow(10,d[h-1]/10);
+    P0+=p; P1+=p*Math.pow(10,gg/10);
+  }
+  return { rate:rate, HF:FQ.slice(0,NHARM), HG:g.slice(0,NHARM), gb:g.slice(NHARM), C:clampv(-10*Math.log10(P1/P0+1e-9),-12,12) };
+}
+/* 筋肉の値 → 声の高さ・音色（各帯域のEQ）・息の量・音量 を計算する */
+/* 声の3つの軸（それぞれ、ρ本人の録音の間を連続でつなぐ）
+   閉じ具合：息もれ(02)―ふつう(01)―押し込み(04)／厚み：地声(06)―ふつう(01)―裏声(07)／喉頭の高さ：下がる(11)―ふつう(01)―上がる(10) */
+var FAL_REAL_ON = true;      /* false にすると、裏声の変化も地声の録音ぶんで作る旧方式に戻る（1行で戻せる） */
+var FAL_MAP = { '02':'16', '04':'18', '11':'15', '10':'17' };      /* 地声の録音 → 同じ状態で出した裏声の録音 */
+var FAL_NOISE = {"15": 0.0, "16": 0.007, "17": 0.004, "18": 0.0};       /* 裏声の録音ごとの、足すノイズの量（07を基準） */
+var AX_CL=[{x:.4,id:'02'},{x:.7,id:'01'},{x:.95,id:'04'}];
+var D0 = -.4;               /* ふつうの声の「輪状甲状筋−甲状披裂筋」の位置（ふつうの声は地声なので、甲状披裂筋が70％・輪状甲状筋が30％） */
+var AX_TH=[{x:-.8,id:'06'},{x:D0,id:'01'},{x:.8,id:'07'}];
+var AX_LA=[{x:-.8,id:'11'},{x:0,id:'01'},{x:.8,id:'10'}];
+function axisW(pts,x){
+  var n=pts.length, i=0;
+  while (i<n-2 && x>pts[i+1].x) i++;
+  var a=pts[i], b=pts[i+1], t=(x-a.x)/(b.x-a.x);
+  return [{id:a.id,w:1-t},{id:b.id,w:t}];
+}
+function axes(){
+  var p=state.pull;
+  return { c:((p.lca+p.ia)/2+(1-p.pca))/2, d:p.ct-p.ta, l:p.o_up-p.o_down };
+}
+function morphTarget(){
+  var ax=axes(), i, j, k, h, v, n=0;
+  var wc=axisW(AX_CL, clampv(ax.c,.4,.95)), wt=axisW(AX_TH, clampv(ax.d,-.8,.8)), wl=axisW(AX_LA, clampv(ax.l,-.8,.8));
+  /* 声が出ているか（ささやきは声帯が振動しない）と、息のノイズの量 */
+  v = ax.c>=.4 ? 1 : Math.max(0,(ax.c-.1)/.3);
+  if (ax.c>=.4){ for (i=0;i<2;i++) n+=wc[i].w*MORPH.res[wc[i].id].n; }
+  else n=Math.min(1,MORPH.res['02'].n+(1-MORPH.res['02'].n)*(.4-ax.c)/.3);
+  for (i=0;i<2;i++) n+=wt[i].w*MORPH.res[wt[i].id].n + wl[i].w*MORPH.res[wl[i].id].n;
+  n=clampv(n,0,1.2);
+  /* 狙いの音色(包絡)＝ふつうの声＋各軸の変化ぶん（足し合わせ） */
+  function E(f){
+    var e0=envAt('01',f), e=e0, j;
+    for (j=0;j<2;j++) e+=wc[j].w*envAt(wc[j].id,f)-0.5*e0 + wt[j].w*envAt(wt[j].id,f)-0.5*e0 + wl[j].w*envAt(wl[j].id,f)-0.5*e0;
+    return e;
+  }
+  var dd=state.pull.ct-state.pull.ta, st=(dd>D0?PITCH_UP:PITCH_DN)*(dd-D0), rate=Math.pow(2,st/12);
+  var f0t=ENV['01'].f0*rate;
+  /* 裏声のときは、閉じ具合・喉の高さの変化を、地声の録音ではなく「裏声で出した録音」を見本にして作る
+     息もれ裏声(16)・押し込み裏声(18)・喉下げ裏声(15)・喉上げ裏声(17) ／ ふつうの裏声は07 */
+  function Ef(f){
+    var e=E(f), j, id, ws=[wc[0],wc[1],wl[0],wl[1]];
+    if (!FAL_REAL_ON) return e;
+    for (j=0;j<4;j++){
+      id=ws[j].id; if (id==='01') continue;
+      e+=ws[j].w*((envAt(FAL_MAP[id],f)-envAt('07',f))-(envAt(id,f)-envAt('01',f)));
+    }
+    return e;
+  }
+  var nf=0; { var ws2=[wc[0],wc[1],wl[0],wl[1]]; for (j=0;j<4;j++){ if (ws2[j].id!=='01') nf+=ws2[j].w*FAL_NOISE[FAL_MAP[ws2[j].id]]; } }
+  var beta0=0;
+  var chest=solveEq(E,'01',f0t), fal=solveEq(Ef,'07',f0t);
+  var tt=clampv((dd-BREAK_LO)/(BREAK_HI-BREAK_LO),0,1), beta=tt*tt*(3-2*tt);   /* 0＝ふつうの声が土台、1＝C5の裏声の録音が土台 */
+  if (FAL_REAL_ON && ax.c>=.4) n=(1-beta)*n+beta*clampv(nf,0,1.2);   /* ささやき側(c<.4)はそのまま */
+  return { rate:rate, st:st, hz:BASE_HZ*rate, chest:chest, fal:fal, beta:beta, v:v, n:n, ax:ax, E:E };
+}
+/* 反対にはたらく筋肉どうし：合計がいつも100%になるように連動する
+   （舌骨・甲状軟骨・輪状軟骨・披裂軟骨の位置関係が、どちらかが動くともう片方も決まるため） */
+var TACT_LINK_ON = false;   /* 甲状披裂筋と輪状甲状筋：false＝別々に動かせる（共収縮のため）／true＝合計100%で連動（1行で戻せる） */
+var LINK_ON = true;         /* false にすると、連動なしで1本ずつ自由に動かせる（1行で戻せる） */
+var PAIRS = [
+  { a:['pca'],  b:['lca','ia'] },      /* 開く ⇔ 閉じる（閉じる2本は一緒に動く） */
+  { a:['ta'],   b:['ct'] },            /* 縮めて厚く ⇔ 伸ばして薄く（TACT_LINK_ON が false のあいだは、連動しない） */
+  { a:['o_up'], b:['o_down'] }         /* 喉頭を上げる ⇔ 下げる */
+];
+if (!TACT_LINK_ON){ PAIRS = PAIRS.filter(function(P){ return P.a[0]!=='ta'; }); }
+/* （あき先生の確認で、根拠が弱いとわかったので、いまはOFF。）輪状甲状筋を引くと、胸骨甲状筋（舌骨下筋群）が喉頭を下に支える、という考え方での連動。
+   どちらを動かしても、もう片方が半分だけついてくる（双方向） */
+var FOLLOW_ON = false;      /* 輪状甲状筋⇔胸骨甲状筋の連動：根拠が弱いので、いまはOFF（true にすると、動いた分の半分だけついてくる） */
+var FOLLOW = .5;            /* 輪状甲状筋の動きに対して、舌骨下筋群がついてくる割合（0〜1） */
+function lname(id){ for (var i=0;i<LAB.length;i++) if (LAB[i].id===id) return LAB[i].name; return id; }
+function coupleFrom(id, snap){
+  var moved=[], i, j, p=state.pull;
+  for (i=0;i<PAIRS.length;i++){
+    var P=PAIRS[i], mine=null, other=null;
+    if (P.a.indexOf(id)>=0){ mine=P.a; other=P.b; } else if (P.b.indexOf(id)>=0){ mine=P.b; other=P.a; } else continue;
+    var v=p[id];
+    for (j=0;j<other.length;j++){ p[other[j]]=Math.round((1-v)*100)/100; moved.push(other[j]); }
+    for (j=0;j<mine.length;j++){ if (mine[j]!==id){ p[mine[j]]=v; moved.push(mine[j]); } }
+  }
+  /* 輪状甲状筋 ⇔ 舌骨下筋群（外喉頭筋）は、どちらを動かしても、もう片方が「動いた分の半分」だけついてくる（双方向・1回だけ適用） */
+  if (FOLLOW_ON && snap){
+    var f;
+    if (id==='ct' || id==='ta'){
+      f=clampv(snap.o_down+FOLLOW*(p.ct-snap.ct),0,1);
+      p.o_down=Math.round(f*100)/100; p.o_up=Math.round((1-f)*100)/100;
+      if (moved.indexOf('o_down')<0) moved.push('o_down');
+      if (moved.indexOf('o_up')<0) moved.push('o_up');
+    } else if (id==='o_down' || id==='o_up'){
+      f=clampv(snap.ct+FOLLOW*(p.o_down-snap.o_down),0,1);
+      p.ct=Math.round(f*100)/100; p.ta=Math.round((1-f)*100)/100;
+      if (moved.indexOf('ct')<0) moved.push('ct');
+      if (moved.indexOf('ta')<0) moved.push('ta');
+    }
+  }
+  return moved;
+}
+function linkAll(){ for (var i=0;i<PAIRS.length;i++) coupleFrom(PAIRS[i].a[0], null); }   /* ONにした直後に、ぜんぶ合計100%へそろえる */
+var LINK_ON_TXT='';
+function linkNote(moved){
+  var e=$('linkmsg'); if (!e) return;
+  if (!LINK_ON){ e.textContent='OFF：1本ずつ自由に動かせます（実際には起こりにくい組み合わせも作れます）。'; return; }
+  if (moved && moved.length){ var nm=moved.map(lname); e.textContent='連動：'+nm.join('・')+'も動きました（合計100％）。'; }
+  else e.textContent=LINK_ON_TXT;
+}
+function lmsg(t){ var e=$('lmsg'); if (e) e.textContent=t||''; }
+
+function applyChain(F, ch, t, tc){
+  var k;
+  for (k=0;k<NHARM;k++){ F[k].frequency.setTargetAtTime(ch.HF[k], t, tc); F[k].gain.setTargetAtTime(ch.HG[k], t, tc); }
+  for (k=0;k<BROAD.length;k++) F[NHARM+k].gain.setTargetAtTime(ch.gb[k], t, tc);
+}
+function applyMorph(G, c, m, instant){
+  var t=c.currentTime, tc=instant?0.005:0.05;
+  G.sv.playbackRate.setTargetAtTime(m.chest.rate, t, tc);
+  G.sf.playbackRate.setTargetAtTime(m.fal.rate, t, tc);
+  applyChain(G.f, m.chest, t, tc); applyChain(G.f2, m.fal, t, tc);
+  G.v.gain.setTargetAtTime(m.v*Math.sqrt(1-m.beta), t, tc);
+  G.v2.gain.setTargetAtTime(m.v*Math.sqrt(m.beta), t, tc);
+  G.n.gain.setTargetAtTime(m.n, t, tc);
+  G.c.gain.setTargetAtTime(Math.pow(10, m.chest.C/20), t, tc);
+  G.c2.gain.setTargetAtTime(Math.pow(10, m.fal.C/20), t, tc);
+}
+function labApply(instant){
+  if (!lab.playing || !lab.g) return;
+  applyMorph(lab.g, lab.ctx, morphTarget(), instant);
+}
+function fetchAudio(name, i){
+  return fetch(AUDIO_BASES[i]+name+'?v='+LAB_V).then(function(r){
+    if (!r.ok) throw new Error('http'); audioIdx=i; return r.arrayBuffer();
+  }).catch(function(err){
+    if (i+1<AUDIO_BASES.length) return fetchAudio(name, i+1);
+    throw err;
+  });
+}
+function lvLoadAll(done, fail){
+  if (lab.bufs){ done(); return; }
+  if (lab.loading) return;
+  lab.loading=true; var bufs={}, n=0, bad=false, ids=['01','03','07c5'];
+  ids.forEach(function(id){
+    fetchAudio('loop'+id+'.wav', audioIdx).then(function(ab){
+      lab.ctx.decodeAudioData(ab, function(buf){
+        bufs[id]=buf; n++; if (n===ids.length && !bad){ lab.bufs=bufs; lab.loading=false; done(); }
+      }, function(){ if (!bad){ bad=true; lab.loading=false; fail(); } });
+    }).catch(function(){ if (!bad){ bad=true; lab.loading=false; fail(); } });
+  });
+}
+function setPlayBtn(on){
+  var b=$('play'); b.setAttribute('aria-pressed', on?'true':'false'); b.textContent = on ? '■ 音を止める' : '▶ 音を鳴らす';
+}
+function loopSrc(c, buf){
+  var s=c.createBufferSource(); s.buffer=buf; s.loop=true; s.loopStart=0; s.loopEnd=buf.duration; return s;
+}
+function buildChain(c, src, gain, comp, F, f0b){
+  var k, f, prev=gain;
+  src.connect(gain);
+  for (k=0;k<NHARM;k++){ f=c.createBiquadFilter(); f.type='peaking'; f.frequency.value=f0b*(k+1); f.Q.value=(k+1)/0.6; f.gain.value=0; prev.connect(f); prev=f; F.push(f); }
+  for (k=0;k<BROAD.length;k++){ f=c.createBiquadFilter(); f.type='peaking'; f.frequency.value=BROAD[k]; f.Q.value=BROAD_Q; f.gain.value=0; prev.connect(f); prev=f; F.push(f); }
+  prev.connect(comp);
+}
+function buildGraph(c, bufs){
+  var G={ f:[], f2:[] };
+  G.sv=loopSrc(c, bufs['01']); G.sf=loopSrc(c, bufs['07c5']); G.sn=loopSrc(c, bufs['03']);
+  G.v=c.createGain(); G.v.gain.value=0; G.v2=c.createGain(); G.v2.gain.value=0; G.n=c.createGain(); G.n.gain.value=0;
+  G.c=c.createGain(); G.c.gain.value=1; G.c2=c.createGain(); G.c2.gain.value=1; G.m=c.createGain(); G.m.gain.value=0;
+  buildChain(c, G.sv, G.v, G.c, G.f, ENV['01'].f0);       /* ふつうの声の土台 */
+  buildChain(c, G.sf, G.v2, G.c2, G.f2, ENV['07'].f0);    /* C5の裏声の録音の土台 */
+  G.sn.connect(G.n); G.n.connect(G.m); G.c.connect(G.m); G.c2.connect(G.m); G.m.connect(c.destination);
+  return G;
+}
+function labStart(){
+  extraStop();
+  if (!lab.ctx){
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if (!AC){ lmsg('このブラウザでは音が出せません。'); return; }
+    lab.ctx=new AC();
+  }
+  if (lab.ctx.state==='suspended') lab.ctx.resume();
+  lab.want=true;
+  if (!lab.bufs){ lmsg('音を読み込み中…'); $('play').textContent='読み込み中…'; }
+  lvLoadAll(function(){
+    lmsg('');
+    if (!lab.want) { setPlayBtn(false); return; }
+    var c=lab.ctx, G=buildGraph(c, lab.bufs);
+    lab.g=G; lab.playing=true;
+    labApply(true);
+    G.sv.start(0); G.sn.start(0); G.sf.start(0);
+    G.m.gain.setTargetAtTime(.85, c.currentTime, .05);
+    setPlayBtn(true); track('lab_play');
+  }, function(){
+    lab.want=false; setPlayBtn(false); lmsg('音声を読み込めませんでした。少し待ってからもう一度タップしてください。');
+  });
+}
+function labStop(){
+  lab.want=false;
+  if (lab.playing && lab.g){
+    var G=lab.g, c=lab.ctx;
+    G.m.gain.setTargetAtTime(0, c.currentTime, .04);
+    setTimeout(function(){ try{ G.sv.stop(); G.sn.stop(); G.sf.stop(); }catch(e){} try{ G.m.disconnect(); }catch(e){} }, 240);
+  }
+  lab.g=null; lab.playing=false;
+  setPlayBtn(false);
+}
+/* ---- お手本の声：録音そのまま（雑味除去済みのループ）を鳴らす ---- */
+var rawS=null, rawG=null, rawId=null, rawBufs={};
+function ensureCtx(){
+  if (!lab.ctx){
+    var AC=window.AudioContext||window.webkitAudioContext;
+    if (!AC){ lmsg('このブラウザでは音が出せません。'); return false; }
+    lab.ctx=new AC();
+  }
+  if (lab.ctx.state==='suspended') lab.ctx.resume();
+  return true;
+}
+function rawLoad(id, ok, ng){
+  if (rawBufs[id]){ ok(rawBufs[id]); return; }
+  fetchAudio('clean'+id+'.wav', audioIdx).then(function(ab){
+    lab.ctx.decodeAudioData(ab, function(buf){ rawBufs[id]=buf; ok(buf); }, function(){ ng(); });
+  }).catch(function(){ ng(); });
+}
+function rawFade(){
+  if (rawS){
+    var s=rawS, g=rawG, c=lab.ctx;
+    try{ g.gain.setTargetAtTime(0, c.currentTime, .03); }catch(e){}
+    setTimeout(function(){ try{ s.stop(); }catch(e){} try{ g.disconnect(); }catch(e){} }, 220);
+  }
+  rawS=null; rawG=null;
+}
+function rawPlay(id){
+  extraStop();
+  if (!ensureCtx()) return;
+  rawFade(); rawId=id;
+  if (lab.playing && lab.g) lab.g.m.gain.setTargetAtTime(0, lab.ctx.currentTime, .04);   /* 変形のほうは消音 */
+  if (!rawBufs[id]){ lmsg('音を読み込み中…'); }
+  rawLoad(id, function(buf){
+    if (rawId!==id) return;
+    var c=lab.ctx, s=loopSrc(c, buf), g=c.createGain();
+    g.gain.value=0; s.connect(g); g.connect(c.destination); s.start(0);
+    g.gain.setTargetAtTime(.85, c.currentTime, .03);
+    rawS=s; rawG=g; setPlayBtn(true);
+    lmsg('録音そのまま（雑味を取り除いたもの）を再生中です。スライダーを動かすと、なめらかな変形に切り替わります。');
+  }, function(){
+    rawId=null; setPlayBtn(false); lmsg('音声を読み込めませんでした。少し待ってからもう一度タップしてください。');
+  });
+}
+function rawToMorph(){
+  rawFade(); rawId=null; lmsg('');
+  if (lab.playing && lab.g){ lab.g.m.gain.setTargetAtTime(.85, lab.ctx.currentTime, .05); }
+  else if (!lab.want){ labStart(); }
+}
+function labUpdate(){
+  if (lab.dirty) return; lab.dirty=true;
+  requestAnimationFrame(function(){ lab.dirty=false; labApply(false); renderRead(); });
+}
+
+/* 本物の録音（そのまま）。聴き比べ用 */
+var xAudio=new Audio(); xAudio.preload='none'; var xCur=null, xTry=0;
+function extraRefresh(){
+  var bs=document.querySelectorAll('#extras button');
+  for (var i=0;i<bs.length;i++){
+    var id=bs[i].getAttribute('data-x'), on=(xCur===id);
+    bs[i].setAttribute('aria-pressed', on?'true':'false'); bs[i].textContent=(on?'■ ':'▶ ')+bs[i].getAttribute('data-n');
+  }
+}
+function extraStop(){ try{ xAudio.pause(); xAudio.currentTime=0; }catch(e){} xCur=null; extraRefresh(); }
+function extraPlay(id){
+  if (xCur===id){ extraStop(); return; }
+  rawFade(); rawId=null;
+  if (lab.playing || lab.want) labStop();
+  lmsg(''); try{ xAudio.pause(); }catch(e){}
+  xAudio.src=AUDIO_BASES[audioIdx]+'voice'+id+'.mp3?v='+LAB_V; xCur=id; xTry=0; extraRefresh(); track('lab_extra',{voice:id});
+  var p=xAudio.play();
+  if (p && p.catch){ p.catch(function(){ xCur=null; extraRefresh(); lmsg('音を再生できませんでした。もう一度タップしてください。'); }); }
+}
+xAudio.addEventListener('ended', function(){ xCur=null; extraRefresh(); });
+xAudio.addEventListener('error', function(){
+  if (xCur && xTry<AUDIO_BASES.length-1){ xTry++; audioIdx=(audioIdx+1)%AUDIO_BASES.length; xAudio.src=AUDIO_BASES[audioIdx]+'voice'+xCur+'.mp3?v='+LAB_V; xAudio.play(); return; }
+  if (xCur){ xCur=null; extraRefresh(); lmsg('音声を読み込めませんでした。少し待ってからもう一度タップしてください。'); } });
+
+var NOTE_N=['ド','ド#','レ','レ#','ミ','ファ','ファ#','ソ','ソ#','ラ','ラ#','シ'];
+function noteName(f){ var m=Math.round(12*Math.log(f/440)/Math.LN2+69); return NOTE_N[((m%12)+12)%12]+(Math.floor(m/12)-1); }
+function axText(mt){
+  var a=mt.ax;
+  var cl = a.c<.25 ? '開いている（ささやき）' : (a.c<.55 ? '弱い（息もれ寄り）' : (a.c<.82 ? 'ふつう' : '強い（押し込み寄り）'));
+  var th = a.d<-.6 ? '厚い（地声寄り）' : (a.d>.2 ? '薄い（裏声寄り）' : 'ふつう');
+  var la = a.l>.4 ? '締まっている（喉頭が上がる）' : (a.l<-.4 ? '開いている（喉頭が下がる）' : 'ふつう');
+  return [['声帯の閉じ具合',cl],['声の厚み',th],['喉の開き具合',la]];
+}
+function mixPct(a){
+  var c=a.c, d=a.d, l=a.l;
+  function pc(x){ return Math.round(clampv(x,0,1)*100); }
+  return [
+    ['息もれ',        c>=.4 ? pc((.7-c)/.3) : pc((c-.1)/.3)],
+    ['ささやき',      pc((.4-c)/.3)],
+    ['押し込み',      pc((c-.7)/.25)],
+    ['地声（厚い）',  pc((D0-d)/(D0+.8))],
+    ['裏声（薄い）',  pc((d-D0)/(.8-D0))],
+    ['喉が上がった（締まる）', pc(l/.8)],
+    ['喉が下がった（開く）',   pc(-l/.8)]
+  ];
+}
+function renderRead(){
+  var mt=morphTarget(), rows=axText(mt), mx=mixPct(mt.ax), i;
+  var h='<div class="top1">声の高さ：'+(mt.v<.15?'なし（息の音だけ）':noteName(mt.hz)+'（約'+Math.round(mt.hz)+'Hz）')+'</div>';
+  if (mt.v>=.15){
+    h+='<div class="far">'+(mt.hz<300 ? 'この高さ（約300Hz未満）では、甲状披裂筋が優位な音も出てきます。' : 'この高さ（約300Hz以上）では、声区に関係なく、輪状甲状筋が優位か、甲状披裂筋とほぼ同程度と報告されています。')+'<br><small>画面表示用の目安（被験者7名・ほぼ女性の報告）</small></div>';
+  }
+  h+='<dl style="display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:13.5px">';
+  for (i=0;i<rows.length;i++) h+='<dt style="font-weight:700; color:var(--text-dim)">'+rows[i][0]+'</dt><dd style="font-weight:900; color:var(--navy)">'+rows[i][1]+'</dd>';
+  h+='</dl><h3 class="sl-h" style="margin:14px 0 6px">声の混ざり具合</h3>';
+  h+='<dl style="display:grid; grid-template-columns:1fr auto; gap:4px 10px; font-size:13.5px">';
+  for (i=0;i<mx.length;i++) h+='<dt style="font-weight:700; color:var(--text-dim)">'+mx[i][0]+'</dt><dd style="font-weight:900; color:var(--navy)">'+mx[i][1]+'%<span class="bar"><i style="width:'+mx[i][1]+'%"></i></span></dd>';
+  h+='</dl>';
+  $('readout').innerHTML=h;
+}
+function renderLab(){
+  var box=$('sliders'); box.innerHTML='<h3 class="sl-h" style="margin-top:16px">筋肉ごとの引っぱり具合</h3>';
+  LAB.forEach(function(L){
+    var d=document.createElement('div'); d.className='sl'; d.id='sl_'+L.id;
+    d.innerHTML='<div class="sl-top"><span class="sl-name">'+L.name+'<small>'+L.tag+'</small></span><span class="sl-val" id="sv_'+L.id+'"></span></div>'
+      +'<div class="sl-row"><span class="sl-end">'+L.lo+'</span>'
+      +'<input type="range" min="0" max="100" step="1" aria-label="'+L.name+'の引っぱり具合" id="si_'+L.id+'">'
+      +'<span class="sl-end">'+L.hi+'</span></div>';
+    box.appendChild(d);
+    var inp=d.querySelector('input'); inp.value=Math.round(state.pull[L.id]*100);
+    function sync(){ $('sv_'+L.id).textContent=Math.round(state.pull[L.id]*100)+'%'; }
+    sync();
+    inp.addEventListener('input', function(){
+      if (rawId) rawToMorph();
+      { var ps=$('presets'); if (ps) ps.value=''; }
+      var snap=JSON.parse(JSON.stringify(state.pull));
+      state.pull[L.id]=inp.value/100;
+      var mv = LINK_ON ? coupleFrom(L.id, snap) : [];
+      if (mv.length) syncSliders(); linkNote(mv);
+      sync(); markCur(L.id);
+      if (state.sel!==L.id) select(L.id,false); else renderFig();
+      labUpdate();
+    });
+    inp.addEventListener('change', function(){ track('lab_slider',{muscle:L.id}); });
+    inp.addEventListener('focus', function(){ markCur(L.id); });
+  });
+  renderRead();
+}
+function markCur(id){ LAB.forEach(function(L){ var e=$('sl_'+L.id); if (e) e.classList.toggle('cur', L.id===id); }); }
+function syncSliders(){ LAB.forEach(function(L){ var i=$('si_'+L.id); if (i){ i.value=Math.round(state.pull[L.id]*100); $('sv_'+L.id).textContent=i.value+'%'; } }); }
+(function initLab(){
+  if (!LAB_ON){ var sec=$('lab'); if (sec) sec.hidden=true; return; }
+  if (!SHOW_RAW){ var xe=document.querySelector('.extra'); if (xe) xe.hidden=true; }
+  var pr=$('presets');
+  var PGROUP=[ { label:'地声・ふつう系', ids:['01','02','03','04','05','06','10','11'] }, { label:'裏声系', ids:['07','16','18','15','17'] } ];
+  var ph=document.createElement('option'); ph.value=''; ph.textContent='お手本の声を選ぶ…'; pr.appendChild(ph);
+  PGROUP.forEach(function(G){
+    var og=document.createElement('optgroup'); og.label=G.label;
+    G.ids.forEach(function(pid){
+      PRESETS.forEach(function(P){ if (P.id!==pid) return; var o=document.createElement('option'); o.value=P.id; o.textContent=P.name; og.appendChild(o); });
+    });
+    pr.appendChild(og);
+  });
+  pr.addEventListener('change', function(){
+    var P=null; PRESETS.forEach(function(Q){ if (Q.id===pr.value) P=Q; });
+    if (!P) return;
+    for (var k in P.v) state.pull[k]=P.v[k];
+    syncSliders(); renderFig(); renderRead(); track('lab_preset',{preset:P.id});
+    if (RAW_PRESET_ON){ if (lab.playing) labApply(false); rawPlay(P.id); }
+    else if (lab.playing) labApply(false); else labStart();
+  });
+  var ex=$('extras'); LV.concat(EXTRAS).forEach(function(E){
+    var b=document.createElement('button'); b.type='button'; b.setAttribute('data-x',E.id); b.setAttribute('data-n',E.name); b.setAttribute('aria-pressed','false'); b.textContent='▶ '+E.name;
+    b.addEventListener('click', function(){ extraPlay(E.id); });
+    ex.appendChild(b);
+  });
+  linkNote(null);
+  $('play').addEventListener('click', function(){
+    if (rawId){ rawFade(); rawId=null; lmsg(''); if (lab.playing || lab.want) labStop(); setPlayBtn(false); return; }
+    if (lab.playing || lab.want) labStop(); else labStart();
+  });
+  function stopAll(){ rawFade(); rawId=null; if (lab.playing || lab.want) labStop(); if (xCur) extraStop(); }
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) stopAll(); });
+  window.addEventListener('pagehide', stopAll);
+})();
 
 /* ===== イベント ===== */
 document.querySelectorAll('.tab').forEach(function(t){
@@ -430,6 +996,7 @@ $('q').addEventListener('input', function(e){ state.q=e.target.value; renderChip
 document.querySelector('.cta a').addEventListener('click', function(){ track('larynx_cta_click'); });
 
 /* リンク先指定（#pca など）で直接開く */
+renderLab();
 (function(){
   var id = location.hash.replace('#','');
   if (id && byId(id)) { select(id,false); } else { render(); }
