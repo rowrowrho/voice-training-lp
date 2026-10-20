@@ -155,7 +155,7 @@
   .range-tools h4{font-size:clamp(19px,3vw,23px); color:#fff; margin-bottom:10px; font-weight:900;}
   .range-tools p{font-size:13px; color:#B9C7D6; margin-bottom:30px; line-height:1.8;}
   .range-tools .btn-row{
-    display:grid; grid-template-columns:1fr 1fr; gap:14px; text-align:left; position:relative; z-index:1;
+    display:grid; grid-template-columns:1fr; grid-auto-rows:1fr; gap:14px; text-align:left; position:relative; z-index:1;   /* カードは全部同じ大きさ（縦1列・高さをそろえる） */
   }
   .range-btn{
     background:#fff; border-radius:16px; padding:18px 16px; display:flex; flex-direction:column; gap:6px;
@@ -165,7 +165,7 @@
   .range-btn .tool-icon{font-size:22px; line-height:1;}
   .range-btn .tool-name{font-size:13.5px; font-weight:900; color:var(--navy);}
   .range-btn .tool-desc{font-size:11px; color:var(--text-dim); line-height:1.6;}
-  .range-btn .tool-go{font-size:11.5px; font-weight:700; color:var(--blue); margin-top:2px;}
+  .range-btn .tool-go{font-size:11.5px; font-weight:700; color:var(--blue); margin-top:auto; padding-top:2px;}
   .tool-price{
     display:inline-flex; align-self:flex-start; font-size:10px; font-weight:800;
     padding:3px 9px; border-radius:100px; letter-spacing:0.02em;
@@ -177,6 +177,55 @@
   @media (max-width:520px){
     .range-tools{padding:36px 18px;}
     .range-btn{padding:16px 12px;}
+  }
+
+  /* ---------- note read card (まず読んでみる) ---------- */
+  .note-read{
+    max-width:760px; margin:20px auto 8px; background:#fff; border:2px solid var(--amber);
+    border-radius:20px; padding:30px 24px; box-shadow:var(--shadow); text-align:center;
+  }
+  .note-read .nr-eyebrow{
+    display:inline-flex; align-items:center; gap:6px; background:var(--amber); color:var(--navy-2);
+    font-size:12px; font-weight:900; padding:6px 14px; border-radius:100px; letter-spacing:0.03em; margin-bottom:12px;
+  }
+  .note-read h4{font-size:clamp(18px,2.8vw,21px); color:var(--navy); margin-bottom:8px; font-weight:900;}
+  .note-read .nr-lead{font-size:13px; color:var(--text-dim); line-height:1.8; margin-bottom:20px;}
+  .nr-list{display:flex; flex-direction:column; gap:10px; text-align:left;}
+  .nr-item{
+    display:flex; flex-direction:column; gap:4px; background:var(--sky); border-radius:14px; padding:14px 16px;
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .nr-item:hover{transform:translateY(-2px); box-shadow:0 8px 20px rgba(23,58,94,0.12);}
+  .nr-item .nr-kind{
+    align-self:flex-start; font-size:10.5px; font-weight:800; color:var(--blue); background:#fff;
+    border:1px solid var(--blue); border-radius:100px; padding:2px 9px;
+  }
+  .nr-item .nr-title{font-size:14px; font-weight:900; color:var(--navy); line-height:1.6;}
+  .nr-item .nr-go{font-size:11.5px; font-weight:700; color:var(--blue);}
+  .nr-all{display:inline-block; margin-top:18px; font-size:13px; font-weight:700; color:var(--blue); border-bottom:1.5px solid var(--blue); padding-bottom:1px;}
+  @media (max-width:520px){
+    .note-read{padding:24px 16px;}
+  }
+
+  /* ---------- voices (受講者の声) ---------- */
+  .voices-lead{font-size:13.5px; color:var(--text-dim); text-align:center; margin:10px auto 28px; max-width:560px; line-height:1.8;}
+  .voice-list{display:flex; flex-direction:column; gap:14px; max-width:760px; margin:0 auto;}
+  .voice-card{
+    background:#fff; border:1px solid var(--line); border-left:5px solid var(--blue);
+    border-radius:16px; padding:20px 22px; box-shadow:var(--shadow);
+  }
+  .voice-tag{
+    display:inline-block; font-size:11px; font-weight:800; color:var(--blue); background:var(--sky);
+    border-radius:100px; padding:2px 11px; margin-bottom:10px;
+  }
+  .voice-text{font-size:15px; font-weight:700; color:var(--navy); line-height:1.9;}
+  .voice-by{margin-top:12px; font-size:12px; color:var(--text-dim); font-weight:700;}
+  .voices-more{text-align:center; margin-top:22px;}
+  .voices-more a{display:inline-block; font-size:13px; font-weight:700; color:var(--blue); border-bottom:1.5px solid var(--blue); padding-bottom:1px;}
+  .voices-fine{text-align:center; font-size:11.5px; color:var(--text-dim); margin-top:14px; line-height:1.7;}
+  @media (max-width:520px){
+    .voice-card{padding:18px 16px;}
+    .voice-text{font-size:14px;}
   }
 
   /* ---------- steps ---------- */
@@ -432,9 +481,9 @@
       <h4>まずは自分の声を測ってみる</h4>
       <p>ブラウザ上ですぐ試せる声診断ツール<br>(テスト版)</p>
       <div class="btn-row">
-        <a class="range-btn wide" href="https://rowrowrho.github.io/voice-training-lp/key-finder/?utm_source=voice_training&utm_medium=tools" target="_blank" rel="noopener" onclick="if(window.gtag)gtag('event','tool_click',{tool_name:'key_finder'})">
+        <a class="range-btn" href="https://rowrowrho.github.io/voice-training-lp/key-finder/?utm_source=voice_training&utm_medium=tools" target="_blank" rel="noopener" onclick="if(window.gtag)gtag('event','tool_click',{tool_name:'key_finder'})">
           <span class="tool-icon">🎼</span>
-          <span class="tool-name">最適キー探し🆕</span>
+          <span class="tool-name">最適キー探し</span>
           <span class="tool-desc">自分の音域と曲の音域を入れると、歌いやすいキー（±何半音）がわかります。鍵盤で地声域・換声点・裏声域も見られます</span>
           <span class="tool-price free">無料</span>
           <span class="tool-go">試してみる →</span>
@@ -448,7 +497,7 @@
         </a>
         <a class="range-btn" href="https://rowrowrho.github.io/voice-training-lp/rhythm_check/" target="_blank" rel="noopener">
           <span class="tool-icon">🥁</span>
-          <span class="tool-name">リズムキープチャレンジ🆕</span>
+          <span class="tool-name">リズムキープチャレンジ</span>
           <span class="tool-desc">タップのズレを「何拍分」かで診断。裏拍にも挑戦！</span>
           <span class="tool-price free">無料</span>
           <span class="tool-go">試してみる →</span>
@@ -467,14 +516,14 @@
           <span class="tool-price free">無料</span>
           <span class="tool-go">試してみる →</span>
         </a>
-        <a class="range-btn wide" href="https://rowrowrho.github.io/voice-training-lp/larynx-atlas/" target="_blank" rel="noopener">
+        <a class="range-btn" href="https://rowrowrho.github.io/voice-training-lp/larynx-atlas/" target="_blank" rel="noopener">
           <span class="tool-icon">📚</span>
-          <span class="tool-name">喉頭筋図鑑🆕</span>
+          <span class="tool-name">喉頭筋図鑑（調整中）</span>
           <span class="tool-desc">声帯を開く・閉じる・伸ばす筋肉はどこ？名前を選ぶと解剖図に色がつきます</span>
           <span class="tool-price free">無料</span>
           <span class="tool-go">見てみる →</span>
         </a>
-        <a class="range-btn wide" href="https://rowrowrho.github.io/voice-training-lp/range-recorder/" target="_blank" rel="noopener">
+        <a class="range-btn" href="https://rowrowrho.github.io/voice-training-lp/range-recorder/" target="_blank" rel="noopener">
           <span class="tool-icon">📋</span>
           <span class="tool-name">ボイスカルテ作成</span>
           <span class="tool-desc">録音してあなた専用の声診断カルテを作成。診断は無料、正式なカルテ発行のみ有料です</span>
@@ -483,6 +532,30 @@
         </a>
       </div>
       <p class="tools-note">登録不要ですぐ試せます（ボイスカルテの発行のみ¥500）</p>
+    </div>
+
+    <div class="note-read" id="note-read">
+      <span class="nr-eyebrow">📖 まず読んでみる</span>
+      <h4>レッスンの前に、考え方だけ先に知りたい方へ</h4>
+      <p class="nr-lead">ρがnoteに書いている記事から、はじめて読むのにおすすめの3本です。</p>
+      <div class="nr-list">
+        <a class="nr-item" href="https://note.com/row_row_rho/n/n6cf1714d2349" target="_blank" rel="noopener" onclick="if(window.gtag)gtag('event','note_click',{link_name:'lp_card_taikendan'})">
+          <span class="nr-kind">体験談（無料）</span>
+          <span class="nr-title">高音を張り上げ続けていた僕が、地声と裏声がつながって喉のしんどさが消えるまで</span>
+          <span class="nr-go">読んでみる →</span>
+        </a>
+        <a class="nr-item" href="https://note.com/row_row_rho/n/na7645b64f831" target="_blank" rel="noopener" onclick="if(window.gtag)gtag('event','note_click',{link_name:'lp_card_seitai'})">
+          <span class="nr-kind">連載｜声のしくみ</span>
+          <span class="nr-title">【ボイトレ教科書①】声帯のつくり — 声はどうやって生まれるのか</span>
+          <span class="nr-go">読んでみる →</span>
+        </a>
+        <a class="nr-item" href="https://note.com/row_row_rho/n/n685f66cac7ad" target="_blank" rel="noopener" onclick="if(window.gtag)gtag('event','note_click',{link_name:'lp_card_mix'})">
+          <span class="nr-kind">連載⑦｜一部有料（¥300）</span>
+          <span class="nr-title">【ボイトレ基礎⑦】ミックスボイスの正体は、2つの筋肉の「配分」だった</span>
+          <span class="nr-go">読んでみる →</span>
+        </a>
+      </div>
+      <a class="nr-all" href="https://note.com/row_row_rho" target="_blank" rel="noopener" onclick="if(window.gtag)gtag('event','note_click',{link_name:'lp_card_all'})">連載「歌い手のための実践ボイトレ」をすべて見る →</a>
     </div>
 
     <div class="method-bar">
@@ -606,6 +679,45 @@
   </div>
 </section>
 
+<!-- ============ VOICES ============ -->
+<section id="voices">
+  <div class="wrap reveal">
+    <h2 class="section-title">受講してくれた方の声</h2>
+    <p class="voices-lead">Xで「#ρトレ」をつけて感想を投稿してくれた方の声を、一部抜粋して載せています。</p>
+    <div class="voice-list">
+      <div class="voice-card">
+        <span class="voice-tag">音域</span>
+        <p class="voice-text">「今まで地で出せたことないよ…って音域も楽に出るようになってびっくり」</p>
+        <p class="voice-by">しゃけさぶ さん（Xの投稿より・2026/07/11）</p>
+      </div>
+      <div class="voice-card">
+        <span class="voice-tag">初めてのボイトレ・オンライン</span>
+        <p class="voice-text">「やっぱり元教師なだけあって説明がとっても分かりやすかったです！！人生初のボイトレでもトレーニング内容がイメージしやすかった！！！」</p>
+        <p class="voice-by">S.B.Y. さん（Xの投稿より・2026/07/12）</p>
+      </div>
+      <div class="voice-card">
+        <span class="voice-tag">初めてのボイトレ</span>
+        <p class="voice-text">「わかりやすかったし、何より楽しかったです！人生初ボイトレだったけど感覚も掴めた気がする」</p>
+        <p class="voice-by">かぎぷりん さん（Xの投稿より・2026/06/25）</p>
+      </div>
+      <div class="voice-card">
+        <span class="voice-tag">説明の分かりやすさ</span>
+        <p class="voice-text">「説明が分かりやすくてできてない事の整理が進みました。」</p>
+        <p class="voice-by">はるか さん（Xの投稿より・2026/08/30）</p>
+      </div>
+      <div class="voice-card">
+        <span class="voice-tag">中音域の発声</span>
+        <p class="voice-text">「喉は疲れたけど、レスポンスが良くなったイメージかな多分。中音域の発声はすごく楽だった」</p>
+        <p class="voice-by">さなぎベンゼン山田丸 さん（Xの投稿より・2026/07/12）</p>
+      </div>
+    </div>
+    <div class="voices-more">
+      <a href="https://x.com/hashtag/%CF%81%E3%83%88%E3%83%AC" target="_blank" rel="noopener" onclick="if(window.gtag)gtag('event','voice_click',{link_name:'hashtag_all'})">Xで「#ρトレ」の投稿をすべて見る →</a>
+    </div>
+    <p class="voices-fine">※感じ方や変化の度合いには個人差があります。</p>
+  </div>
+</section>
+
 <!-- ============ PRICING ============ -->
 <section id="pricing">
   <div class="wrap reveal">
@@ -718,6 +830,10 @@
 </footer>
 
 <script>
+  // 受講者の声セクション：false にすると非表示（戻したい時はここだけ変更）
+  var SHOW_VOICES = false;
+  if(!SHOW_VOICES){ var vs=document.getElementById('voices'); if(vs) vs.parentNode.removeChild(vs); }
+
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
   }, {threshold:0.12});
