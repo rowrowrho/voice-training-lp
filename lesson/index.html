@@ -75,8 +75,8 @@
   /* ---------- videos ---------- */
   .videos{padding:36px 0 56px;}
   .video-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:22px;
-    max-width:900px; margin:0 auto;
+    display:flex; flex-direction:column; gap:26px;
+    max-width:640px; margin:0 auto;
   }
   .video-card{
     background:var(--paper); border:1px solid var(--line); border-radius:16px;
@@ -91,6 +91,12 @@
   }
   .video-body h3{font-size:16px; color:var(--navy); line-height:1.6;}
   .video-body p{margin-top:6px; font-size:13px; color:var(--text-dim); line-height:1.8;}
+  .voice-comment{
+    margin-top:14px; background:var(--sky); border-radius:12px; padding:12px 16px;
+    font-size:13.5px; color:var(--text); line-height:1.9;
+  }
+  .voice-comment div{white-space:pre-line;}
+  .voice-comment .who{display:block; font-size:11.5px; font-weight:900; color:var(--navy); margin-bottom:4px; letter-spacing:0.04em;}
   .empty-note{
     display:none; max-width:560px; margin:0 auto; text-align:center; font-size:14px; color:var(--text-dim);
     background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:28px 20px;
@@ -98,7 +104,7 @@
 
   /* ---------- notes ---------- */
   .note-box{
-    max-width:900px; margin:0 auto 56px; background:var(--paper); border:1px solid var(--line);
+    max-width:640px; margin:0 auto 56px; background:var(--paper); border:1px solid var(--line);
     border-left:5px solid var(--amber); border-radius:12px; padding:18px 22px;
     font-size:13px; color:var(--text-dim); line-height:1.9;
   }
@@ -176,10 +182,11 @@
   // title    : 見出し（空にすると「レッスンの様子 N」になる）
   // note     : 説明文（空なら表示しない）
   // portrait : 縦動画なら true
+  // comment  : 受講者の感想（text が空なら表示しない。who は表示名）
   var VIDEOS = [
-    { src: 'movie/lesson01.mp4', title: '', note: '', portrait: false },
-    { src: 'movie/lesson02.mp4', title: '', note: '', portrait: false },
-    { src: 'movie/lesson03.mp4', title: '', note: '', portrait: false }
+    { src: 'movie/lesson01.mp4', title: '', note: '', portrait: false, comment: { who: '', text: '' } },
+    { src: 'movie/lesson02.mp4', title: '', note: '', portrait: false, comment: { who: 'S.B.Y.さん', text: 'ローさんにオンラインでボイトレしてもらいました！！\nやっぱり元教師なだけあって説明がとっても分かりやすかったです！！\n人生初のボイトレでもトレーニング内容がイメージしやすかった！！！\nミックスボイス目指してみるかぁ' } },
+    { src: 'movie/lesson03.mp4', title: '', note: '', portrait: false, comment: { who: '', text: '' } }
   ];
 
   // 「ご本人の同意を得たもの」の一文：同意が取れている動画だけの時 true／それ以外は false
@@ -220,6 +227,19 @@
       var p = document.createElement('p');
       p.textContent = v.note;
       body.appendChild(p);
+    }
+
+    if(v.comment && v.comment.text){
+      var cm = document.createElement('div');
+      cm.className = 'voice-comment';
+      var who = document.createElement('span');
+      who.className = 'who';
+      who.textContent = '受講者の感想' + (v.comment.who ? '｜' + v.comment.who : '');
+      var tx = document.createElement('div');
+      tx.textContent = v.comment.text;
+      cm.appendChild(who);
+      cm.appendChild(tx);
+      body.appendChild(cm);
     }
 
     card.appendChild(video);
