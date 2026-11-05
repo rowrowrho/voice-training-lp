@@ -351,6 +351,12 @@
   SF.forEach((k) => $('#' + k).addEventListener('input', (e) => { e.target.value = e.target.value.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 65248)).replace(/\D/g, ''); if (e.target.value) $('#slotTbd').checked = false; }));
   $('#date').addEventListener('input', () => { if ($('#date').value) $('#dateTbd').checked = false; });
   update();
+  // 希望日時の「例」を、今日・明日・あさっての日付にする
+  [1, 2, 3].forEach((n) => {
+    const d = new Date(); d.setDate(d.getDate() + n - 1);
+    $('#m' + n).placeholder = String(d.getMonth() + 1);
+    $('#dd' + n).placeholder = String(d.getDate());
+  });
   (() => { const t = new Date(); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); const m = t.toISOString().slice(0, 10); $('#date').min = m; })();
 
   function source() {
