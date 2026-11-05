@@ -194,9 +194,17 @@
       <div class="err">オンラインか対面かを選んでください</div>
     </div>
 
-    <div class="q" id="q-area" hidden>
-      <label for="area">対面の希望エリア<span class="opt">任意</span></label>
-      <input type="text" id="area" name="area" maxlength="80" placeholder="例）名古屋駅の近く">
+    <div class="notice info" id="wayOnline" hidden>
+      <b>オンラインはZoomで行います。</b><br>
+      日時が決まったら、その回専用のZoomリンクをメールでお送りします。<br>
+      <a href="../zoom-guide/" target="_blank" rel="noopener" data-track="con_zoom_guide" style="color:var(--blue); font-weight:700; text-decoration:underline;">Zoomの準備と、歌うための音の設定はこちら</a>
+    </div>
+    <div class="notice info" id="q-area" hidden>
+      <b>対面はEYS音楽教室 栄スタジオで行います。</b><br>
+      〒460-0003 名古屋市中区錦三丁目24-24 錦324ビル5階<br>
+      ※対面は、21時より前に始まる時間でお選びください。<br>
+      ※スタジオの空きを確認してから、予約確定のメールをお送りします。確定のメールが届くまでは、まだ予約は確定していません。<br>
+      <a href="https://goo.gl/maps/xLmcDfDNG351ZUjr7" target="_blank" rel="noopener" data-track="con_studio_map" style="color:var(--blue); font-weight:700; text-decoration:underline;">地図を見る</a>
     </div>
 
     <div class="q" id="q-slot" data-req>
@@ -328,6 +336,7 @@
   function update() {
     const kind = val('kind'), way = val('way');
     $('#q-area').hidden = way !== '対面';
+    $('#wayOnline').hidden = way !== 'オンライン';
     const trial = kind.startsWith('体験');
     let price = '', note = '';
     if (kind && !trial) { price = '5,000円'; note = '60分の料金です。オンライン・対面どちらも同じです。'; }
@@ -431,9 +440,16 @@
     return out;
   }
   // n番目の希望が、受付できない時間と重なるか（レッスンの長さ分で判定）
+  // 対面は21時以降に始まるレッスンを受け付けない（ビルの正面入口が21時にロックされるため）
+  const FACE_LAST_START_HOUR = 21;
+  function lateFace(n) {
+    const r = slot(n);
+    return !!(r && r.ok && val('way') === '対面' && r.start.getHours() >= FACE_LAST_START_HOUR);
+  }
   function conflict(n) {
     const r = slot(n);
     if (!r || !r.ok) return false;
+    if (lateFace(n)) return true;
     const len = (val('kind').startsWith('体験') ? 30 : 60) * 60000;
     const s0 = r.start.getTime(), e0 = s0 + len;
     return BUSY.some((b) => s0 < b.e && e0 > b.s);
@@ -443,7 +459,9 @@
     [1, 2, 3].forEach((n) => {
       const bad = on && conflict(n);
       const box = $('#m' + n).closest('.slot');
-      $('.ng', box).hidden = !bad; box.classList.toggle('busy', bad);
+      const ng = $('.ng', box);
+      ng.textContent = lateFace(n) ? '対面レッスンは21時より前に始まる時間でお願いします。' : 'この日時は受付できません。別の日時を入れてください。';
+      ng.hidden = !bad; box.classList.toggle('busy', bad);
     });
   }
   fetch(BUSY_CSV, { cache: 'no-cache' })
@@ -461,7 +479,7 @@
     return {
       topic: vals('topic').join('、'), song: $('#song').value.trim(), scene: vals('scene').join('、'),
       date: $('#dateTbd').checked ? '未定' : $('#date').value, exp: val('exp'), url: $('#url').value.trim(),
-      goal: $('#goal').value.trim(), kind: val('kind'), way: val('way'), area: val('way') === '対面' ? $('#area').value.trim() : '',
+      goal: $('#goal').value.trim(), kind: val('kind'), way: val('way'), area: '',
       slot: slots(), name: $('#name').value.trim(), contact: $('#contact').value.trim(),
       how: $('#how').value, source: source()
     };
@@ -471,8 +489,7 @@
     const add = (k, v) => { if (v) L.push('【' + k + '】' + v); };
     add('相談したいこと', d.topic); add('困っている曲・詰まるところ', d.song); add('歌う場面', d.scene);
     add('直近の予定', d.date); add('ボイトレの経験', d.exp); add('歌っている音源', d.url);
-    add('一番知りたいこと', d.goal); add('レッスンの種類', d.kind); add('希望の形式', d.way); add('対面の希望エリア', d.area);
-    add('希望の日にちと時間', d.slot); add('呼ばれたい名前', d.name); add('連絡先', d.contact);
+    add('一番知りたいこと', d.goal); add('レッスンの種類', d.kind); add('希望の形式', d.way);    add('希望の日にちと時間', d.slot); add('呼ばれたい名前', d.name); add('連絡先', d.contact);
     add('知った場所', d.how); add('流入元', d.source);
     return L.join('\n');
   }
