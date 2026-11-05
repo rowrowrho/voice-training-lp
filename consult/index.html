@@ -202,7 +202,6 @@
     <div class="notice info" id="q-area" hidden>
       <b>対面はEYS音楽教室 栄スタジオで行います。</b><br>
       〒460-0003 名古屋市中区錦三丁目24-24 錦324ビル5階<br>
-      ※対面は、21時より前に始まる時間でお選びください。<br>
       ※スタジオの空きを確認してから、予約確定のメールをお送りします。確定のメールが届くまでは、まだ予約は確定していません。<br>
       <a href="https://goo.gl/maps/xLmcDfDNG351ZUjr7" target="_blank" rel="noopener" data-track="con_studio_map" style="color:var(--blue); font-weight:700; text-decoration:underline;">地図を見る</a>
     </div>
@@ -459,9 +458,7 @@
     [1, 2, 3].forEach((n) => {
       const bad = on && conflict(n);
       const box = $('#m' + n).closest('.slot');
-      const ng = $('.ng', box);
-      ng.textContent = lateFace(n) ? '対面レッスンは21時より前に始まる時間でお願いします。' : 'この日時は受付できません。別の日時を入れてください。';
-      ng.hidden = !bad; box.classList.toggle('busy', bad);
+      $('.ng', box).hidden = !bad; box.classList.toggle('busy', bad);
     });
   }
   fetch(BUSY_CSV, { cache: 'no-cache' })
