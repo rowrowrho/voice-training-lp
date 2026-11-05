@@ -418,14 +418,9 @@
   }
   // ---- 受付できない日時（スプレッドシート「受付不可」タブ） ----
   // EYSのレッスン：開始の1時間前〜終了の2時間後までは受け付けない（オンライン・対面どちらも）
-  // オンラインレッスン（内容に「オンライン」）：前はあけない。対面の希望だけ、終了から1時間は受け付けない
-  // それ以外の予定：開始の1時間前から受け付けない（終わりの時間が決まっていない予定は、シートで 23:59 まで＝その日いっぱい）
+  // それ以外の予定：前後1時間あける
   const BUSY_CSV = 'https://docs.google.com/spreadsheets/d/1eiZaXxZ5tjReIJGOMoWcFT_HDeXB0zMFhTVOfnIEm38/gviz/tq?tqx=out:csv&gid=3';
-  const BUFFER = {
-    eys: { before: 60, after: 120 },
-    online: { before: 0, after: 0, afterFace: 60 },
-    other: { before: 60, after: 0 },
-  };
+  const BUFFER = { eys: { before: 60, after: 120 }, other: { before: 60, after: 60 } };
   let BUSY = [];
   function parseCsv(text) {
     text = text.replace(/^\uFEFF/, '');
@@ -448,9 +443,8 @@
       const a = String(r[1] || '').trim().match(/^(\d{1,2}):(\d{2})/), b = String(r[2] || '').trim().match(/^(\d{1,2}):(\d{2})/);
       if (!d || !a || !b) return;
       const s0 = new Date(+d[1], +d[2] - 1, +d[3], +a[1], +a[2]), e0 = new Date(+d[1], +d[2] - 1, +d[3], +b[1], +b[2]);
-      const what = String(r[3] || '');
-      const kind = /EYS/i.test(what) ? 'eys' : /オンライン/.test(what) ? 'online' : 'other';
-      out.push({ s0: s0.getTime(), e0: e0.getTime(), kind });
+      const buf = /EYS/i.test(String(r[3] || '')) ? BUFFER.eys : BUFFER.other;
+      out.push({ s: s0.getTime() - buf.before * 60000, e: e0.getTime() + buf.after * 60000 });
     });
     return out;
   }
@@ -461,18 +455,18 @@
     const r = slot(n);
     return !!(r && r.ok && val('way') === '対面' && r.start.getHours() >= FACE_LAST_START_HOUR);
   }
+  // 稼働時間：10:00〜22:00（レッスンがこの中に収まる時間だけ受け付ける）
+  const WORK_START_MIN = 10 * 60, WORK_END_MIN = 22 * 60;
   function conflict(n) {
     const r = slot(n);
     if (!r || !r.ok) return false;
     if (lateFace(n)) return true;
-    const len = (val('kind').startsWith('体験') ? 30 : 60) * 60000;
+    const lenMin = val('kind').startsWith('体験') ? 30 : 60;
+    const startMin = r.start.getHours() * 60 + r.start.getMinutes();
+    if (startMin < WORK_START_MIN || startMin + lenMin > WORK_END_MIN) return true;
+    const len = lenMin * 60000;
     const s0 = r.start.getTime(), e0 = s0 + len;
-    const face = val('way') !== 'オンライン';   // 形式がまだ選ばれていないときは、きびしい方（対面）で判定
-    return BUSY.some((b) => {
-      const buf = BUFFER[b.kind];
-      const after = (b.kind === 'online' && face) ? buf.afterFace : buf.after;
-      return s0 < b.e0 + after * 60000 && e0 > b.s0 - buf.before * 60000;
-    });
+    return BUSY.some((b) => s0 < b.e && e0 > b.s);
   }
   function checkBusy() {
     const on = !$('#slotTbd').checked;
