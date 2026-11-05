@@ -48,7 +48,7 @@
   .req{font-size:11px; font-weight:900; color:#fff; background:var(--navy); border-radius:99px; padding:0 8px; margin-left:6px; vertical-align:middle;}
   .opt{font-size:11px; font-weight:700; color:var(--text-dim); background:var(--sky); border-radius:99px; padding:0 8px; margin-left:6px; vertical-align:middle;}
   .hint{font-size:12.5px; color:var(--text-dim);}
-  input[type="text"],input[type="date"],input[type="time"],select,textarea{width:100%; font-family:inherit; font-size:16px; color:var(--text); background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; min-height:48px;}
+  input[type="text"],input[type="email"],input[type="date"],input[type="time"],select,textarea{width:100%; font-family:inherit; font-size:16px; color:var(--text); background:#fff; border:1.5px solid var(--line); border-radius:12px; padding:11px 12px; min-height:48px;}
   textarea{min-height:96px; resize:vertical;}
   input:focus-visible,select:focus-visible,textarea:focus-visible,.opt-card:has(input:focus-visible),button:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--blue); outline-offset:2px;}
   .slot{display:flex; flex-direction:column; gap:6px; padding:12px; border:1.5px solid var(--line); border-radius:12px; background:#fff;}
@@ -72,7 +72,7 @@
   .notice b{font-weight:900;}
   .err{font-size:13px; font-weight:700; color:var(--bad-ink); display:none;}
   .q.invalid .err{display:block;}
-  .q.invalid input[type="text"],.q.invalid select,.q.invalid textarea{border-color:var(--bad);}
+  .q.invalid input[type="text"],.q.invalid input[type="email"],.q.invalid select,.q.invalid textarea{border-color:var(--bad);}
   .estimate{background:var(--paper); border:2px solid var(--navy); border-radius:16px; padding:14px 16px; display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;}
   .estimate .k{font-size:13px; font-weight:700; color:var(--text-dim);}
   .estimate .v{font-size:30px; font-weight:900; color:var(--navy); font-variant-numeric:tabular-nums;}
@@ -256,9 +256,10 @@
       <div class="err">名前を入力してください</div>
     </div>
     <div class="q" id="q-contact" data-req>
-      <label for="contact">連絡先（XのIDかメールアドレス）<span class="req">必須</span></label>
-      <input type="text" id="contact" name="contact" maxlength="120" placeholder="例）@xxxxx / xxxx@example.com" autocomplete="off">
-      <div class="err">連絡先を入力してください</div>
+      <label for="contact">メールアドレス<span class="req">必須</span></label>
+      <input type="email" id="contact" name="contact" maxlength="120" placeholder="例）xxxx@example.com" autocomplete="email" inputmode="email">
+      <div class="hint">日程やレッスンのご案内は、このメールアドレスにお送りします。届かないときは迷惑メールフォルダも見てください。</div>
+      <div class="err">メールアドレスを正しく入力してください</div>
     </div>
     <div class="q" id="q-how">
       <label for="how">このページを知った場所<span class="opt">任意</span></label>
@@ -310,7 +311,7 @@
   const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxM8iiuUSdfGseBU8NW2V8dX6jmaKylu4olwg60P-jUvMWyiLL1gTdHM8nldlH-PrUmVQ/exec';
   const FORM_ID = 'consult';
   const OLD_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdZrPYhl0lcIF4G7D2PoSKxdQZFhK7JmhZqODflY7RTLiwuoQ/viewform?usp=publish-editor';
-  const REPLY_TEXT = '内容を読んで、こちらから日程のご連絡をします。';
+  const REPLY_TEXT = '内容を読んで、入力いただいたメールアドレスに日程のご連絡をします。';
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -366,6 +367,7 @@
         $('.err', q).textContent = busy ? '受付できない日時が入っています。赤くなっている希望を、別の日時に変えてください。'
           : '第1希望の月・日・時を数字で入れてください。入力した希望は、日にちや時間が正しいかも確かめてください。決められないときは、下のチェックでもOKです。';
       }
+      else if (q.id === 'q-contact') ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($('#contact').value.trim());
       else if (radios.length) ok = radios.some((r) => r.checked);
       else if (boxes.length) ok = boxes.some((b) => b.checked);
       else if (sel) ok = sel.value !== '';
