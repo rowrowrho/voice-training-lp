@@ -398,9 +398,11 @@
     const t = String(H).padStart(2, '0') + ':' + String(MI).padStart(2, '0');
     return { ok: true, start: new Date(y, M - 1, D, H, MI), text: '第' + n + '希望：' + M + '/' + D + '（' + W[dt.getDay()] + '）' + t };
   }
-  // ---- 受付できない日時（スプレッドシート「受付不可」タブ。前後1時間もあけます） ----
+  // ---- 受付できない日時（スプレッドシート「受付不可」タブ） ----
+  // EYSのレッスン：開始の1時間前〜終了の2時間後までは受け付けない（オンライン・対面どちらも）
+  // それ以外の予定：前後1時間あける
   const BUSY_CSV = 'https://docs.google.com/spreadsheets/d/1eiZaXxZ5tjReIJGOMoWcFT_HDeXB0zMFhTVOfnIEm38/gviz/tq?tqx=out:csv&gid=3';
-  const BUFFER_MIN = 60;
+  const BUFFER = { eys: { before: 60, after: 120 }, other: { before: 60, after: 60 } };
   let BUSY = [];
   function parseCsv(text) {
     text = text.replace(/^\uFEFF/, '');
@@ -423,7 +425,8 @@
       const a = String(r[1] || '').trim().match(/^(\d{1,2}):(\d{2})/), b = String(r[2] || '').trim().match(/^(\d{1,2}):(\d{2})/);
       if (!d || !a || !b) return;
       const s0 = new Date(+d[1], +d[2] - 1, +d[3], +a[1], +a[2]), e0 = new Date(+d[1], +d[2] - 1, +d[3], +b[1], +b[2]);
-      out.push({ s: s0.getTime() - BUFFER_MIN * 60000, e: e0.getTime() + BUFFER_MIN * 60000 });
+      const buf = /EYS/i.test(String(r[3] || '')) ? BUFFER.eys : BUFFER.other;
+      out.push({ s: s0.getTime() - buf.before * 60000, e: e0.getTime() + buf.after * 60000 });
     });
     return out;
   }
