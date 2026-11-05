@@ -337,9 +337,14 @@
     $('#wayOnline').hidden = way !== 'オンライン';
     const trial = kind.startsWith('体験');
     let price = '', note = '';
-    if (kind && !trial) { price = '5,000円'; note = '60分の料金です。オンライン・対面どちらも同じです。'; }
+    if (kind && !trial) {
+      price = '5,000円';
+      if (way === 'オンライン') note = '60分の料金です。お支払いは銀行振込で、レッスンの前日までにお願いします（振込手数料はご負担ください）。振込先は、予約確定のメールでお知らせします。';
+      else if (way === '対面') note = '60分の料金です。お支払いは、レッスン当日にスタジオでお願いします。';
+      else note = '60分の料金です。オンライン・対面どちらも同じです。';
+    }
     else if (trial && way === 'オンライン') { price = '0円'; note = 'オンラインの体験（30分）は無料です。'; }
-    else if (trial && way === '対面') { price = '1,500円'; note = '対面の体験（30分）は、スタジオ代などをいただきます。'; }
+    else if (trial && way === '対面') { price = '1,500円'; note = '対面の体験（30分）は、スタジオ代などをいただきます。お支払いは、レッスン当日にスタジオでお願いします。'; }
     $('#est').innerHTML = price || '—';
     $('#estNote').textContent = note || 'レッスンの種類と形式を選ぶと表示されます。';
   }
