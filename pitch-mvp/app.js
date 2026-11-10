@@ -262,15 +262,18 @@
     el.targetSelect.appendChild(opt);
   });
 
-  function applyTargetFromSelect() {
+  function applyTargetFromSelect(silent) {
     var midi = parseInt(el.targetSelect.value, 10);
     tracker.setTarget(midi);
     var info = PitchLib.midiToNoteName(midi);
     el.targetDisplay.textContent = info.name + info.octave;
+    if (silent === true) return; // ページを開いた直後は音を鳴らさない
     playReferenceTone(tracker.targetFrequency);
   }
-  applyTargetFromSelect();
-  el.targetSelect.addEventListener("change", applyTargetFromSelect);
+  applyTargetFromSelect(true);
+  el.targetSelect.addEventListener("change", function () {
+    applyTargetFromSelect();
+  });
 
   // ---- 自動送り(CLEARしたら半音上の次の音へ) ----
   var autoAdvanceTimeoutId = null;
