@@ -98,6 +98,20 @@
   .hero-price + .hero-price{margin-top:10px;}
   .hero-ctas{margin-top:26px;}
   .hero-note{margin-top:10px; font-size:12px; color:var(--text-dim);}
+  .hero-cta-note{margin-top:12px; font-size:13px; color:var(--text); line-height:1.8;}
+
+  /* ---------- 無料相談＆体験でできること ---------- */
+  .free-flow{background:var(--paper); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .ff-lead{text-align:center; font-size:14px; color:var(--text-dim); margin-top:12px;}
+  .ff-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:32px;}
+  .ff-item{background:var(--bg); border:1px solid var(--line); border-radius:16px; padding:22px 20px;}
+  .ff-num{display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; font-weight:900; font-size:15px;}
+  .ff-item h3{font-size:16.5px; color:var(--navy); margin-top:12px; line-height:1.6;}
+  .ff-item p{font-size:14px; color:var(--text); margin-top:8px; line-height:1.85;}
+  .ff-tag{display:inline-block; margin-top:10px; font-size:11.5px; font-weight:700; color:var(--navy-2); background:#FDF1DA; border-radius:100px; padding:3px 10px;}
+  .ff-note{max-width:640px; margin:26px auto 0; text-align:center; font-size:14.5px; font-weight:700; color:var(--navy); background:var(--sky); border-radius:12px; padding:14px 18px;}
+  .ff-cta{text-align:center; margin-top:24px;}
+  @media (max-width:760px){ .ff-grid{grid-template-columns:1fr; gap:12px;} .ff-item{padding:18px 18px;} }
 
   .hero-photo{
     position:relative; border-radius:20px; overflow:hidden; aspect-ratio:4/5;
@@ -412,7 +426,7 @@
       <a class="nav-tools-link" href="#voice-tools">🎤 声を測ってみる</a>
       <a class="btn-cta" href="consult/" data-consult="cta_nav">
         <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
-        相談する
+        無料相談＆体験
       </a>
     </div>
   </div>
@@ -429,17 +443,18 @@
         「なぜ歌えないのか」を見つけて、練習の方向性をはっきりさせるレッスンです。
       </p>
       <div class="hero-price trial">
-        <span class="badge">体験</span><span class="unit">30分</span><span class="amt">0円<span style="font-size:14px;">※</span></span>
+        <span class="badge">オンライン無料相談＆体験</span><span class="unit">30分・</span><span class="amt">0円<span style="font-size:14px;">※</span></span>
       </div>
       <div class="hero-price">
         <span class="unit">60分</span><span class="amt">5,000円</span>
       </div>
-      <p class="hero-note">※オンラインに限ります<br>※対面の場合、スタジオ代など1,500円をいただきます</p>
+      <p class="hero-note">※対面の場合、スタジオ代など1,500円をいただきます</p>
       <div class="hero-ctas">
         <a class="btn-cta" href="consult/" data-consult="cta_hero">
           <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
-          <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
+          <span>無料相談＆体験を申し込む<span class="sub">相談だけでもOK！</span></span>
         </a>
+        <p class="hero-cta-note">相談だけでも、実際に声を出す体験でもOK。<br>あなたの希望に合わせて30分をご案内します。</p>
       </div>
     </div>
 
@@ -470,7 +485,7 @@
     <div class="lv-actions">
       <a class="btn-cta" href="consult/" data-consult="cta_video">
         <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
-        <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
+        <span>無料相談＆体験を申し込む<span class="sub">相談だけでもOK！</span></span>
       </a>
       <a class="lv-more" href="lesson/" onclick="if(window.gtag)gtag('event','lesson_click',{link_name:'lp_video_more'})">ほかのレッスン動画も見る →</a>
     </div>
@@ -773,21 +788,54 @@
 </section>
 
 <!-- ============ PRICING ============ -->
+<!-- ============ 無料相談＆体験でできること ============ -->
+<section class="free-flow" id="free-flow">
+  <div class="wrap reveal">
+    <h2 class="section-title">無料相談＆体験でできること</h2>
+    <p class="ff-lead">オンライン30分・0円。相談だけでも、体験だけでも、両方でもOKです。</p>
+    <div class="ff-grid">
+      <div class="ff-item">
+        <span class="ff-num">1</span>
+        <h3>悩みを話す</h3>
+        <p>歌の悩みや目標、普段困っていることを一緒に整理します。</p>
+      </div>
+      <div class="ff-item">
+        <span class="ff-num">2</span>
+        <h3>希望があれば声を出してみる</h3>
+        <p>実際の発声を確認し、今の声の傾向に合わせた簡単なトレーニングを体験できます。</p>
+        <span class="ff-tag">希望する方だけ</span>
+      </div>
+      <div class="ff-item">
+        <span class="ff-num">3</span>
+        <h3>次の一歩を知る</h3>
+        <p>今後どんな練習に取り組むとよいか、方向性を一緒に考えます。</p>
+      </div>
+    </div>
+    <p class="ff-note">無理に歌う必要はありません。相談だけのご利用も歓迎です。</p>
+    <div class="ff-cta">
+      <a class="btn-cta" href="consult/" data-consult="cta_free_flow">
+        <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
+        <span>無料相談＆体験を申し込む<span class="sub">相談だけでもOK！</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section id="pricing">
   <div class="wrap reveal">
     <h2 class="section-title">料金</h2>
 
     <div class="price-card">
-      <div class="price-head">はじめての方へ｜体験レッスン</div>
+      <div class="price-head">はじめての方へ｜無料相談＆体験</div>
       <div class="price-body">
         <span class="eyebrow-pill">まずはここから</span>
-        <div style="margin-top:14px;"><span class="unit">30分</span> <span class="amt">0円<span style="font-size:16px;">※</span></span></div>
+        <div style="margin-top:14px;"><span class="unit">オンライン 30分</span> <span class="amt">0円<span style="font-size:16px;">※</span></span></div>
         <div class="list">
-          <div>・あなたの声のクセを診断</div>
-          <div>・高音が出ない原因をその場でチェック</div>
-          <div>・変化を実感できるミニレッスン</div>
+          <div>・相談のみもOK（歌わなくても大丈夫）</div>
+          <div>・発声チェックやミニレッスンも体験可能</div>
+          <div>・これからの練習の方向性を一緒に整理</div>
         </div>
-        <p class="fine">※オンラインに限ります<br>※対面の場合、スタジオ代など1,500円をいただきます</p>
+        <p class="fine">※対面の場合、スタジオ代など1,500円をいただきます</p>
       </div>
     </div>
 
@@ -804,7 +852,7 @@
       </div>
     </div>
 
-    <p class="price-note">体験レッスンでご希望があれば、そのまま通常レッスンにお申し込みいただけます。通常レッスンはオンライン・対面どちらも同料金です。</p>
+    <p class="price-note">無料相談＆体験のあと、ご希望があればそのまま通常レッスンにお申し込みいただけます。通常レッスンはオンライン・対面どちらも同料金です。</p>
   </div>
 </section>
 
@@ -813,7 +861,8 @@
   <div class="wrap reveal">
     <h2 class="section-title">よくある質問</h2>
     <div class="faq-list">
-      <details class="faq-item" open><summary>初心者でも大丈夫？</summary><p>もちろん大丈夫です。基礎から丁寧にサポートしますのでご安心ください。</p></details>
+      <details class="faq-item" open><summary>歌わずに、相談だけでもいいですか？</summary><p>はい、大丈夫です。無料相談＆体験（30分）は、相談だけ・体験だけ・両方のどれでもOKです。声を出してみたい方には、簡単な発声チェックとトレーニングを体験していただけます。</p></details>
+      <details class="faq-item"><summary>初心者でも大丈夫？</summary><p>もちろん大丈夫です。基礎から丁寧にサポートしますのでご安心ください。</p></details>
       <details class="faq-item"><summary>人前で歌うのが苦手です。</summary><p>緊張していても問題ありません。リラックスして受けられる雰囲気を大切にしています。</p></details>
       <details class="faq-item"><summary>何を持っていけばいいですか？</summary><p>普段歌っている曲があればOKです。歌詞や音源があればスムーズです。</p></details>
       <details class="faq-item"><summary>オンラインでもできますか？</summary><p>はい、可能です。ビデオ通話でのレッスンにも対応しています。</p></details>
@@ -832,7 +881,7 @@
       </p>
       <a class="btn-cta" href="consult/" data-consult="cta_closing" id="contact">
         <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
-        <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
+        <span>無料相談＆体験を申し込む<span class="sub">相談だけでもOK！</span></span>
       </a>
     </div>
   </div>
@@ -873,7 +922,7 @@
     <p>あなたの「歌いたい」をサポートします。まずはお気軽にご相談ください！</p>
     <a class="btn-cta" href="consult/" data-consult="cta_final">
       <svg class="plane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7Z"/></svg>
-      <span>無料相談を申し込む<span class="sub">相談だけでもOK！</span></span>
+      <span>無料相談＆体験を申し込む<span class="sub">相談だけでもOK！</span></span>
     </a>
   </div>
 </section>
@@ -908,7 +957,7 @@
     });
   })();
 
-  // 無料相談フォーム(consult/)へ。流入元のutmがあれば引き継ぎ、なければLPからの導線として記録する
+  // 申込フォーム(consult/)へ。流入元のutmがあれば引き継ぎ、なければLPからの導線として記録する
   const consultQs = /[?&]utm_/.test(location.search) ? location.search : '?utm_source=voice_training&utm_medium=cta';
   document.querySelectorAll('a[data-consult]').forEach(a=>{
     a.href = 'consult/' + consultQs;
