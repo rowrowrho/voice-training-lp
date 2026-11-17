@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ボイトレ無料相談｜RHOボイトレ</title>
-<meta name="description" content="ボイトレ無料相談のお申し込みフォームです。2分ほどで入力できます。">
+<title>無料相談＆体験のお申し込み｜RHOボイトレ</title>
+<meta name="description" content="RHOボイトレの無料相談＆体験（30分・オンライン0円）と通常レッスンのお申し込みフォームです。2分ほどで入力できます。">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -102,8 +102,8 @@
 </div></header>
 
 <div class="hero"><div class="wrap">
-  <h1>ボイトレ無料相談</h1>
-  <p>歌の悩みを聞いて、体験レッスン（30分）の内容を決めます。相談だけでもOKです。</p>
+  <h1>無料相談＆体験のお申し込み</h1>
+  <p>30分・オンライン0円。相談だけでも、実際に声を出す体験でもOKです。あなたの希望に合わせて30分をご案内します。<br>通常レッスン（60分）も、このフォームから申し込めます。</p>
   <span class="time">入力は2分ほど</span>
 </div></div>
 
@@ -179,10 +179,21 @@
     <div class="q" id="q-kind" data-req>
       <div class="lb" id="lb-kind">レッスンの種類<span class="req">必須</span></div>
       <div class="opts" role="radiogroup" aria-labelledby="lb-kind">
-        <label class="opt-card"><input type="radio" name="kind" value="体験レッスン（30分）"><span>体験レッスン（30分）<small>オンライン 0円／対面 スタジオ代など1,500円</small></span></label>
+        <label class="opt-card"><input type="radio" name="kind" value="無料相談＆体験（30分）"><span>無料相談＆体験（30分）<small>オンライン 0円／対面 スタジオ代など1,500円<br>相談だけ・体験だけ・両方、どれでもOK</small></span></label>
         <label class="opt-card"><input type="radio" name="kind" value="通常レッスン（60分）"><span>通常レッスン（60分）<small>5,000円（オンライン・対面どちらも同じ料金）</small></span></label>
       </div>
       <div class="err">レッスンの種類を選んでください</div>
+    </div>
+
+    <div class="q" id="q-hope" hidden>
+      <div class="lb" id="lb-hope">30分の中で、どうしたいですか<span class="opt">任意</span></div>
+      <div class="opts" role="radiogroup" aria-labelledby="lb-hope">
+        <label class="opt-card"><input type="radio" name="hope" value="相談を中心にしたい"><span>相談を中心にしたい</span></label>
+        <label class="opt-card"><input type="radio" name="hope" value="実際の発声・歌唱を体験したい"><span>実際の発声・歌唱を体験したい</span></label>
+        <label class="opt-card"><input type="radio" name="hope" value="両方希望"><span>両方希望</span></label>
+        <label class="opt-card"><input type="radio" name="hope" value="まだ決めていない"><span>まだ決めていない</span></label>
+      </div>
+      <div class="hint">選ばなくても大丈夫です。無理に歌う必要はありません。</div>
     </div>
 
     <div class="q" id="q-way" data-req>
@@ -324,6 +335,8 @@
   const track = (name, p) => { try { if (typeof gtag === 'function') gtag('event', name, p || {}); } catch (e) {} };
   const val = (name) => { const x = $(`[name="${name}"]:checked`); return x ? x.value : ''; };
   const vals = (name) => $$(`[name="${name}"]:checked`).map((x) => x.value);
+  // 30分の無料枠かどうか（「無料相談＆体験（30分）」。以前の「体験レッスン（30分）」も同じ扱い）
+  const isTrial = (kind) => String(kind || '').indexOf('体験') >= 0;
 
   $$('a[data-track]').forEach((a) => a.addEventListener('click', () => track(a.dataset.track)));
 
@@ -335,7 +348,9 @@
     const kind = val('kind'), way = val('way');
     $('#q-area').hidden = way !== '対面';
     $('#wayOnline').hidden = way !== 'オンライン';
-    const trial = kind.startsWith('体験');
+    const trial = isTrial(kind);
+    $('#q-hope').hidden = !trial;
+    if (!trial) $$('[name="hope"]').forEach((x) => { x.checked = false; });
     let price = '', note = '';
     if (kind && !trial) {
       price = '5,000円';
@@ -343,8 +358,8 @@
       else if (way === '対面') note = '60分の料金です。お支払いは、レッスン当日にスタジオでお願いします。';
       else note = '60分の料金です。オンライン・対面どちらも同じです。';
     }
-    else if (trial && way === 'オンライン') { price = '0円'; note = 'オンラインの体験（30分）は無料です。'; }
-    else if (trial && way === '対面') { price = '1,500円'; note = '対面の体験（30分）は、スタジオ代などをいただきます。お支払いは、レッスン当日にスタジオでお願いします。'; }
+    else if (trial && way === 'オンライン') { price = '0円'; note = 'オンラインの無料相談＆体験（30分）は無料です。'; }
+    else if (trial && way === '対面') { price = '1,500円'; note = '対面の場合は、スタジオ代などをいただきます（30分）。お支払いは、レッスン当日にスタジオでお願いします。'; }
     $('#est').innerHTML = price || '—';
     $('#estNote').textContent = note || 'レッスンの種類と形式を選ぶと表示されます。';
   }
@@ -461,7 +476,7 @@
     const r = slot(n);
     if (!r || !r.ok) return false;
     if (lateFace(n)) return true;
-    const lenMin = val('kind').startsWith('体験') ? 30 : 60;
+    const lenMin = isTrial(val('kind')) ? 30 : 60;
     const startMin = r.start.getHours() * 60 + r.start.getMinutes();
     if (startMin < WORK_START_MIN || startMin + lenMin > WORK_END_MIN) return true;
     const len = lenMin * 60000;
@@ -491,7 +506,7 @@
     return {
       topic: vals('topic').join('、'), song: $('#song').value.trim(), scene: vals('scene').join('、'),
       date: $('#dateTbd').checked ? '未定' : $('#date').value, exp: val('exp'), url: $('#url').value.trim(),
-      goal: $('#goal').value.trim(), kind: val('kind'), way: val('way'), area: '',
+      goal: $('#goal').value.trim(), kind: val('kind'), hope: isTrial(val('kind')) ? val('hope') : '', way: val('way'), area: '',
       slot: slots(), name: $('#name').value.trim(), contact: $('#contact').value.trim(),
       how: $('#how').value, source: source()
     };
@@ -501,7 +516,7 @@
     const add = (k, v) => { if (v) L.push('【' + k + '】' + v); };
     add('相談したいこと', d.topic); add('困っている曲・詰まるところ', d.song); add('歌う場面', d.scene);
     add('直近の予定', d.date); add('ボイトレの経験', d.exp); add('歌っている音源', d.url);
-    add('一番知りたいこと', d.goal); add('レッスンの種類', d.kind); add('希望の形式', d.way);    add('希望の日にちと時間', d.slot); add('呼ばれたい名前', d.name); add('連絡先', d.contact);
+    add('一番知りたいこと', d.goal); add('レッスンの種類', d.kind); add('30分の希望', d.hope); add('希望の形式', d.way);    add('希望の日にちと時間', d.slot); add('呼ばれたい名前', d.name); add('連絡先', d.contact);
     add('知った場所', d.how); add('流入元', d.source);
     return L.join('\n');
   }
