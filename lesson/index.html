@@ -181,9 +181,11 @@
   // src      : 動画ファイル（lesson/movie/ の中のファイル名）
   // title    : 見出し（空にすると「レッスンの様子 N」になる）
   // note     : 説明文（空なら表示しない）
+  // poster   : サムネ画像（任意。空なら動画の0.1秒目を表示）
   // portrait : 縦動画なら true
   // comment  : 受講者の感想（text が空なら表示しない。who は表示名）
   var VIDEOS = [
+    { src: 'movie/lesson-before-after.mp4', poster: 'movie/lesson-before-after.jpg', title: '「あくびの喉」Before / After', note: '南レイさんのレッスンで、同じフレーズを練習の前と後で聞き比べています。', portrait: false, comment: { who: '', text: '' } },
     { src: 'movie/lesson01.mp4', title: '', note: '', portrait: false, comment: { who: '', text: '' } },
     { src: 'movie/lesson02.mp4', title: '', note: '', portrait: false, comment: { who: 'S.B.Y.さん', text: 'ローさんにオンラインでボイトレしてもらいました！！\nやっぱり元教師なだけあって説明がとっても分かりやすかったです！！\n人生初のボイトレでもトレーニング内容がイメージしやすかった！！！\nミックスボイス目指してみるかぁ' } },
     { src: 'movie/lesson03.mp4', title: '', note: '', portrait: false, comment: { who: '', text: '' } }
@@ -212,7 +214,8 @@
     video.setAttribute('controls', '');
     video.setAttribute('playsinline', '');
     video.setAttribute('preload', 'metadata');
-    video.src = v.src + '#t=0.1';
+    if(v.poster){ video.setAttribute('poster', v.poster); video.src = v.src; }
+    else { video.src = v.src + '#t=0.1'; }
 
     var body = document.createElement('div');
     body.className = 'video-body';
@@ -261,6 +264,15 @@
       if(window.gtag) gtag('event', 'lesson_video_play', { video_no: i + 1 });
     });
   });
+
+  // 相談ボタン：クリックをGA4に記録し、流入元のutmを相談フォームへ引き継ぐ（LPトップと同じ仕組み）
+  (function(){
+    var qs = /[?&]utm_/.test(location.search) ? location.search : '?utm_source=voice_training&utm_medium=lesson_page';
+    document.querySelectorAll('a[data-consult]').forEach(function(a){
+      a.href = '../consult/' + qs;
+      a.addEventListener('click', function(){ if(window.gtag) gtag('event','consult_cta_click',{position:a.dataset.consult}); });
+    });
+  })();
 </script>
 </body>
 </html>
