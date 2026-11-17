@@ -179,13 +179,13 @@
 <script>
   // ===== 動画リスト（ここだけ編集すればOK） =====
   // src      : 動画ファイル（lesson/movie/ の中のファイル名）
-  // title    : 見出し（空にすると「レッスンの様子 N」になる）
+  // title    : 見出し（空にすると「レッスンの様子」になる）
   // note     : 説明文（空なら表示しない）
   // poster   : サムネ画像（任意。空なら動画の0.1秒目を表示）
   // portrait : 縦動画なら true
   // comment  : 受講者の感想（text が空なら表示しない。who は表示名）
   var VIDEOS = [
-    { src: 'movie/lesson-before-after.mp4', poster: 'movie/lesson-before-after.jpg', title: '「あくびの喉」Before / After', note: '南レイさんのレッスンで、同じフレーズを練習の前と後で聞き比べています。', portrait: false, comment: { who: '', text: '' } },
+    { src: 'movie/lesson-before-after.mp4', poster: 'movie/lesson-before-after.jpg', title: '「あくびの喉」Before / After', note: '南レイさんのレッスンで、同じフレーズを練習の前と後で聞き比べています。', portrait: false, comment: { who: '南レイさん', text: 'ρさんにオンラインボイトレをしていただきました‼️‼️ありがとうございました😭\n\n発声方法を教えてもらうなどして、ちょっと余裕を持って歌えるようになった‼️\n\n歌い方の感覚を忘れずに引き続き精進いたしますわ〜〜！' } },
     { src: 'movie/lesson01.mp4', title: '', note: '', portrait: false, comment: { who: '', text: '' } },
     { src: 'movie/lesson02.mp4', title: '', note: '', portrait: false, comment: { who: 'S.B.Y.さん', text: 'ローさんにオンラインでボイトレしてもらいました！！\nやっぱり元教師なだけあって説明がとっても分かりやすかったです！！\n人生初のボイトレでもトレーニング内容がイメージしやすかった！！！\nミックスボイス目指してみるかぁ' } },
     { src: 'movie/lesson03.mp4', title: '', note: '', portrait: false, comment: { who: '', text: '' } }
@@ -219,12 +219,8 @@
 
     var body = document.createElement('div');
     body.className = 'video-body';
-    var no = document.createElement('span');
-    no.className = 'video-no';
-    no.textContent = 'VIDEO ' + (i + 1);
     var h = document.createElement('h3');
-    h.textContent = v.title ? v.title : 'レッスンの様子 ' + (i + 1);
-    body.appendChild(no);
+    h.textContent = v.title ? v.title : 'レッスンの様子';
     body.appendChild(h);
     if(v.note){
       var p = document.createElement('p');
