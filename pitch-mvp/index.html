@@ -223,6 +223,7 @@
     text-align:center; text-decoration:none; box-shadow:0 10px 24px rgba(245,184,78,0.35);
   }
   .consult-cta-btn:active{opacity:.85;}
+  .consult-cta-sub{display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--blue, #2E76B6); text-decoration:underline; text-underline-offset:3px;}
 </style>
 </head>
 <body>
@@ -393,6 +394,7 @@
             ボイストレーナーのρ(ロー)が一緒に整理します。
           </p>
           <a class="consult-cta-btn" id="consultCtaBtn" href="https://rowrowrho.github.io/voice-training-lp/consult/?utm_source=pitch_mvp&amp;utm_medium=result_cta">💬 無料相談に進む</a>
+          <a class="consult-cta-sub" id="lessonVideoLink" href="https://rowrowrho.github.io/voice-training-lp/?utm_source=pitch_mvp&amp;utm_medium=result_video#lesson-video">▶ 先にレッスンの様子を30秒の動画で見る</a>
         </div>
 
         <button id="shareBtn" style="margin-top:12px; padding:10px 20px; border-radius:10px; border:none; background:var(--navy); color:#fff; font-weight:800; cursor:pointer; width:100%;">SNSでシェア</button>
@@ -407,7 +409,7 @@
   </div>
 
   <footer>
-    <a href="https://rowrowrho.github.io/voice-training-lp/" style="color:var(--text-dim); text-decoration:underline; text-underline-offset:3px;">← RHOボイトレ トップに戻る</a>
+    <a href="https://rowrowrho.github.io/voice-training-lp/?utm_source=pitch_mvp&amp;utm_medium=footer" style="color:var(--text-dim); text-decoration:underline; text-underline-offset:3px;">← RHOボイトレ トップに戻る</a>
     <br><br>
     © RHOボイトレ / Reveal Hidden Opportunities
   </footer>
@@ -420,6 +422,10 @@
     if (!b) return;
     b.addEventListener('click', function(){
       try { if (window.gtag) gtag('event', 'consult_cta_click', { position: 'pitch_mvp_result' }); } catch (e) {}
+    });
+    var lv = document.getElementById('lessonVideoLink');
+    if (lv) lv.addEventListener('click', function(){
+      try { if (window.gtag) gtag('event', 'lesson_click', { link_name: 'pitch_mvp_result' }); } catch (e) {}
     });
   })();
 </script>
