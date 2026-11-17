@@ -506,7 +506,7 @@
     return L.join('\n');
   }
 
-  function showDone(fallbackText) {
+  function showDone(fallbackText, unconfirmed) {
     $('#f').hidden = true;
     const done = $('#done'); done.hidden = false;
     if (fallbackText) {
@@ -515,7 +515,9 @@
       $('#copybox').value = fallbackText; $('#openForm').href = OLD_FORM_URL; $('#fallback').hidden = false;
     } else {
       $('#doneH').textContent = '送信しました';
-      $('#doneP').textContent = REPLY_TEXT;
+      $('#doneP').textContent = unconfirmed
+        ? '送信しました。数分以内に「お申し込みを受け付けました」というメールが届けば、受付は完了しています。届かないときは、X（@row_row_rho）のメッセージで連絡してください。'
+        : REPLY_TEXT;
     }
     done.focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -541,15 +543,33 @@
     const fd = new URLSearchParams();
     Object.keys(d).forEach((k) => fd.append(k, d[k] || ''));
     fd.append('summary', summary(d)); fd.append('form', FORM_ID);
-    try {
-      await fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', body: fd });
-      showDone('');
-    } catch (e) {
+    // GASは保存できたら「ok」、受け付けられなかったら「ng」を返す。
+    // 返事が読めたときだけ「保存成功(consult_complete)」として記録する。
+    // 返事が読めない（ブラウザの制限など）ときは、送信自体は届いている可能性があるので
+    // 「未確認(consult_unconfirmed)」として記録し、二重送信を防ぐため再送はさせない。
+    const showSendErr = (reason) => {
       btn.disabled = false; btn.textContent = 'この内容で申し込む';
       const err = $('#sendErr');
       err.hidden = false;
       err.textContent = '送信できませんでした。通信を確かめて、もう一度押してください。うまくいかないときは、X（@row_row_rho）のメッセージで連絡してください。';
-      track('consult_error');
+      track('consult_error', { reason: reason });
+    };
+    let res;
+    try {
+      res = await fetch(ENDPOINT, { method: 'POST', body: fd });
+    } catch (e) {
+      if (navigator.onLine === false) { showSendErr('offline'); return; }
+      track('consult_unconfirmed', { kind: d.kind, way: d.way });
+      showDone('', true);
+      return;
+    }
+    let text = '';
+    try { text = (await res.text()).trim(); } catch (e) {}
+    if (res.ok && text === 'ok') {
+      track('consult_complete', { kind: d.kind, way: d.way });
+      showDone('');
+    } else {
+      showSendErr(text === 'ng' ? 'rejected' : 'server_' + res.status);
     }
   });
 })();
